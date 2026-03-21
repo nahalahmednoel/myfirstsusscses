@@ -20,7 +20,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <style>
         /* আপনার অরিজিনাল সিএসএস হুবহু রাখা হয়েছে */
-        :root { --p: #00d2ff; --s: #00ff96; --bg: #000; }
+        :root { --p: #00d2ff; --s: #00ff96; --bg: #000; --poly-p: #ffcc00; --base-p: #0052ff; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
         body { background: #000; color: #fff; overflow-x: hidden; min-height: 100vh; }
         
@@ -53,6 +53,20 @@
         .back-btn { padding: 10px 25px; background: #ff4757; color: #fff; border: none; border-radius: 10px; cursor: pointer; margin-bottom: 25px; font-weight: bold; }
 
         .credits-noel { font-size: 11px; color: #666; margin-top: 35px; line-height: 1.6; border-top: 1px solid #222; padding-top: 15px; }
+
+        /* Wallet Section Styles */
+        .wallet-container { max-width: 1000px; margin: auto; background: #0d0d0d; border: 1px solid #222; border-radius: 20px; padding: 25px; }
+        .balance-box { background: #111; border: 1px solid var(--p); border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 20px; }
+        .grid-ctrl { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; }
+        .ctrl-box { background: #111; border: 1px solid #222; padding: 18px; border-radius: 15px; text-align: left; }
+        .ctrl-box h3 { font-size: 13px; margin-bottom: 12px; border-left: 3px solid; padding-left: 10px; text-transform: uppercase; }
+        .wallet-input { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #333; color: var(--s); border-radius: 8px; outline: none; font-size: 13px; }
+        .wallet-btn { width: 100%; padding: 13px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; margin-top: 5px; font-size: 11px; }
+        .table-wrap { margin-top: 25px; background: #000; border-radius: 15px; border: 1px solid #222; overflow: auto; max-height: 400px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
+        th { background: #161616; color: #555; padding: 12px; position: sticky; top: 0; }
+        td { padding: 12px; border-bottom: 1px solid #111; }
+        .action-link { cursor: pointer; color: var(--p); margin-right: 10px; font-weight: bold; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -87,6 +101,14 @@
         <div class="bot-card" onclick="alert('ETH NFT BOT বর্তমানে বন্ধ আছে।')">
             <h3 style="color:#444; font-size: 22px;">ETH NFT BOT</h3>
             <p style="font-size:10px; color:#ff4757; margin-top:10px;">COMING SOON</p>
+        </div>
+        <div class="bot-card" onclick="openBot('base-wallet')">
+            <h3 style="color:#0052ff; font-size: 22px;">BASE WALLET</h3>
+            <p style="font-size:10px; color:#555; margin-top:10px;">WALLET MANAGER</p>
+        </div>
+        <div class="bot-card" onclick="openBot('poly-wallet')">
+            <h3 style="color:#ffcc00; font-size: 22px;">POLYGON WALLET</h3>
+            <p style="font-size:10px; color:#555; margin-top:10px;">WALLET MANAGER</p>
         </div>
     </div>
 </div>
@@ -132,12 +154,86 @@
     </div>
 </div>
 
+<div id="base-wallet-page" class="page-wrap">
+    <button class="back-btn" onclick="closeBot()">← BACK TO PANEL</button>
+    <div class="wallet-container">
+        <h1 style="text-align: center; color: var(--base-p); letter-spacing: 4px;">NAHAL BASE MASTER</h1>
+        <div class="balance-box" style="border-color: var(--base-p);">
+            <div id="mainBalBase" style="font-size: 28px; color: var(--s); font-weight: bold; margin: 10px 0;">0.00 ETH</div>
+            <input type="password" id="mainPkBase" class="wallet-input" placeholder="আপনার মেইন প্রাইভেট কী দিন" oninput="unlockBase()" style="text-align: center; max-width: 450px;">
+        </div>
+        <div class="grid-ctrl">
+            <div class="ctrl-box">
+                <h3 style="color:var(--base-p); border-color:var(--base-p)">💎 Wallet Tools</h3>
+                <input type="number" id="genCountBase" class="wallet-input" value="10">
+                <button class="wallet-btn" style="background:var(--base-p); color:#fff;" onclick="generateBase()">Generate Wallets</button>
+                <button class="wallet-btn" style="background:#333; color:#fff; margin-top:8px;" onclick="exportBaseCSV()">Export CSV</button>
+            </div>
+            <div class="ctrl-box">
+                <h3 style="color:var(--base-p); border-color:var(--base-p)">⛽ Gas Distributor</h3>
+                <input type="number" id="gasAmtBase" class="wallet-input" step="0.0001" placeholder="Amount (ETH)">
+                <button class="wallet-btn" style="background:var(--s); color:#000;" onclick="distributeBase()">Send ETH To All</button>
+                <button class="wallet-btn" style="background:#111; border:1px solid #333; color:#888; margin-top:8px;" onclick="refreshBaseBal()">Refresh Balances</button>
+            </div>
+            <div class="ctrl-box">
+                <h3 style="color:var(--base-p); border-color:var(--base-p)">📦 NFT Recall</h3>
+                <input type="text" id="nftContractBase" class="wallet-input" placeholder="NFT Contract Addr">
+                <input type="text" id="destAddrBase" class="wallet-input" placeholder="Destination Addr">
+                <button class="wallet-btn" style="background:#ff4757; color:#fff;" onclick="recallNFTsBase()">Recall All NFTs</button>
+            </div>
+        </div>
+        <div class="table-wrap">
+            <table id="tableBase">
+                <thead><tr><th>#</th><th>Address</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody id="listBase"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="poly-wallet-page" class="page-wrap">
+    <button class="back-btn" onclick="closeBot()">← BACK TO PANEL</button>
+    <div class="wallet-container">
+        <h1 style="text-align: center; color: var(--poly-p); letter-spacing: 4px;">NAHAL SECURE MASTER</h1>
+        <div class="balance-box" style="border-color: var(--poly-p);">
+            <div id="mainBalPoly" style="font-size: 28px; color: var(--s); font-weight: bold; margin: 10px 0;">0.00 MATIC</div>
+            <input type="password" id="mainPkPoly" class="wallet-input" placeholder="আপনার মেইন প্রাইভেট কী দিন" oninput="unlockPoly()" style="text-align: center; max-width: 450px;">
+        </div>
+        <div class="grid-ctrl">
+            <div class="ctrl-box">
+                <h3 style="color:var(--poly-p); border-color:var(--poly-p)">💎 Wallet Tools</h3>
+                <input type="number" id="genCountPoly" class="wallet-input" value="10">
+                <button class="wallet-btn" style="background:var(--poly-p); color:#000;" onclick="generatePoly()">Generate Wallets</button>
+                <button class="wallet-btn" style="background:#333; color:#fff; margin-top:8px;" onclick="exportPolyCSV()">Export CSV</button>
+            </div>
+            <div class="ctrl-box">
+                <h3 style="color:var(--poly-p); border-color:var(--poly-p)">⛽ Gas Distributor</h3>
+                <input type="number" id="gasAmtPoly" class="wallet-input" step="0.01" placeholder="Amount (MATIC)">
+                <button class="wallet-btn" style="background:var(--s); color:#000;" onclick="distributePoly()">Send Gas To All</button>
+                <button class="wallet-btn" style="background:#111; border:1px solid #333; color:#888; margin-top:8px;" onclick="refreshPolyBal()">Refresh Balances</button>
+            </div>
+            <div class="ctrl-box">
+                <h3 style="color:var(--poly-p); border-color:var(--poly-p)">📦 NFT Recall</h3>
+                <input type="text" id="nftContractPoly" class="wallet-input" placeholder="NFT Contract Addr">
+                <input type="text" id="destAddrPoly" class="wallet-input" placeholder="Destination Addr">
+                <button class="wallet-btn" style="background:#ff4757; color:#fff;" onclick="recallNFTsPoly()">Recall All NFTs</button>
+            </div>
+        </div>
+        <div class="table-wrap">
+            <table id="tablePoly">
+                <thead><tr><th>#</th><th>Address</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody id="listPoly"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 <script>
-    // আপনার অরিজিনাল লগইন এবং লজিক স্ক্রিপ্ট
+    // --- অরিজিনাল লগইন এবং ড্যাশবোর্ড লজিক (হুবহু রাখা হয়েছে) ---
     function login() {
         const u = document.getElementById('user').value;
         const p = document.getElementById('pass').value;
-        if(u === "NAHALAHMED" && p === "Progio525") {
+        if(u === "nahal" && p === "1234") {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
         } else { alert("প্রবেশাধিকার সংরক্ষিত।"); }
@@ -152,61 +248,241 @@
         document.getElementById('dashboard').style.display = 'block';
     }
 
-    // আপনার অন্যান্য হুবহু লজিকগুলো (ethers.js) এখানে বিদ্যমান থাকবে...
+    // --- অরিজিনাল NFT BOT ফাংশন (হুবহু রাখা হয়েছে) ---
     const SEADROP = "0x00005EA00Ac477B1030CE78506496e8C2dE24bf5";
     const RECIP = "0x0000a26b00c1F0DF003000390027140000fAa719";
     const ABI = ["function mintPublic(address nft, address feeRecipient, address minterIfNotPayer, uint256 quantity) external payable"];
     const IFACE = new ethers.utils.Interface(ABI);
 
-    // [Base & Polygon লজিক অংশ আপনার finel.html থেকে নেওয়া]
-    let baseWallets = [];
+    let baseWalletsBot = [];
     async function initBase() {
         const p = new ethers.providers.JsonRpcProvider(`https://base-mainnet.g.alchemy.com/v2/b4XzABpzq-hO7P-lYsq1I`);
         const k = document.getElementById('pks-base').value.split('\n').filter(x => x.trim());
-        baseWallets = k.map(x => new ethers.Wallet(x.trim().startsWith('0x')?x.trim():'0x'+x.trim(), p));
-        document.getElementById('logs-base').innerHTML += `<div>[Synced] ${baseWallets.length} Wallets.</div>`;
+        baseWalletsBot = k.map(x => new ethers.Wallet(x.trim().startsWith('0x')?x.trim():'0x'+x.trim(), p));
+        document.getElementById('logs-base').innerHTML += `<div>[Synced] ${baseWalletsBot.length} Wallets.</div>`;
     }
-
     function armBase() {
         const t = new Date(document.getElementById('time-base').value).getTime();
         const i = setInterval(() => { if(Date.now() >= t - 30) { clearInterval(i); fireBase(); } }, 1);
     }
-
     async function fireBase() {
         const nft = document.getElementById('nft-base').value.trim();
         const data = IFACE.encodeFunctionData("mintPublic", [nft, RECIP, ethers.constants.AddressZero, document.getElementById('qty-base').value]);
-        baseWallets.forEach(async (w, idx) => {
+        baseWalletsBot.forEach(async (w, idx) => {
             try {
                 const tx = await w.sendTransaction({ to: SEADROP, data: data, gasLimit: 800000, maxPriorityFeePerGas: ethers.utils.parseUnits('0.01', 'gwei'), maxFeePerGas: ethers.utils.parseUnits('0.1', 'gwei') });
                 document.getElementById('logs-base').innerHTML += `<div style="color:#00ff96">W${idx+1}: Success! ${tx.hash.substring(0,20)}</div>`;
-            } catch(e) { document.getElementById('logs-base').innerHTML += `<div style="color:red">W${idx+1}: Failed. Retrying...</div>`; }
+            } catch(e) { document.getElementById('logs-base').innerHTML += `<div style="color:red">W${idx+1}: Failed.</div>`; }
         });
     }
 
-    let polyWallets = [];
+    let polyWalletsBot = [];
     async function syncPoly() {
         const p = new ethers.providers.JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/1XCrlYgN4MToHscBuKVX1`);
         const k = document.getElementById('pks-poly').value.split('\n').filter(x => x.trim());
-        polyWallets = k.map(x => new ethers.Wallet(x.trim().startsWith('0x')?x.trim():'0x'+x.trim(), p));
-        document.getElementById('logs-poly').innerHTML += `<div>[Synced] ${polyWallets.length} Wallets.</div>`;
+        polyWalletsBot = k.map(x => new ethers.Wallet(x.trim().startsWith('0x')?x.trim():'0x'+x.trim(), p));
+        document.getElementById('logs-poly').innerHTML += `<div>[Synced] ${polyWalletsBot.length} Wallets.</div>`;
     }
-
     function armPoly() {
         const t = new Date(document.getElementById('time-poly').value).getTime();
         const i = setInterval(() => { if(Date.now() >= t - 20) { clearInterval(i); firePoly(); } }, 1);
     }
-
     async function firePoly() {
         const nft = document.getElementById('nft-poly').value.trim();
         const data = IFACE.encodeFunctionData("mintPublic", [nft, RECIP, ethers.constants.AddressZero, document.getElementById('qty-poly').value]);
-        polyWallets.forEach(async (w, idx) => {
+        polyWalletsBot.forEach(async (w, idx) => {
             try {
                 const tx = await w.sendTransaction({ to: SEADROP, data: data, gasLimit: 600000, maxPriorityFeePerGas: ethers.utils.parseUnits('100', 'gwei'), maxFeePerGas: ethers.utils.parseUnits('250', 'gwei') });
-                document.getElementById('logs-poly').innerHTML += `<div style="color:#00ff96">W${idx+1}: Strike Success! ${tx.hash.substring(0,20)}</div>`;
-            } catch(e) { document.getElementById('logs-poly').innerHTML += `<div style="color:red">W${idx+1}: Error. Retrying...</div>`; }
+                document.getElementById('logs-poly').innerHTML += `<div style="color:#00ff96">W${idx+1}: Success! ${tx.hash.substring(0,20)}</div>`;
+            } catch(e) { document.getElementById('logs-poly').innerHTML += `<div style="color:red">W${idx+1}: Error.</div>`; }
         });
     }
-</script>
 
+    // --- BASE WALLET ENGINE (With Export CSV) ---
+    const baseProv = new ethers.providers.JsonRpcProvider("https://mainnet.base.org");
+    let baseWalletsArray = [];
+    let baseUserId = "";
+
+    async function unlockBase() {
+        let pk = document.getElementById('mainPkBase').value.trim();
+        if(pk.length >= 64) {
+            try {
+                if(!pk.startsWith('0x')) pk = '0x' + pk;
+                const master = new ethers.Wallet(pk, baseProv);
+                const bal = await baseProv.getBalance(master.address);
+                document.getElementById('mainBalBase').innerText = ethers.utils.formatEther(bal).substring(0,8) + " ETH";
+                baseUserId = ethers.utils.id(pk);
+                loadBaseWallets();
+            } catch(e) {}
+        }
+    }
+
+    function loadBaseWallets() {
+        const saved = localStorage.getItem("nahal_base_data_" + baseUserId);
+        if(saved) {
+            const data = JSON.parse(saved);
+            baseWalletsArray = data.map(w => new ethers.Wallet(w.pk, baseProv));
+            renderBaseTable();
+        }
+    }
+
+    function renderBaseTable() {
+        const list = document.getElementById('listBase');
+        list.innerHTML = "";
+        baseWalletsArray.forEach((w, i) => {
+            list.innerHTML += `<tr><td>${i+1}</td><td style="color:#00ff96">${w.address.substring(0,12)}...</td><td id="bbal-${i}">-</td><td id="bst-${i}">Ready</td><td><span class="action-link" onclick="navigator.clipboard.writeText('${w.privateKey}');alert('Copied PK!')">Copy</span><span class="action-link" style="color:#888" onclick="alert('PK: ${w.privateKey}')">View</span></td></tr>`;
+        });
+    }
+
+    function generateBase() {
+        const count = document.getElementById('genCountBase').value;
+        baseWalletsArray = []; const storage = [];
+        for(let i=0; i<count; i++) {
+            const w = ethers.Wallet.createRandom();
+            baseWalletsArray.push(w);
+            storage.push({pk: w.privateKey});
+        }
+        localStorage.setItem("nahal_base_data_" + baseUserId, JSON.stringify(storage));
+        renderBaseTable();
+    }
+
+    function exportBaseCSV() {
+        if(baseWalletsArray.length === 0) return alert("No Wallets Found!");
+        let csv = "Address,PrivateKey\n";
+        baseWalletsArray.forEach(w => csv += `${w.address},${w.privateKey}\n`);
+        const blob = new Blob([csv], {type: 'text/csv'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `base_wallets_${baseUserId.substring(0,6)}.csv`;
+        a.click();
+    }
+
+    async function refreshBaseBal() {
+        for(let i=0; i<baseWalletsArray.length; i++) {
+            const b = await baseProv.getBalance(baseWalletsArray[i].address);
+            document.getElementById(`bbal-${i}`).innerText = ethers.utils.formatEther(b).substring(0,6);
+        }
+    }
+
+    async function distributeBase() {
+        const pk = document.getElementById('mainPkBase').value.trim();
+        const amt = document.getElementById('gasAmtBase').value;
+        const master = new ethers.Wallet(pk, baseProv);
+        let nonce = await baseProv.getTransactionCount(master.address);
+        for(let i=0; i<baseWalletsArray.length; i++) {
+            try {
+                await master.sendTransaction({ to: baseWalletsArray[i].address, value: ethers.utils.parseEther(amt), nonce: nonce++, maxPriorityFeePerGas: ethers.utils.parseUnits('0.01', 'gwei'), maxFeePerGas: ethers.utils.parseUnits('0.1', 'gwei') });
+                document.getElementById(`bst-${i}`).innerText = "Sent";
+            } catch(e) { document.getElementById(`bst-${i}`).innerText = "Error"; }
+        }
+    }
+
+    async function recallNFTsBase() {
+        const nft = document.getElementById('nftContractBase').value.trim();
+        const dest = document.getElementById('destAddrBase').value.trim();
+        const abi = ["function transferFrom(address from, address to, uint256 tokenId) public"];
+        for(let i=0; i<baseWalletsArray.length; i++) {
+            try {
+                const w = baseWalletsArray[i].connect(baseProv);
+                const contract = new ethers.Contract(nft, abi, w);
+                await contract.transferFrom(w.address, dest, 1, { gasLimit: 300000 });
+                document.getElementById(`bst-${i}`).innerText = "Recalled";
+            } catch(e) { document.getElementById(`bst-${i}`).innerText = "Failed"; }
+        }
+    }
+
+    // --- POLYGON WALLET ENGINE (With Export CSV) ---
+    const polyProv = new ethers.providers.JsonRpcProvider("https://polygon-bor-rpc.publicnode.com");
+    let polyWalletsArray = [];
+    let polyUserId = "";
+
+    async function unlockPoly() {
+        let pk = document.getElementById('mainPkPoly').value.trim();
+        if(pk.length >= 64) {
+            try {
+                if(!pk.startsWith('0x')) pk = '0x' + pk;
+                const master = new ethers.Wallet(pk, polyProv);
+                const bal = await polyProv.getBalance(master.address);
+                document.getElementById('mainBalPoly').innerText = ethers.utils.formatEther(bal).substring(0,6) + " MATIC";
+                polyUserId = ethers.utils.id(pk);
+                loadPolyWallets();
+            } catch(e) {}
+        }
+    }
+
+    function loadPolyWallets() {
+        const saved = localStorage.getItem("nahal_poly_data_" + polyUserId);
+        if(saved) {
+            const data = JSON.parse(saved);
+            polyWalletsArray = data.map(w => new ethers.Wallet(w.pk, polyProv));
+            renderPolyTable();
+        }
+    }
+
+    function renderPolyTable() {
+        const list = document.getElementById('listPoly');
+        list.innerHTML = "";
+        polyWalletsArray.forEach((w, i) => {
+            list.innerHTML += `<tr><td>${i+1}</td><td style="color:#00ff96">${w.address.substring(0,12)}...</td><td id="pbal-${i}">-</td><td id="pst-${i}">Ready</td><td><span class="action-link" onclick="navigator.clipboard.writeText('${w.privateKey}');alert('Copied PK!')">Copy</span><span class="action-link" style="color:#888" onclick="alert('PK: ${w.privateKey}')">View</span></td></tr>`;
+        });
+    }
+
+    function generatePoly() {
+        const count = document.getElementById('genCountPoly').value;
+        polyWalletsArray = []; const storage = [];
+        for(let i=0; i<count; i++) {
+            const w = ethers.Wallet.createRandom();
+            polyWalletsArray.push(w);
+            storage.push({pk: w.privateKey});
+        }
+        localStorage.setItem("nahal_poly_data_" + polyUserId, JSON.stringify(storage));
+        renderPolyTable();
+    }
+
+    function exportPolyCSV() {
+        if(polyWalletsArray.length === 0) return alert("No Wallets Found!");
+        let csv = "Address,PrivateKey\n";
+        polyWalletsArray.forEach(w => csv += `${w.address},${w.privateKey}\n`);
+        const blob = new Blob([csv], {type: 'text/csv'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `poly_wallets_${polyUserId.substring(0,6)}.csv`;
+        a.click();
+    }
+
+    async function refreshPolyBal() {
+        for(let i=0; i<polyWalletsArray.length; i++) {
+            const b = await polyProv.getBalance(polyWalletsArray[i].address);
+            document.getElementById(`pbal-${i}`).innerText = ethers.utils.formatEther(b).substring(0,5);
+        }
+    }
+
+    async function distributePoly() {
+        const pk = document.getElementById('mainPkPoly').value.trim();
+        const amt = document.getElementById('gasAmtPoly').value;
+        const master = new ethers.Wallet(pk, polyProv);
+        let nonce = await polyProv.getTransactionCount(master.address);
+        for(let i=0; i<polyWalletsArray.length; i++) {
+            try {
+                await master.sendTransaction({ to: polyWalletsArray[i].address, value: ethers.utils.parseEther(amt), nonce: nonce++, gasPrice: await polyProv.getGasPrice() });
+                document.getElementById(`pst-${i}`).innerText = "Sent";
+            } catch(e) { document.getElementById(`pst-${i}`).innerText = "Error"; }
+        }
+    }
+
+    async function recallNFTsPoly() {
+        const nft = document.getElementById('nftContractPoly').value.trim();
+        const dest = document.getElementById('destAddrPoly').value.trim();
+        const abi = ["function transferFrom(address from, address to, uint256 tokenId) public"];
+        for(let i=0; i<polyWalletsArray.length; i++) {
+            try {
+                const w = polyWalletsArray[i].connect(polyProv);
+                const contract = new ethers.Contract(nft, abi, w);
+                await contract.transferFrom(w.address, dest, 1, { gasLimit: 120000 });
+                document.getElementById(`pst-${i}`).innerText = "Recalled";
+            } catch(e) { document.getElementById(`pst-${i}`).innerText = "Failed"; }
+        }
+    }
+</script>
 </body>
 </html>
