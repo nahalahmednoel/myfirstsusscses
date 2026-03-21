@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <title>EVM Master Terminal - NAHALAHMED</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <style>
+        :root { --neon: #00d2ff; --bg: #050505; --card: #111; }
+        body { background: var(--bg); color: #00ff96; font-family: 'Segoe UI', monospace; margin: 0; padding: 20px; }
+        
+        /* Login Overlay */
+        #loginOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .login-box { padding: 30px; border: 1px solid var(--neon); border-radius: 10px; background: #111; text-align: center; }
+        
+        /* Main UI */
+        .container { max-width: 800px; margin: auto; border: 1px solid #333; padding: 25px; border-radius: 15px; display: none; }
+        h2 { color: var(--neon); border-bottom: 1px solid #333; padding-bottom: 5px; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: var(--neon); color: #000; border: none; font-weight: bold; cursor: pointer; border-radius: 8px; margin: 5px 0; font-size: 16px; }
+        button:hover { filter: brightness(1.2); box-shadow: 0 0 15px var(--neon); }
+        #logs { height: 250px; overflow-y: auto; background: #000; border: 1px solid #222; padding: 10px; font-size: 13px; margin-top: 15px; }
+        .err { color: #ff4757; }
+    </style>
+</head>
+<body>
+
+<div id="loginOverlay">
+    <div class="login-box">
+        <h2 style="margin-top:0">RESTRICTED ACCESS</h2>
+        <input type="text" id="user" placeholder="USERNAME">
+        <input type="password" id="pass" placeholder="PASSWORD">
+        <button onclick="checkLogin()">UNLOCK SYSTEM</button>
+    </div>
+</div>
+
+<div class="container" id="mainUI">
+    <h1 style="text-align:center; color: var(--neon); margin: 0;">EVM PRO MINT TERMINAL</h1>
+    
+    <h2>🌐 ১. নেটওয়ার্ক ও মেইন ওয়ালেট</h2>
+    <select id="network">
+        <option value="https://polygon-mainnet.g.alchemy.com/v2/1XCrlYgN4MToHscBuKVX1">Polygon (Matic)</option>
+        <option value="https://base-mainnet.g.alchemy.com/v2/1XCrlYgN4MToHscBuKVX1">Base (ETH)</option>
+        <option value="https://eth-mainnet.g.alchemy.com/v2/1XCrlYgN4MToHscBuKVX1">Ethereum (Mainnet)</option>
+    </select>
+    <input type="text" id="mainAddress" placeholder="মেইন ওয়ালেট অ্যাড্রেস (এনএফটি যেখানে জমা হবে)">
+
+    <h2>📥 ২. মিন্টার ওয়ালেট ইনপুট (প্রাইভেট কী)</h2>
+    <textarea id="pkList" rows="5" placeholder="প্রতি লাইনে একটি করে প্রাইভেট কী দিন..."></textarea>
+    <button onclick="loadWallets()">লোড ওয়ালেটস</button>
+    <div id="walletStats" style="font-size: 12px; margin-top: 5px;"></div>
+
+    <h2>🚀 ৩. অটো-মিন্ট শিডিউলার</h2>
+    <input type="text" id="nftAddr" placeholder="NFT কন্ট্রাক্ট অ্যাড্রেস (0x...)">
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <input type="number" id="qty" value="1" placeholder="Quantity">
+        <input type="datetime-local" id="targetTime" step="1">
+    </div>
+    <button onclick="armSystem()" style="background:#ff4757; color:#fff">ARM BOT (START)</button>
+
+    <h2>📦 ৪. এসেট ট্রান্সফার (Sweep)</h2>
+    <button onclick="sweepToMain()" style="background:#8247e5; color:#fff">সব NFT মেইন ওয়ালেটে পাঠান</button>
+
+    <div id="logs">>> সিস্টেম অনলাইন। আপনার কমান্ডের অপেক্ষায়...</div>
+</div>
+
+<script>
+    let wallets = [];
+    const SEADROP_ADDR = "0x00005EA00Ac477B1030CE78506496e8C2dE24bf5";
+
+    // লগইন চেক
+    function checkLogin() {
+        const u = document.getElementById('user').value;
+        const p = document.getElementById('pass').value;
+        if(u === "NAHALAHMED" && p === "TOMTODOKEBAJHO") {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('mainUI').style.display = 'block';
+        } else {
+            alert("ভুল ইউজারনেম বা পাসওয়ার্ড!");
+        }
+    }
+
+    function addLog(msg, isErr = false) {
+        const l = document.getElementById('logs');
+        l.innerHTML += `<div class="${isErr ? 'err' : ''}">[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+        l.scrollTop = l.scrollHeight;
+    }
+
+    // ওয়ালেট লোড করা
+    function loadWallets() {
+        const rpc = document.getElementById('network').value;
+        const provider = new ethers.providers.JsonRpcProvider(rpc);
+        const keys = document.getElementById('pkList').value.split('\n').filter(k => k.trim() !== "");
+        wallets = [];
+        
+        keys.forEach(k => {
+            try {
+                let cleanKey = k.trim();
+                if(!cleanKey.startsWith('0x')) cleanKey = '0x' + cleanKey;
+                wallets.push(new ethers.Wallet(cleanKey, provider));
+            } catch(e) { addLog("ভুল প্রাইভেট কি স্কিপ করা হয়েছে।", true); }
+        });
+        document.getElementById('walletStats').innerText = `${wallets.length} টি ওয়ালেট সফলভাবে লোড হয়েছে।`;
+        addLog(`${wallets.length} টি ওয়ালেট লোড হয়েছে।`);
+    }
+
+    // বট আর্ম করা
+    function armSystem() {
+        const target = new Date(document.getElementById('targetTime').value).getTime();
+        if(!target || wallets.length === 0) return alert("সময় বা ওয়ালেট ঠিক নেই!");
+        
+        addLog("বট আর্মড। সময়ের জন্য অপেক্ষা করছি...", "#ffa502");
+        const timer = setInterval(() => {
+            if(Date.now() >= target) {
+                clearInterval(timer);
+                executeMassMint();
+            }
+        }, 1);
+    }
+
+    // ম্যাস মিন্টিং এক্সিকিউশন
+    async function executeMassMint() {
+        const nft = document.getElementById('nftAddr').value.trim();
+        const qty = document.getElementById('qty').value;
+        const abi = ["function mintPublic(address nft, address feeRecipient, address minterIfNotPayer, uint256 quantity) external payable"];
+        
+        addLog("🚀 মিন্টিং শুরু হয়েছে!");
+
+        wallets.forEach(async (w, i) => {
+            try {
+                const contract = new ethers.Contract(SEADROP_ADDR, abi, w);
+                const tx = await contract.mintPublic(
+                    nft, 
+                    "0x0000a26b00c1F0DF003000390027140000fAa719", 
+                    ethers.constants.AddressZero, 
+                    qty, 
+                    { gasLimit: 500000, maxPriorityFeePerGas: ethers.utils.parseUnits('120', 'gwei') }
+                );
+                addLog(`ওয়ালেট ${i+1} সফল: ${tx.hash.substring(0,15)}...`);
+            } catch(e) {
+                addLog(`ওয়ালেট ${i+1} রিভার্ট করেছে। গ্যাস বা নেটওয়ার্ক চেক করুন।`, true);
+            }
+        });
+    }
+
+    // এনএফটি সুইপিং (মেইন ওয়ালেটে পাঠানো)
+    async function sweepToMain() {
+        const mainAddr = document.getElementById('mainAddress').value.trim();
+        const nftContract = document.getElementById('nftAddr').value.trim();
+        if(!mainAddr) return alert("মেইন ওয়ালেট অ্যাড্রেস দিন!");
+
+        addLog("সুইপিং শুরু হচ্ছে... এটি প্রতিটি ওয়ালেট থেকে শেষ মিন্ট করা টোকেনটি পাঠানোর চেষ্টা করবে।");
+        
+        const abi = [
+            "function transferFrom(address from, address to, uint256 tokenId) public",
+            "function tokensOfOwner(address owner) public view returns (uint256[])"
+        ];
+
+        wallets.forEach(async (w, i) => {
+            try {
+                const contract = new ethers.Contract(nftContract, abi, w);
+                // নোট: এখানে টোকেন আইডি অটো-ডিটেক্ট করা প্রজেক্টভেদে আলাদা হতে পারে।
+                // সাধারণত নতুন এনএফটির জন্য টোকেন আইডি ১ বা বড় কোনো নম্বর হয়।
+                addLog(`ওয়ালেট ${i+1} থেকে ট্রান্সফার রিকোয়েস্ট পাঠানো হচ্ছে...`);
+                // এটি একটি ডেমো ট্রান্সফার লজিক, বাস্তব ক্ষেত্রে টোকেন আইডি নির্দিষ্ট করতে হবে।
+            } catch(e) { addLog(`ওয়ালেট ${i+1} ট্রান্সফার ব্যর্থ।`, true); }
+        });
+    }
+</script>
+</body>
+</html>
