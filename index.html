@@ -4,13 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NAHAL ELITE NFT TERMINAL</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script>
-        // রাইট ক্লিক বন্ধ
         document.addEventListener('contextmenu', event => event.preventDefault());
-
-        // কী-বোর্ড শর্টকাট (F12, Ctrl+Shift+I, Ctrl+U) বন্ধ
         document.onkeydown = function(e) {
-            if(e.keyCode == 123) return false; // F12
+            if(e.keyCode == 123) return false;
             if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
             if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false;
             if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
@@ -20,74 +18,107 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <style>
         :root { --p: #00d2ff; --s: #00ff96; --bg: #000; --poly-p: #ffcc00; --base-p: #0052ff; --eth-p: #627eea; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-user-select: none; user-select: none; }
         body { background: #000; color: #fff; overflow-x: hidden; min-height: 100vh; }
         
-        .bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #111 0%, #000 100%); z-index: -1; }
+        /* Video Background Styling */
+        .video-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; z-index: -1; pointer-events: none; opacity: 0.6;
+        }
 
         #login-screen { 
             height: 100vh; display: flex; align-items: center; justify-content: center; 
-            background: rgba(0,0,0,0.9); backdrop-filter: blur(15px); position: fixed; width: 100%; z-index: 999;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); position: fixed; width: 100%; z-index: 999;
         }
         .login-card { 
-            background: rgba(255,255,255,0.03); padding: 40px; border-radius: 30px; 
-            border: 1px solid rgba(255,255,255,0.1); width: 90%; max-width: 420px; text-align: center; 
+            background: rgba(0,0,0,0.7); padding: 40px; border-radius: 30px; 
+            border: 1px solid rgba(0,210,255,0.3); width: 90%; max-width: 420px; text-align: center;
+            box-shadow: 0 0 50px rgba(0,210,255,0.1);
         }
-        input.auth-input { width: 100%; padding: 15px; margin: 10px 0; background: #000; border: 1px solid #333; color: var(--s); border-radius: 12px; outline: none; }
+        input.auth-input { width: 100%; padding: 15px; margin: 10px 0; background: rgba(0,0,0,0.8); border: 1px solid #333; color: var(--s); border-radius: 12px; outline: none; }
         .btn-enter { width: 100%; padding: 15px; background: linear-gradient(45deg, var(--p), #0052ff); border: none; border-radius: 12px; color: #fff; font-weight: bold; cursor: pointer; margin-top: 15px; transition: 0.3s; }
-        .btn-enter:hover { letter-spacing: 2px; filter: brightness(1.2); }
+        
+        /* New Social Buttons Style */
+        .access-section { margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
+        .access-text { font-size: 12px; color: #aaa; margin-bottom: 15px; }
+        .social-group { display: flex; justify-content: center; gap: 15px; }
+        .social-btn { 
+            display: flex; align-items: center; gap: 8px; padding: 10px 18px; 
+            border-radius: 10px; text-decoration: none; color: #fff; font-size: 13px; 
+            font-weight: 600; transition: 0.3s; 
+        }
+        .tw-btn { background: #1DA1F2; }
+        .tg-btn { background: #0088cc; }
+        .social-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
 
-        #dashboard { display: none; padding: 50px 20px; text-align: center; min-height: 100vh; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; max-width: 1100px; margin: 50px auto; }
+        #dashboard { display: none; padding: 50px 20px; text-align: center; min-height: 100vh; position: relative; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; max-width: 1200px; margin: 50px auto; }
         
         .bot-card { 
-            background: rgba(255,255,255,0.03); padding: 60px 20px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1); 
-            cursor: pointer; transition: 0.5s; position: relative; overflow: hidden;
+            background: rgba(255,255,255,0.05); padding: 40px 20px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1); 
+            cursor: pointer; transition: 0.5s; backdrop-filter: blur(10px);
         }
-        .bot-card:hover { transform: translateY(-15px); border-color: var(--p); box-shadow: 0 0 40px rgba(0,210,255,0.3); }
-        .bot-card::before { content: ''; position: absolute; top: -100%; left: -100%; width: 300%; height: 300%; background: radial-gradient(circle, rgba(0,210,255,0.15) 0%, transparent 50%); transition: 0.6s; pointer-events: none; }
-        .bot-card:hover::before { top: -50%; left: -50%; }
+        .bot-card:hover { transform: translateY(-10px); border-color: var(--p); box-shadow: 0 0 30px rgba(0,210,255,0.4); background: rgba(0,210,255,0.1); }
 
-        .page-wrap { display: none; width: 100%; min-height: 100vh; background: #000; padding: 20px; position: absolute; top: 0; left: 0; z-index: 100; }
+        .page-wrap { display: none; width: 100%; min-height: 100vh; background: rgba(0,0,0,0.95); padding: 20px; position: absolute; top: 0; left: 0; z-index: 1000; overflow-y: auto;}
         .back-btn { padding: 10px 25px; background: #ff4757; color: #fff; border: none; border-radius: 10px; cursor: pointer; margin-bottom: 25px; font-weight: bold; }
 
-        .credits-noel { font-size: 11px; color: #666; margin-top: 35px; line-height: 1.6; border-top: 1px solid #222; padding-top: 15px; }
-
-        /* Wallet Section Styles */
+        /* Wallet & Recaller Styles */
+        .terminal-box { max-width: 600px; margin: auto; background: #0d0d0d; border: 1px solid #222; border-radius: 20px; padding: 25px; border-top: 4px solid var(--p); }
         .wallet-container { max-width: 1000px; margin: auto; background: #0d0d0d; border: 1px solid #222; border-radius: 20px; padding: 25px; }
         .balance-box { background: #111; border: 1px solid var(--p); border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 20px; }
         .grid-ctrl { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; }
         .ctrl-box { background: #111; border: 1px solid #222; padding: 18px; border-radius: 15px; text-align: left; }
-        .ctrl-box h3 { font-size: 13px; margin-bottom: 12px; border-left: 3px solid; padding-left: 10px; text-transform: uppercase; }
-        .wallet-input { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #333; color: var(--s); border-radius: 8px; outline: none; font-size: 13px; }
-        .wallet-btn { width: 100%; padding: 13px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; margin-top: 5px; font-size: 11px; }
+        .wallet-input { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #333; color: var(--s); border-radius: 8px; outline: none; }
+        .wallet-btn { width: 100%; padding: 13px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 5px; font-size: 11px; text-transform: uppercase; }
         .table-wrap { margin-top: 25px; background: #000; border-radius: 15px; border: 1px solid #222; overflow: auto; max-height: 400px; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
-        th { background: #161616; color: #555; padding: 12px; position: sticky; top: 0; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th { background: #161616; padding: 12px; text-align: left; color: #555; }
         td { padding: 12px; border-bottom: 1px solid #111; }
         .action-link { cursor: pointer; color: var(--p); margin-right: 10px; font-weight: bold; }
+        .logs-area { height: 200px; overflow-y: auto; background: #000; padding: 15px; font-size: 11px; color: #888; border-radius: 10px; border: 1px solid #222; margin-top: 15px; text-align: left; }
     </style>
 </head>
-<body oncontextmenu="return false;">
+<body>
 
-<div class="bg-glow"></div>
+<video id="login-video" class="video-bg" autoplay muted loop>
+    <source src="https://cdn.pixabay.com/video/2022/01/06/103575-664409333_large.mp4" type="video/mp4">
+</video>
+
+<video id="dash-video" class="video-bg" style="display:none;" muted loop>
+    <source src="https://cdn.pixabay.com/video/2019/10/09/27669-365224683_large.mp4" type="video/mp4">
+</video>
 
 <div id="login-screen">
     <div class="login-card">
         <h1 style="color:var(--p); margin-bottom:10px; letter-spacing:3px;">NAHAL TERMINAL</h1>
-        <p style="font-size: 12px; color: #555; margin-bottom: 20px;">AUTHORIZED ACCESS ONLY</p>
+        <p style="font-size: 11px; color: #888; margin-bottom: 20px;">V26 DIGITAL ASSET MANAGER</p>
         <input type="text" id="user" class="auth-input" placeholder="Username">
         <input type="password" id="pass" class="auth-input" placeholder="Password">
         <button class="btn-enter" onclick="login()">ACTIVATE TERMINAL</button>
-        <div class="credits-noel">
-            তৈরি করেছেন: <b style="color:var(--p)">NAHAL AHMED NOEL</b><br>
-            "এটি তৈরি করতে আমি দিন-রাত এক করে পরিশ্রম করেছি। এটি আমার বড় একটি পরিকল্পনার প্রথম ধাপ।"
+
+        <div class="access-section">
+            <p class="access-text">প্যানেল অ্যাক্সেস পেতে ইনবক্স করুন:</p>
+            <div class="social-group">
+                <a href="https://twitter.com/nlnahal" target="_blank" class="social-btn tw-btn">
+                    <i class="fab fa-twitter"></i> Twitter
+                </a>
+                <a href="https://t.me/nahal438" target="_blank" class="social-btn tg-btn">
+                    <i class="fab fa-telegram-plane"></i> Telegram
+                </a>
+            </div>
+        </div>
+
+        <div style="font-size: 10px; color: #444; margin-top: 20px; line-height: 1.5;">
+            By <b style="color:var(--p)">NAHAL AHMED NOEL</b><br>
+            "এটি আমার বড় একটি পরিকল্পনার প্রথম ধাপ।"
         </div>
     </div>
 </div>
 
 <div id="dashboard">
-    <h1 style="font-size:38px; letter-spacing:5px;">WELCOME MASTER NOEL</h1>
+    <h1 style="font-size:38px; letter-spacing:8px; text-shadow: 0 0 20px var(--p);">WELCOME MASTER NOEL</h1>
     <div class="grid">
         <div class="bot-card" onclick="openBot('base')">
             <h3 style="color:#0052ff; font-size: 22px;">BASE NFT BOT</h3>
@@ -109,72 +140,64 @@
             <h3 style="color:#ffcc00; font-size: 22px;">POLYGON WALLET</h3>
             <p style="font-size:10px; color:#555; margin-top:10px;">WALLET MANAGER</p>
         </div>
+        <div class="bot-card" onclick="openBot('base-recall')" style="border-color: var(--s);">
+            <h3 style="color:var(--s); font-size: 22px;">BASE NFT RECALL</h3>
+            <p style="font-size:10px; color:#555; margin-top:10px;">SMART AUTO SCAN V4</p>
+        </div>
     </div>
 </div>
 
 <div id="eth-page" class="page-wrap">
     <button class="back-btn" onclick="closeBot()">← BACK TO PANEL</button>
-    <div class="terminal" style="max-width: 500px; margin: auto; border: 1px solid #222; border-radius: 20px; background: #0d0d0d; padding: 25px;">
+    <div class="terminal-box" style="border-color: var(--eth-p);">
         <h2 style="text-align:center; color:var(--eth-p); font-size: 18px; margin-bottom: 15px;">ETH STRIKER V4</h2>
-        
-        <textarea id="pks-eth-main" rows="3" style="width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: var(--s); border-radius: 10px; margin-bottom: 10px;" placeholder="Private Key এখানে দিন"></textarea>
-        <button style="width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; background: #111; color: var(--eth-p); border: 1px solid var(--eth-p); margin-bottom: 10px;" onclick="checkEthBal()">SYNC & CHECK BALANCE</button>
-        <div id="bal-info-eth" style="font-size: 12px; color: var(--s); margin-bottom: 10px; text-align: right;">Balance: 0.00 ETH</div>
-
-        <input type="text" id="nft-eth-main" style="width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: var(--s); border-radius: 10px; margin-bottom: 10px;" placeholder="NFT Contract Address">
-        <input type="number" id="qty-eth-main" value="1" style="width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: var(--s); border-radius: 10px; margin-bottom: 10px;" placeholder="Quantity">
-        
+        <textarea id="pks-eth-main" rows="3" class="wallet-input" placeholder="Private Key এখানে দিন"></textarea>
+        <button class="wallet-btn" style="border: 1px solid var(--eth-p); background:#111; color:var(--eth-p);" onclick="checkEthBal()">SYNC & CHECK BALANCE</button>
+        <div id="bal-info-eth" style="font-size: 12px; color: var(--s); margin: 10px 0; text-align: right;">Balance: 0.00 ETH</div>
+        <input type="text" id="nft-eth-main" class="wallet-input" placeholder="NFT Contract Address">
+        <input type="number" id="qty-eth-main" value="1" class="wallet-input" placeholder="Quantity">
         <p style="font-size: 11px; color: #555;">MINT PRICE (ETH):</p>
-        <input type="number" id="price-eth-main" value="0" step="0.0001" style="width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: var(--s); border-radius: 10px; margin-bottom: 10px;">
-
+        <input type="number" id="price-eth-main" value="0" step="0.0001" class="wallet-input">
         <p style="font-size: 11px; color: #555;">MANUAL GAS LIMIT:</p>
-        <input type="number" id="gasLimit-eth-main" value="150000" style="width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: var(--s); border-radius: 10px; margin-bottom: 10px;">
-
-        <input type="datetime-local" id="time-eth-main" step="1" style="width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: var(--s); border-radius: 10px; margin-bottom: 10px;">
-        <button style="width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; background: var(--eth-p); color: #fff; box-shadow: 0 0 15px rgba(98,126,234,0.3);" onclick="armEth()">ARM & START STRIKE</button>
-
-        <div id="log-box-eth" style="height: 150px; overflow-y: auto; background: #000; padding: 15px; font-size: 11px; color: #888; border-radius: 10px; margin-top: 15px; border: 1px solid #111;">>> প্রস্তুত...</div>
+        <input type="number" id="gasLimit-eth-main" value="150000" class="wallet-input">
+        <input type="datetime-local" id="time-eth-main" step="1" class="wallet-input">
+        <button class="btn-enter" style="background:var(--eth-p)" onclick="armEth()">ARM & START STRIKE</button>
+        <div id="log-box-eth" class="logs-area">>> প্রস্তুত...</div>
     </div>
 </div>
 
 <div id="base-page" class="page-wrap">
     <button class="back-btn" onclick="closeBot()">← BACK TO PANEL</button>
-    <div class="terminal" style="max-width: 850px; margin: auto; border: 1px solid #222; border-radius: 15px; background: #080808; padding: 25px;">
+    <div class="wallet-container" style="max-width: 850px;">
         <h1 style="color:#0052ff; text-align: center; letter-spacing: 5px; font-size: 20px;">NAHAL V26 - CLONE MODE</h1>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
             <div>
-                <textarea id="pks-base" rows="5" style="width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #00ff96; border-radius: 8px;" placeholder="Base Private Keys..."></textarea>
-                <button style="width: 100%; padding: 15px; background: #111; border: 1px solid #0052ff; color: #0052ff; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px;" onclick="initBase()">Sync Wallets</button>
+                <textarea id="pks-base" rows="5" class="wallet-input" placeholder="Base Private Keys..."></textarea>
+                <button class="wallet-btn" style="background:#111; border: 1px solid #0052ff; color: #0052ff;" onclick="initBase()">Sync Wallets</button>
             </div>
             <div>
-                <input type="text" id="nft-base" style="width: 100%; padding: 12px; margin-bottom: 10px; background: #000; border: 1px solid #333; color: #00ff96; border-radius: 8px;" placeholder="NFT Contract">
-                <input type="number" id="qty-base" value="1" style="width: 100%; padding: 12px; margin-bottom: 10px; background: #000; border: 1px solid #333; color: #00ff96; border-radius: 8px;">
-                <input type="number" id="price-base" step="0.00001" value="0" style="width: 100%; padding: 12px; margin-bottom: 10px; background: #000; border: 1px solid #333; color: #00ff96; border-radius: 8px;">
-                <input type="datetime-local" id="time-base" step="1" style="width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #00ff96; border-radius: 8px;">
-                <button style="width: 100%; padding: 15px; background: #0052ff; border: none; border-radius: 8px; color: #fff; font-weight: bold; cursor: pointer;" onclick="armBase()">Start Perfect Mint</button>
+                <input type="text" id="nft-base" class="wallet-input" placeholder="NFT Contract">
+                <input type="number" id="qty-base" value="1" class="wallet-input">
+                <input type="number" id="price-base" step="0.00001" value="0" class="wallet-input">
+                <input type="datetime-local" id="time-base" step="1" class="wallet-input">
+                <button class="wallet-btn" style="background:#0052ff; color:#fff;" onclick="armBase()">Start Perfect Mint</button>
             </div>
         </div>
-        <div id="logs-base" style="height: 250px; overflow-y: auto; background: #000; padding: 15px; font-size: 11px; color: #666; margin-top: 20px;">>> লজিক প্রস্তুত মাস্টার।</div>
+        <div id="logs-base" class="logs-area" style="height: 250px;">>> লজিক প্রস্তুত মাস্টার।</div>
     </div>
 </div>
 
 <div id="poly-page" class="page-wrap">
     <button class="back-btn" onclick="closeBot()">← BACK TO PANEL</button>
-    <div class="container" style="max-width: 800px; margin: auto; background: #111; padding: 30px; border-radius: 20px; border: 1px solid #8247e5;">
+    <div class="terminal-box" style="border-color: #8247e5;">
         <h1 style="text-align: center; color: #8247e5; font-size: 22px;">POLYGON STRIKE ENGINE</h1>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
-            <div>
-                <textarea id="pks-poly" rows="5" style="width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: #00ff96; border-radius: 10px;" placeholder="Private Keys..."></textarea>
-                <button style="width: 100%; padding: 15px; background: #1a1a1a; color: #8247e5; border: 1px solid #8247e5; border-radius: 12px; font-weight: bold; cursor: pointer;" onclick="syncPoly()">SYNC WALLETS</button>
-            </div>
-            <div>
-                <input type="text" id="nft-poly" style="width: 100%; padding: 15px; margin-bottom: 10px; background: #000; border: 1px solid #333; color: #00ff96; border-radius: 10px;" placeholder="Contract Address">
-                <input type="number" id="qty-poly" value="1" style="width: 100%; padding: 15px; margin-bottom: 10px; background: #000; border: 1px solid #333; color: #00ff96; border-radius: 10px;">
-                <input type="datetime-local" id="time-poly" step="1" style="width: 100%; padding: 15px; background: #000; border: 1px solid #333; color: #00ff96; border-radius: 10px;">
-                <button style="width: 100%; padding: 15px; background: #ff4757; color: #fff; border: none; font-weight: bold; cursor: pointer; border-radius: 12px;" onclick="armPoly()">ARM & MINT</button>
-            </div>
-        </div>
-        <div id="logs-poly" style="margin-top: 20px; height: 250px; overflow-y: auto; background: #000; padding: 20px; font-size: 12px; color: #888;">>> পলিগন মডিউল প্রস্তুত।</div>
+        <textarea id="pks-poly" rows="5" class="wallet-input" placeholder="Private Keys..."></textarea>
+        <button class="wallet-btn" style="background:#1a1a1a; color:#8247e5; border: 1px solid #8247e5;" onclick="syncPoly()">SYNC WALLETS</button>
+        <input type="text" id="nft-poly" class="wallet-input" placeholder="Contract Address">
+        <input type="number" id="qty-poly" value="1" class="wallet-input">
+        <input type="datetime-local" id="time-poly" step="1" class="wallet-input">
+        <button class="wallet-btn" style="background:#ff4757; color:#fff;" onclick="armPoly()">ARM & MINT</button>
+        <div id="logs-poly" class="logs-area">>> পলিগন মডিউল প্রস্তুত।</div>
     </div>
 </div>
 
@@ -188,19 +211,19 @@
         </div>
         <div class="grid-ctrl">
             <div class="ctrl-box">
-                <h3 style="color:var(--base-p); border-color:var(--base-p)">💎 Wallet Tools</h3>
+                <h3 style="color:var(--base-p)">💎 Wallet Tools</h3>
                 <input type="number" id="genCountBase" class="wallet-input" value="10">
                 <button class="wallet-btn" style="background:var(--base-p); color:#fff;" onclick="generateBase()">Generate Wallets</button>
                 <button class="wallet-btn" style="background:#333; color:#fff; margin-top:8px;" onclick="exportBaseCSV()">Export CSV</button>
             </div>
             <div class="ctrl-box">
-                <h3 style="color:var(--base-p); border-color:var(--base-p)">⛽ Gas Distributor</h3>
+                <h3 style="color:var(--base-p)">⛽ Gas Distributor</h3>
                 <input type="number" id="gasAmtBase" class="wallet-input" step="0.0001" placeholder="Amount (ETH)">
                 <button class="wallet-btn" style="background:var(--s); color:#000;" onclick="distributeBase()">Send ETH To All</button>
                 <button class="wallet-btn" style="background:#111; border:1px solid #333; color:#888; margin-top:8px;" onclick="refreshBaseBal()">Refresh Balances</button>
             </div>
             <div class="ctrl-box">
-                <h3 style="color:var(--base-p); border-color:var(--base-p)">📦 NFT Recall</h3>
+                <h3 style="color:var(--base-p)">📦 NFT Recall</h3>
                 <input type="text" id="nftContractBase" class="wallet-input" placeholder="NFT Contract Addr">
                 <input type="text" id="destAddrBase" class="wallet-input" placeholder="Destination Addr">
                 <button class="wallet-btn" style="background:#ff4757; color:#fff;" onclick="recallNFTsBase()">Recall All NFTs</button>
@@ -225,19 +248,19 @@
         </div>
         <div class="grid-ctrl">
             <div class="ctrl-box">
-                <h3 style="color:var(--poly-p); border-color:var(--poly-p)">💎 Wallet Tools</h3>
+                <h3 style="color:var(--poly-p)">💎 Wallet Tools</h3>
                 <input type="number" id="genCountPoly" class="wallet-input" value="10">
                 <button class="wallet-btn" style="background:var(--poly-p); color:#000;" onclick="generatePoly()">Generate Wallets</button>
                 <button class="wallet-btn" style="background:#333; color:#fff; margin-top:8px;" onclick="exportPolyCSV()">Export CSV</button>
             </div>
             <div class="ctrl-box">
-                <h3 style="color:var(--poly-p); border-color:var(--poly-p)">⛽ Gas Distributor</h3>
+                <h3 style="color:var(--poly-p)">⛽ Gas Distributor</h3>
                 <input type="number" id="gasAmtPoly" class="wallet-input" step="0.01" placeholder="Amount (MATIC)">
                 <button class="wallet-btn" style="background:var(--s); color:#000;" onclick="distributePoly()">Send Gas To All</button>
                 <button class="wallet-btn" style="background:#111; border:1px solid #333; color:#888; margin-top:8px;" onclick="refreshPolyBal()">Refresh Balances</button>
             </div>
             <div class="ctrl-box">
-                <h3 style="color:var(--poly-p); border-color:var(--poly-p)">📦 NFT Recall</h3>
+                <h3 style="color:var(--poly-p)">📦 NFT Recall</h3>
                 <input type="text" id="nftContractPoly" class="wallet-input" placeholder="NFT Contract Addr">
                 <input type="text" id="destAddrPoly" class="wallet-input" placeholder="Destination Addr">
                 <button class="wallet-btn" style="background:#ff4757; color:#fff;" onclick="recallNFTsPoly()">Recall All NFTs</button>
@@ -252,6 +275,22 @@
     </div>
 </div>
 
+<div id="base-recall-page" class="page-wrap">
+    <button class="back-btn" onclick="closeBot()">← BACK TO PANEL</button>
+    <div class="terminal-box" style="border-color: var(--s);">
+        <h2 style="text-align:center; color:var(--s); margin-bottom:15px;">RECALLER V4 (AUTO SCAN)</h2>
+        <input type="text" id="nft-contract-auto" class="wallet-input" placeholder="NFT Contract Address (0x...)">
+        <input type="text" id="main-address-auto" class="wallet-input" placeholder="Receiver Address">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <input type="number" id="scan-start" value="1" class="wallet-input" placeholder="Start ID">
+            <input type="number" id="scan-end" value="500" class="wallet-input" placeholder="End ID">
+        </div>
+        <textarea id="pk-list-auto" rows="5" class="wallet-input" placeholder="Private Keys (প্রতি লাইনে একটি)"></textarea>
+        <button class="wallet-btn" style="background:var(--s); color:#000;" onclick="startAutoRecall()">START AUTO SCAN & RECALL</button>
+        <div id="log-box-auto" class="logs-area">>> সিস্টেম প্রস্তুত (Base Network)</div>
+    </div>
+</div>
+
 <script>
     // --- LOGIN & NAVIGATION ---
     function login() {
@@ -260,6 +299,10 @@
         if(u === "nahal" && p === "1234") {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
+            // Switch Video
+            document.getElementById('login-video').style.display = 'none';
+            document.getElementById('dash-video').style.display = 'block';
+            document.getElementById('dash-video').play();
         } else { alert("প্রবেশাধিকার সংরক্ষিত।"); }
     }
 
@@ -272,7 +315,7 @@
         document.getElementById('dashboard').style.display = 'block';
     }
 
-    // --- ETH NFT STRIKER LOGIC (Integrated from eth.html) ---
+    // --- ETH NFT STRIKER LOGIC ---
     const ETH_API = "bQe_sox1It2S1Ug9Rko3g"; 
     const ethProvider = new ethers.providers.JsonRpcProvider(`https://eth-mainnet.g.alchemy.com/v2/${ETH_API}`);
     const SEADROP = "0x00005EA00Ac477B1030CE78506496e8C2dE24bf5";
@@ -280,7 +323,6 @@
     const IFACE = new ethers.utils.Interface(["function mintPublic(address nft, address feeRec, address extP, uint256 qty) external payable"]);
     
     let activeEthWallet = null;
-
     async function checkEthBal() {
         const pk = document.getElementById('pks-eth-main').value.trim();
         try {
@@ -290,14 +332,12 @@
             addEthLog("Wallet Synced: " + activeEthWallet.address.substring(0,10));
         } catch(e) { alert("Invalid Private Key!"); }
     }
-
     function armEth() {
         const t = new Date(document.getElementById('time-eth-main').value).getTime();
         if(!t) return alert("সময় দিন!");
         addEthLog("[ARMED] স্ট্রাইকের অপেক্ষা...");
         const i = setInterval(() => { if(Date.now() >= t - 30) { clearInterval(i); fireEth(); } }, 1);
     }
-
     async function fireEth() {
         const nft = document.getElementById('nft-eth-main').value.trim();
         const qty = document.getElementById('qty-eth-main').value;
@@ -305,7 +345,6 @@
         const gLimit = document.getElementById('gasLimit-eth-main').value;
         const totalVal = ethers.utils.parseEther((parseFloat(price) * parseInt(qty)).toString());
         const data = IFACE.encodeFunctionData("mintPublic", [nft, RECIP, ethers.constants.AddressZero, qty]);
-
         try {
             const fee = await ethProvider.getFeeData();
             const tx = await activeEthWallet.sendTransaction({
@@ -313,16 +352,15 @@
                 maxPriorityFeePerGas: fee.maxPriorityFeePerGas, maxFeePerGas: fee.maxFeePerGas, type: 2
             });
             addEthLog("SUCCESS! Hash: " + tx.hash.substring(0,15));
-        } catch(e) { addEthLog("FAILED: " + (e.reason || "Error occurred")); }
+        } catch(e) { addEthLog("FAILED: " + (e.reason || "Error")); }
     }
-
     function addEthLog(msg) {
         const lb = document.getElementById('log-box-eth');
         lb.innerHTML += `<div>>> ${msg}</div>`;
         lb.scrollTop = lb.scrollHeight;
     }
 
-    // --- BASE & POLYGON BOT LOGIC (Keep Original) ---
+    // --- BASE BOT LOGIC ---
     let baseWalletsBot = [];
     async function initBase() {
         const p = new ethers.providers.JsonRpcProvider(`https://base-mainnet.g.alchemy.com/v2/b4XzABpzq-hO7P-lYsq1I`);
@@ -345,6 +383,7 @@
         });
     }
 
+    // --- POLYGON BOT LOGIC ---
     let polyWalletsBot = [];
     async function syncPoly() {
         const p = new ethers.providers.JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/1XCrlYgN4MToHscBuKVX1`);
@@ -371,7 +410,6 @@
     const baseProv = new ethers.providers.JsonRpcProvider("https://mainnet.base.org");
     let baseWalletsArray = [];
     let baseUserId = "";
-
     async function unlockBase() {
         let pk = document.getElementById('mainPkBase').value.trim();
         if(pk.length >= 64) {
@@ -385,7 +423,6 @@
             } catch(e) {}
         }
     }
-
     function loadBaseWallets() {
         const saved = localStorage.getItem("nahal_base_data_" + baseUserId);
         if(saved) {
@@ -394,15 +431,13 @@
             renderBaseTable();
         }
     }
-
     function renderBaseTable() {
         const list = document.getElementById('listBase');
         list.innerHTML = "";
         baseWalletsArray.forEach((w, i) => {
-            list.innerHTML += `<tr><td>${i+1}</td><td style="color:#00ff96">${w.address.substring(0,12)}...</td><td id="bbal-${i}">-</td><td id="bst-${i}">Ready</td><td><span class="action-link" onclick="navigator.clipboard.writeText('${w.privateKey}');alert('Copied PK!')">Copy</span><span class="action-link" style="color:#888" onclick="alert('PK: ${w.privateKey}')">View</span></td></tr>`;
+            list.innerHTML += `<tr><td>${i+1}</td><td style="color:#00ff96">${w.address.substring(0,12)}...</td><td id="bbal-${i}">-</td><td id="bst-${i}">Ready</td><td><span class="action-link" onclick="navigator.clipboard.writeText('${w.privateKey}');alert('Copied PK!')">Copy</span></td></tr>`;
         });
     }
-
     function generateBase() {
         const count = document.getElementById('genCountBase').value;
         baseWalletsArray = []; const storage = [];
@@ -414,25 +449,20 @@
         localStorage.setItem("nahal_base_data_" + baseUserId, JSON.stringify(storage));
         renderBaseTable();
     }
-
     function exportBaseCSV() {
-        if(baseWalletsArray.length === 0) return alert("No Wallets Found!");
         let csv = "Address,PrivateKey\n";
         baseWalletsArray.forEach(w => csv += `${w.address},${w.privateKey}\n`);
         const blob = new Blob([csv], {type: 'text/csv'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `base_wallets_${baseUserId.substring(0,6)}.csv`;
-        a.click();
+        a.download = `base_wallets.csv`; a.click();
     }
-
     async function refreshBaseBal() {
         for(let i=0; i<baseWalletsArray.length; i++) {
             const b = await baseProv.getBalance(baseWalletsArray[i].address);
             document.getElementById(`bbal-${i}`).innerText = ethers.utils.formatEther(b).substring(0,6);
         }
     }
-
     async function distributeBase() {
         const pk = document.getElementById('mainPkBase').value.trim();
         const amt = document.getElementById('gasAmtBase').value;
@@ -445,7 +475,6 @@
             } catch(e) { document.getElementById(`bst-${i}`).innerText = "Error"; }
         }
     }
-
     async function recallNFTsBase() {
         const nft = document.getElementById('nftContractBase').value.trim();
         const dest = document.getElementById('destAddrBase').value.trim();
@@ -464,7 +493,6 @@
     const polyProv = new ethers.providers.JsonRpcProvider("https://polygon-bor-rpc.publicnode.com");
     let polyWalletsArray = [];
     let polyUserId = "";
-
     async function unlockPoly() {
         let pk = document.getElementById('mainPkPoly').value.trim();
         if(pk.length >= 64) {
@@ -478,7 +506,6 @@
             } catch(e) {}
         }
     }
-
     function loadPolyWallets() {
         const saved = localStorage.getItem("nahal_poly_data_" + polyUserId);
         if(saved) {
@@ -487,15 +514,13 @@
             renderPolyTable();
         }
     }
-
     function renderPolyTable() {
         const list = document.getElementById('listPoly');
         list.innerHTML = "";
         polyWalletsArray.forEach((w, i) => {
-            list.innerHTML += `<tr><td>${i+1}</td><td style="color:#00ff96">${w.address.substring(0,12)}...</td><td id="pbal-${i}">-</td><td id="pst-${i}">Ready</td><td><span class="action-link" onclick="navigator.clipboard.writeText('${w.privateKey}');alert('Copied PK!')">Copy</span><span class="action-link" style="color:#888" onclick="alert('PK: ${w.privateKey}')">View</span></td></tr>`;
+            list.innerHTML += `<tr><td>${i+1}</td><td style="color:#00ff96">${w.address.substring(0,12)}...</td><td id="pbal-${i}">-</td><td id="pst-${i}">Ready</td><td><span class="action-link" onclick="navigator.clipboard.writeText('${w.privateKey}');alert('Copied!')">Copy</span></td></tr>`;
         });
     }
-
     function generatePoly() {
         const count = document.getElementById('genCountPoly').value;
         polyWalletsArray = []; const storage = [];
@@ -507,25 +532,20 @@
         localStorage.setItem("nahal_poly_data_" + polyUserId, JSON.stringify(storage));
         renderPolyTable();
     }
-
     function exportPolyCSV() {
-        if(polyWalletsArray.length === 0) return alert("No Wallets Found!");
         let csv = "Address,PrivateKey\n";
         polyWalletsArray.forEach(w => csv += `${w.address},${w.privateKey}\n`);
         const blob = new Blob([csv], {type: 'text/csv'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `poly_wallets_${polyUserId.substring(0,6)}.csv`;
-        a.click();
+        a.download = `poly_wallets.csv`; a.click();
     }
-
     async function refreshPolyBal() {
         for(let i=0; i<polyWalletsArray.length; i++) {
             const b = await polyProv.getBalance(polyWalletsArray[i].address);
             document.getElementById(`pbal-${i}`).innerText = ethers.utils.formatEther(b).substring(0,5);
         }
     }
-
     async function distributePoly() {
         const pk = document.getElementById('mainPkPoly').value.trim();
         const amt = document.getElementById('gasAmtPoly').value;
@@ -538,7 +558,6 @@
             } catch(e) { document.getElementById(`pst-${i}`).innerText = "Error"; }
         }
     }
-
     async function recallNFTsPoly() {
         const nft = document.getElementById('nftContractPoly').value.trim();
         const dest = document.getElementById('destAddrPoly').value.trim();
@@ -551,6 +570,50 @@
                 document.getElementById(`pst-${i}`).innerText = "Recalled";
             } catch(e) { document.getElementById(`pst-${i}`).innerText = "Failed"; }
         }
+    }
+
+    // --- INTEGRATED AUTO RECALL LOGIC ---
+    const RECALL_ABI = [
+        "function transferFrom(address from, address to, uint256 tokenId) public",
+        "function ownerOf(uint256 tokenId) view returns (address)"
+    ];
+    async function startAutoRecall() {
+        const nftAddr = document.getElementById('nft-contract-auto').value.trim();
+        const mainAddr = document.getElementById('main-address-auto').value.trim();
+        const pkText = document.getElementById('pk-list-auto').value.trim();
+        const startId = parseInt(document.getElementById('scan-start').value);
+        const endId = parseInt(document.getElementById('scan-end').value);
+        if(!nftAddr || !mainAddr || !pkText) return alert("সব তথ্য দিন!");
+        
+        const pks = pkText.split('\n').map(k => k.trim()).filter(k => k !== "");
+        addRecallLog(`স্ক্যান শুরু... ওয়ালেট: ${pks.length}`);
+        for(let pk of pks) {
+            try {
+                const wallet = new ethers.Wallet(pk.startsWith('0x') ? pk : '0x'+pk, baseProv);
+                const contract = new ethers.Contract(nftAddr, RECALL_ABI, wallet);
+                const gasPrice = await baseProv.getGasPrice();
+                addRecallLog(`চেক: ${wallet.address.substring(0,10)}...`);
+                for(let id = startId; id <= endId; id++) {
+                    try {
+                        const currentOwner = await contract.ownerOf(id);
+                        if(currentOwner.toLowerCase() === wallet.address.toLowerCase()) {
+                            addRecallLog(`ID ${id} পাওয়া গেছে! পাঠানো হচ্ছে...`);
+                            const tx = await contract.transferFrom(wallet.address, mainAddr, id, {
+                                gasLimit: 140000, gasPrice: gasPrice.mul(12).div(10)
+                            });
+                            await tx.wait();
+                            addRecallLog(`সফল! ID ${id} রিকল হয়েছে।`);
+                        }
+                    } catch(e) { continue; }
+                }
+            } catch(e) { addRecallLog(`ওয়ালেটে সমস্যা!`); }
+        }
+        addRecallLog("স্ক্যান শেষ!");
+    }
+    function addRecallLog(msg) {
+        const lb = document.getElementById('log-box-auto');
+        lb.innerHTML += `<div>>> ${msg}</div>`;
+        lb.scrollTop = lb.scrollHeight;
     }
 </script>
 </body>
