@@ -19,8 +19,7 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <style>
-        /* আপনার অরিজিনাল সিএসএস হুবহু রাখা হয়েছে */
-        :root { --p: #00d2ff; --s: #00ff96; --bg: #000; --poly-p: #ffcc00; --base-p: #0052ff; }
+        :root { --p: #00d2ff; --s: #00ff96; --bg: #000; --poly-p: #ffcc00; --base-p: #0052ff; --eth-p: #627eea; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
         body { background: #000; color: #fff; overflow-x: hidden; min-height: 100vh; }
         
@@ -98,9 +97,9 @@
             <h3 style="color:#8247e5; font-size: 22px;">POLYGON NFT BOT</h3>
             <p style="font-size:10px; color:#555; margin-top:10px;">SPEED STRIKE MODE</p>
         </div>
-        <div class="bot-card" onclick="alert('ETH NFT BOT বর্তমানে বন্ধ আছে।')">
-            <h3 style="color:#444; font-size: 22px;">ETH NFT BOT</h3>
-            <p style="font-size:10px; color:#ff4757; margin-top:10px;">COMING SOON</p>
+        <div class="bot-card" onclick="openBot('eth')">
+            <h3 style="color:#627eea; font-size: 22px;">ETH NFT BOT</h3>
+            <p style="font-size:10px; color:#00ff96; margin-top:10px;">STRIKER V4 ACTIVE</p>
         </div>
         <div class="bot-card" onclick="openBot('base-wallet')">
             <h3 style="color:#0052ff; font-size: 22px;">BASE WALLET</h3>
@@ -110,6 +109,31 @@
             <h3 style="color:#ffcc00; font-size: 22px;">POLYGON WALLET</h3>
             <p style="font-size:10px; color:#555; margin-top:10px;">WALLET MANAGER</p>
         </div>
+    </div>
+</div>
+
+<div id="eth-page" class="page-wrap">
+    <button class="back-btn" onclick="closeBot()">← BACK TO PANEL</button>
+    <div class="terminal" style="max-width: 500px; margin: auto; border: 1px solid #222; border-radius: 20px; background: #0d0d0d; padding: 25px;">
+        <h2 style="text-align:center; color:var(--eth-p); font-size: 18px; margin-bottom: 15px;">ETH STRIKER V4</h2>
+        
+        <textarea id="pks-eth-main" rows="3" style="width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: var(--s); border-radius: 10px; margin-bottom: 10px;" placeholder="Private Key এখানে দিন"></textarea>
+        <button style="width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; background: #111; color: var(--eth-p); border: 1px solid var(--eth-p); margin-bottom: 10px;" onclick="checkEthBal()">SYNC & CHECK BALANCE</button>
+        <div id="bal-info-eth" style="font-size: 12px; color: var(--s); margin-bottom: 10px; text-align: right;">Balance: 0.00 ETH</div>
+
+        <input type="text" id="nft-eth-main" style="width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: var(--s); border-radius: 10px; margin-bottom: 10px;" placeholder="NFT Contract Address">
+        <input type="number" id="qty-eth-main" value="1" style="width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: var(--s); border-radius: 10px; margin-bottom: 10px;" placeholder="Quantity">
+        
+        <p style="font-size: 11px; color: #555;">MINT PRICE (ETH):</p>
+        <input type="number" id="price-eth-main" value="0" step="0.0001" style="width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: var(--s); border-radius: 10px; margin-bottom: 10px;">
+
+        <p style="font-size: 11px; color: #555;">MANUAL GAS LIMIT:</p>
+        <input type="number" id="gasLimit-eth-main" value="150000" style="width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: var(--s); border-radius: 10px; margin-bottom: 10px;">
+
+        <input type="datetime-local" id="time-eth-main" step="1" style="width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: var(--s); border-radius: 10px; margin-bottom: 10px;">
+        <button style="width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; background: var(--eth-p); color: #fff; box-shadow: 0 0 15px rgba(98,126,234,0.3);" onclick="armEth()">ARM & START STRIKE</button>
+
+        <div id="log-box-eth" style="height: 150px; overflow-y: auto; background: #000; padding: 15px; font-size: 11px; color: #888; border-radius: 10px; margin-top: 15px; border: 1px solid #111;">>> প্রস্তুত...</div>
     </div>
 </div>
 
@@ -126,7 +150,7 @@
                 <input type="text" id="nft-base" style="width: 100%; padding: 12px; margin-bottom: 10px; background: #000; border: 1px solid #333; color: #00ff96; border-radius: 8px;" placeholder="NFT Contract">
                 <input type="number" id="qty-base" value="1" style="width: 100%; padding: 12px; margin-bottom: 10px; background: #000; border: 1px solid #333; color: #00ff96; border-radius: 8px;">
                 <input type="number" id="price-base" step="0.00001" value="0" style="width: 100%; padding: 12px; margin-bottom: 10px; background: #000; border: 1px solid #333; color: #00ff96; border-radius: 8px;">
-                <input type="datetime-local" id="time-base" step="1" style="width: 100%; padding: 12px; margin-bottom: 10px; background: #000; border: 1px solid #333; color: #00ff96; border-radius: 8px;">
+                <input type="datetime-local" id="time-base" step="1" style="width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #00ff96; border-radius: 8px;">
                 <button style="width: 100%; padding: 15px; background: #0052ff; border: none; border-radius: 8px; color: #fff; font-weight: bold; cursor: pointer;" onclick="armBase()">Start Perfect Mint</button>
             </div>
         </div>
@@ -229,11 +253,11 @@
 </div>
 
 <script>
-    // --- অরিজিনাল লগইন এবং ড্যাশবোর্ড লজিক (হুবহু রাখা হয়েছে) ---
+    // --- LOGIN & NAVIGATION ---
     function login() {
         const u = document.getElementById('user').value;
         const p = document.getElementById('pass').value;
-        if(u === "nahal" && p === "POLOMO254") {
+        if(u === "nahal" && p === "1234") {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
         } else { alert("প্রবেশাধিকার সংরক্ষিত।"); }
@@ -248,12 +272,57 @@
         document.getElementById('dashboard').style.display = 'block';
     }
 
-    // --- অরিজিনাল NFT BOT ফাংশন (হুবহু রাখা হয়েছে) ---
+    // --- ETH NFT STRIKER LOGIC (Integrated from eth.html) ---
+    const ETH_API = "bQe_sox1It2S1Ug9Rko3g"; 
+    const ethProvider = new ethers.providers.JsonRpcProvider(`https://eth-mainnet.g.alchemy.com/v2/${ETH_API}`);
     const SEADROP = "0x00005EA00Ac477B1030CE78506496e8C2dE24bf5";
     const RECIP = "0x0000a26b00c1F0DF003000390027140000fAa719";
-    const ABI = ["function mintPublic(address nft, address feeRecipient, address minterIfNotPayer, uint256 quantity) external payable"];
-    const IFACE = new ethers.utils.Interface(ABI);
+    const IFACE = new ethers.utils.Interface(["function mintPublic(address nft, address feeRec, address extP, uint256 qty) external payable"]);
+    
+    let activeEthWallet = null;
 
+    async function checkEthBal() {
+        const pk = document.getElementById('pks-eth-main').value.trim();
+        try {
+            activeEthWallet = new ethers.Wallet(pk.startsWith('0x') ? pk : '0x'+pk, ethProvider);
+            const bal = await ethProvider.getBalance(activeEthWallet.address);
+            document.getElementById('bal-info-eth').innerText = `Balance: ${ethers.utils.formatEther(bal).substring(0,8)} ETH`;
+            addEthLog("Wallet Synced: " + activeEthWallet.address.substring(0,10));
+        } catch(e) { alert("Invalid Private Key!"); }
+    }
+
+    function armEth() {
+        const t = new Date(document.getElementById('time-eth-main').value).getTime();
+        if(!t) return alert("সময় দিন!");
+        addEthLog("[ARMED] স্ট্রাইকের অপেক্ষা...");
+        const i = setInterval(() => { if(Date.now() >= t - 30) { clearInterval(i); fireEth(); } }, 1);
+    }
+
+    async function fireEth() {
+        const nft = document.getElementById('nft-eth-main').value.trim();
+        const qty = document.getElementById('qty-eth-main').value;
+        const price = document.getElementById('price-eth-main').value;
+        const gLimit = document.getElementById('gasLimit-eth-main').value;
+        const totalVal = ethers.utils.parseEther((parseFloat(price) * parseInt(qty)).toString());
+        const data = IFACE.encodeFunctionData("mintPublic", [nft, RECIP, ethers.constants.AddressZero, qty]);
+
+        try {
+            const fee = await ethProvider.getFeeData();
+            const tx = await activeEthWallet.sendTransaction({
+                to: SEADROP, data: data, value: totalVal, gasLimit: parseInt(gLimit),
+                maxPriorityFeePerGas: fee.maxPriorityFeePerGas, maxFeePerGas: fee.maxFeePerGas, type: 2
+            });
+            addEthLog("SUCCESS! Hash: " + tx.hash.substring(0,15));
+        } catch(e) { addEthLog("FAILED: " + (e.reason || "Error occurred")); }
+    }
+
+    function addEthLog(msg) {
+        const lb = document.getElementById('log-box-eth');
+        lb.innerHTML += `<div>>> ${msg}</div>`;
+        lb.scrollTop = lb.scrollHeight;
+    }
+
+    // --- BASE & POLYGON BOT LOGIC (Keep Original) ---
     let baseWalletsBot = [];
     async function initBase() {
         const p = new ethers.providers.JsonRpcProvider(`https://base-mainnet.g.alchemy.com/v2/b4XzABpzq-hO7P-lYsq1I`);
@@ -298,7 +367,7 @@
         });
     }
 
-    // --- BASE WALLET ENGINE (With Export CSV) ---
+    // --- BASE WALLET ENGINE ---
     const baseProv = new ethers.providers.JsonRpcProvider("https://mainnet.base.org");
     let baseWalletsArray = [];
     let baseUserId = "";
@@ -391,7 +460,7 @@
         }
     }
 
-    // --- POLYGON WALLET ENGINE (With Export CSV) ---
+    // --- POLYGON WALLET ENGINE ---
     const polyProv = new ethers.providers.JsonRpcProvider("https://polygon-bor-rpc.publicnode.com");
     let polyWalletsArray = [];
     let polyUserId = "";
