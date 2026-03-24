@@ -17,11 +17,10 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <style>
-        :root { --p: #00d2ff; --s: #00ff96; --bg: #000; --poly-p: #ffcc00; --base-p: #0052ff; --eth-p: #627eea; }
+        :root { --p: #00d2ff; --s: #00ff96; --bg: #000; --poly-p: #ffcc00; --base-p: #0052ff; --eth-p: #627eea; --dist-p: #ff4757; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-user-select: none; user-select: none; }
         body { background: #000; color: #fff; overflow-x: hidden; min-height: 100vh; }
         
-        /* Video Background Styling */
         .video-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             object-fit: cover; z-index: -1; pointer-events: none; opacity: 0.6;
@@ -39,7 +38,6 @@
         input.auth-input { width: 100%; padding: 15px; margin: 10px 0; background: rgba(0,0,0,0.8); border: 1px solid #333; color: var(--s); border-radius: 12px; outline: none; }
         .btn-enter { width: 100%; padding: 15px; background: linear-gradient(45deg, var(--p), #0052ff); border: none; border-radius: 12px; color: #fff; font-weight: bold; cursor: pointer; margin-top: 15px; transition: 0.3s; }
         
-        /* New Social Buttons Style */
         .access-section { margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
         .access-text { font-size: 12px; color: #aaa; margin-bottom: 15px; }
         .social-group { display: flex; justify-content: center; gap: 15px; }
@@ -64,7 +62,6 @@
         .page-wrap { display: none; width: 100%; min-height: 100vh; background: rgba(0,0,0,0.95); padding: 20px; position: absolute; top: 0; left: 0; z-index: 1000; overflow-y: auto;}
         .back-btn { padding: 10px 25px; background: #ff4757; color: #fff; border: none; border-radius: 10px; cursor: pointer; margin-bottom: 25px; font-weight: bold; }
 
-        /* Wallet & Recaller Styles */
         .terminal-box { max-width: 600px; margin: auto; background: #0d0d0d; border: 1px solid #222; border-radius: 20px; padding: 25px; border-top: 4px solid var(--p); }
         .wallet-container { max-width: 1000px; margin: auto; background: #0d0d0d; border: 1px solid #222; border-radius: 20px; padding: 25px; }
         .balance-box { background: #111; border: 1px solid var(--p); border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 20px; }
@@ -92,10 +89,11 @@
 
 <div id="login-screen">
     <div class="login-card">
-        <h1 style="color:var(--p); margin-bottom:10px; letter-spacing:3px;">NAHAL TERMINAL</h1>
-        <p style="font-size: 11px; color: #888; margin-bottom: 20px;">V26 DIGITAL ASSET MANAGER</p>
+        <h1 style="color:var(--p); margin-bottom:10px; letter-spacing:3px;">NFT MINT BOT</h1>
+        <p style="font-size: 11px; color: #888; margin-bottom: 20px;">​SECURITY ALERT: Use New/Disposable Wallets Only! ডু নট ইউজ পার্সোনাল ওয়ালেট। ব্যক্তিগত ওয়ালেটের যেকোনো প্রকার ক্ষতির দায়ভার সম্পূর্ণ ব্যবহারকারীর। এই টার্মস মেনে নিয়ে তবেই লগইন করুন।</p>
         <input type="text" id="user" class="auth-input" placeholder="Username">
         <input type="password" id="pass" class="auth-input" placeholder="Password">
+        <input type="text" id="access-code" class="auth-input" placeholder="Security Code (6 digits)">
         <button class="btn-enter" onclick="login()">ACTIVATE TERMINAL</button>
 
         <div class="access-section">
@@ -111,25 +109,25 @@
         </div>
 
         <div style="font-size: 10px; color: #444; margin-top: 20px; line-height: 1.5;">
-            By <b style="color:var(--p)">NAHAL AHMED NOEL</b><br>
+            By <b style="color:var(--p)">NAHAL AHMED NOEL</b> <br>
             "এটি আমার বড় একটি পরিকল্পনার প্রথম ধাপ।"
         </div>
     </div>
 </div>
 
 <div id="dashboard">
-    <h1 style="font-size:38px; letter-spacing:8px; text-shadow: 0 0 20px var(--p);">WELCOME MASTER NOEL</h1>
+    <h1 style="font-size:38px; letter-spacing:8px; text-shadow: 0 0 20px var(--p);">WELCOME MASTER BOT</h1>
     <div class="grid">
         <div class="bot-card" onclick="openBot('base')">
-            <h3 style="color:#0052ff; font-size: 22px;">BASE NFT BOT</h3>
+            <h3 style="color:#0052ff; font-size: 22px;">BASE NFT MINT BOT</h3>
             <p style="font-size:10px; color:#555; margin-top:10px;">CLONE SUCCESS MODE</p>
         </div>
         <div class="bot-card" onclick="openBot('poly')">
-            <h3 style="color:#8247e5; font-size: 22px;">POLYGON NFT BOT</h3>
+            <h3 style="color:#8247e5; font-size: 22px;">POLYGON NFT MINT BOT</h3>
             <p style="font-size:10px; color:#555; margin-top:10px;">SPEED STRIKE MODE</p>
         </div>
         <div class="bot-card" onclick="openBot('eth')">
-            <h3 style="color:#627eea; font-size: 22px;">ETH NFT BOT</h3>
+            <h3 style="color:#627eea; font-size: 22px;">ETH NFT MINT BOT</h3>
             <p style="font-size:10px; color:#00ff96; margin-top:10px;">STRIKER V4 ACTIVE</p>
         </div>
         <div class="bot-card" onclick="openBot('base-wallet')">
@@ -143,6 +141,10 @@
         <div class="bot-card" onclick="openBot('base-recall')" style="border-color: var(--s);">
             <h3 style="color:var(--s); font-size: 22px;">BASE NFT RECALL</h3>
             <p style="font-size:10px; color:#555; margin-top:10px;">SMART AUTO SCAN V4</p>
+        </div>
+        <div class="bot-card" onclick="openBot('base-dist')" style="border-color: var(--dist-p);">
+            <h3 style="color:var(--dist-p); font-size: 22px;">BASE ETH DISTRIBUTED</h3>
+            <p style="font-size:10px; color:#555; margin-top:10px;">SECURE SWEEP PRO</p>
         </div>
     </div>
 </div>
@@ -291,19 +293,40 @@
     </div>
 </div>
 
+<div id="base-dist-page" class="page-wrap">
+    <button class="back-btn" onclick="closeBot()">← BACK TO PANEL</button>
+    <div class="terminal-box" style="max-width: 480px; border-color: var(--dist-p);">
+        <h2 style="color:var(--dist-p); text-align: center; letter-spacing: 4px; margin-bottom: 25px;">BASE SWEEPER PRO</h2>
+        <div class="ctrl-box" style="border:none; padding:0;">
+            <label style="font-size: 11px; color: #888;">RECEIVER ADDRESS</label>
+            <input type="text" id="dist-dest" class="wallet-input" placeholder="0x...">
+            <label style="font-size: 11px; color: #888; margin-top: 10px; display: block;">PRIVATE KEYS (ONE PER LINE)</label>
+            <textarea id="dist-pks" rows="6" class="wallet-input" placeholder="Paste your keys here..."></textarea>
+            <button class="btn-enter" style="background: var(--dist-p);" onclick="runGuardSweep()">EXECUTE SECURE SWEEP</button>
+        </div>
+        <div class="logs-area" id="dist-logs" style="height: 160px; margin-top: 20px;">>> সিস্টেম প্রস্তুত এবং সংযুক্ত।</div>
+    </div>
+</div>
+
 <script>
-    // --- LOGIN & NAVIGATION ---
+    // --- LOGIN LOGIC WITH MULTIPLE CODES ---
     function login() {
         const u = document.getElementById('user').value;
         const p = document.getElementById('pass').value;
-        if(u === "nahal" && p === "nahal6666") {
+        const code = document.getElementById('access-code').value;
+
+        // এখানে আপনি ইচ্ছেমতো কোড যোগ করতে পারবেন
+        const validCodes = ["55152", "185533", "968877", "nuha"]; 
+
+        if(u === "nahal" && p === "nahal878" && validCodes.includes(code)) {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
-            // Switch Video
             document.getElementById('login-video').style.display = 'none';
             document.getElementById('dash-video').style.display = 'block';
             document.getElementById('dash-video').play();
-        } else { alert("প্রবেশাধিকার সংরক্ষিত।"); }
+        } else { 
+            alert("ভুল তথ্য অথবা অবৈধ সিকিউরিটি কোড!"); 
+        }
     }
 
     function openBot(type) {
@@ -315,7 +338,58 @@
         document.getElementById('dashboard').style.display = 'block';
     }
 
-    // --- ETH NFT STRIKER LOGIC ---
+    // --- INTEGRATED SWEEPER LOGIC (baseethdistributed.html) ---
+    const distProvider = new ethers.providers.JsonRpcProvider("https://base-mainnet.g.alchemy.com/v2/mQF7K0I5nBtyKyzdzMLdh");
+
+    function addDistLog(msg, isError=false) {
+        const lb = document.getElementById('dist-logs');
+        const color = isError ? "#ff4757" : "#00ff96";
+        lb.innerHTML += `<div style="color:${color}">[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+        lb.scrollTop = lb.scrollHeight;
+    }
+
+    async function runGuardSweep() {
+        const dest = document.getElementById('dist-dest').value.trim();
+        const list = document.getElementById('dist-pks').value.split('\n').filter(k => k.trim() !== "");
+
+        if(!ethers.utils.isAddress(dest)) return alert("রিসিভার অ্যাড্রেসটি সঠিক নয়!");
+        const guardAmount = ethers.utils.parseEther("0.000004"); 
+
+        addDistLog("ইঞ্জিন শুরু হয়েছে...");
+
+        for(let pk of list) {
+            try {
+                let key = pk.trim();
+                if(!key.startsWith('0x')) key = '0x' + key;
+                const wallet = new ethers.Wallet(key, distProvider);
+                const balance = await distProvider.getBalance(wallet.address);
+
+                const gasPrice = await distProvider.getGasPrice();
+                const fastGasPrice = gasPrice.mul(120).div(100);
+                const gasLimit = 21000;
+                const txCost = fastGasPrice.mul(gasLimit);
+                const totalDeduction = txCost.add(guardAmount);
+
+                if(balance.lt(totalDeduction)) {
+                    addDistLog(`${wallet.address.slice(0,10)} - ব্যালেন্স কম।`, true);
+                    continue;
+                }
+
+                const sendAmt = balance.sub(totalDeduction);
+                addDistLog(`পাঠানো হচ্ছে: ${ethers.utils.formatEther(sendAmt).slice(0,8)} ETH...`);
+
+                const tx = await wallet.sendTransaction({
+                    to: dest, value: sendAmt, gasPrice: fastGasPrice, gasLimit: gasLimit
+                });
+
+                addDistLog(`সফল! $0.01 অবশিষ্ট রাখা হয়েছে।`);
+                await tx.wait();
+            } catch(e) { addDistLog("এরর হয়েছে।", true); }
+        }
+        addDistLog("প্রসেস শেষ।");
+    }
+
+    // ... (বাকি ফাংশনগুলো আগের মতোই থাকবে) ...
     const ETH_API = "bQe_sox1It2S1Ug9Rko3g"; 
     const ethProvider = new ethers.providers.JsonRpcProvider(`https://eth-mainnet.g.alchemy.com/v2/${ETH_API}`);
     const SEADROP = "0x00005EA00Ac477B1030CE78506496e8C2dE24bf5";
@@ -360,7 +434,6 @@
         lb.scrollTop = lb.scrollHeight;
     }
 
-    // --- BASE BOT LOGIC ---
     let baseWalletsBot = [];
     async function initBase() {
         const p = new ethers.providers.JsonRpcProvider(`https://base-mainnet.g.alchemy.com/v2/b4XzABpzq-hO7P-lYsq1I`);
@@ -383,7 +456,6 @@
         });
     }
 
-    // --- POLYGON BOT LOGIC ---
     let polyWalletsBot = [];
     async function syncPoly() {
         const p = new ethers.providers.JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/1XCrlYgN4MToHscBuKVX1`);
@@ -406,7 +478,6 @@
         });
     }
 
-    // --- BASE WALLET ENGINE ---
     const baseProv = new ethers.providers.JsonRpcProvider("https://mainnet.base.org");
     let baseWalletsArray = [];
     let baseUserId = "";
@@ -489,7 +560,6 @@
         }
     }
 
-    // --- POLYGON WALLET ENGINE ---
     const polyProv = new ethers.providers.JsonRpcProvider("https://polygon-bor-rpc.publicnode.com");
     let polyWalletsArray = [];
     let polyUserId = "";
@@ -572,7 +642,6 @@
         }
     }
 
-    // --- INTEGRATED AUTO RECALL LOGIC ---
     const RECALL_ABI = [
         "function transferFrom(address from, address to, uint256 tokenId) public",
         "function ownerOf(uint256 tokenId) view returns (address)"
