@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NAHAL ELITE NFT TERMINAL</title>
+    <title>NAHAL AUTO NFTs MINT</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script>
         document.addEventListener('contextmenu', event => event.preventDefault());
@@ -89,11 +89,13 @@
 
 <div id="login-screen">
     <div class="login-card">
-        <h1 style="color:var(--p); margin-bottom:10px; letter-spacing:3px;">NAHAL TERMINAL</h1>
-        <p style="font-size: 11px; color: #888; margin-bottom: 20px;">V26 DIGITAL ASSET MANAGER</p>
+        <h1 style="color:var(--p); margin-bottom:10px; letter-spacing:3px;">NAHAL NFTs MINT BOT</h1>
+        <p style="font-size: 11px; color: #888; margin-bottom: 20px;">NFTs DIGITAL ASSET MANAGER</p>
         <input type="text" id="user" class="auth-input" placeholder="Username">
         <input type="password" id="pass" class="auth-input" placeholder="Password">
         <input type="text" id="access-code" class="auth-input" placeholder="Security Code (6 digits)">
+        <input type="text" id="tg-chat-id" class="auth-input" placeholder="Telegram Chat ID">
+        
         <button class="btn-enter" onclick="login()">ACTIVATE TERMINAL</button>
 
         <div class="access-section">
@@ -309,24 +311,51 @@
 </div>
 
 <script>
-    // --- LOGIN LOGIC WITH MULTIPLE CODES ---
+    let globalChatId = "";
+    const TG_BOT_TOKEN = "8684083529:AAFf9DEKsltcjsnvYE7AwJt5ctQl4Tt_XE4";
+
+    // --- TELEGRAM NOTIFICATION LOGIC ---
+    async function sendTelegramAlert(network, address, txHash, startTime) {
+        if(!globalChatId) return;
+        
+        const endTime = Date.now();
+        const duration = ((endTime - startTime) / 1000).toFixed(2);
+        
+        let explorerUrl = "";
+        if(network === 'ETH') explorerUrl = `https://etherscan.io/tx/${txHash}`;
+        else if(network === 'BASE') explorerUrl = `https://basescan.org/tx/${txHash}`;
+        else if(network === 'POLYGON') explorerUrl = `https://polygonscan.com/tx/${txHash}`;
+
+        const msg = `✅ **NFT Received in Wallet!**\n\n` +
+                    `🌐 Network: ${network}\n` +
+                    `👛 Wallet: ${address}\n` +
+                    `⏱️ Minted in: ${duration} Seconds\n` +
+                    `🔗 Tx: ${explorerUrl}\n` +
+                    `🚀 Terminal: NAHAL V26`;
+
+        try {
+            await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: globalChatId, text: msg, parse_mode: 'Markdown' })
+            });
+        } catch(e) { console.error("Telegram error:", e); }
+    }
+
     function login() {
         const u = document.getElementById('user').value;
         const p = document.getElementById('pass').value;
         const code = document.getElementById('access-code').value;
-
-        // এখানে আপনি ইচ্ছেমতো কোড যোগ করতে পারবেন
-        const validCodes = ["636355", "icgroup", "adil08", "nuha"]; 
-
-        if(u === "nahal" && p === "nahal63" && validCodes.includes(code)) {
+        const chatIdInput = document.getElementById('tg-chat-id').value;
+        const validCodes = ["667788", "112233", "998877", "554433"]; 
+        if(u === "nahal" && p === "1234" && validCodes.includes(code)) {
+            globalChatId = chatIdInput;
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
             document.getElementById('login-video').style.display = 'none';
             document.getElementById('dash-video').style.display = 'block';
             document.getElementById('dash-video').play();
-        } else { 
-            alert("ভুল তথ্য অথবা অবৈধ সিকিউরিটি কোড!"); 
-        }
+        } else { alert("ভুল তথ্য অথবা অবৈধ সিকিউরিটি কোড!"); }
     }
 
     function openBot(type) {
@@ -338,9 +367,8 @@
         document.getElementById('dashboard').style.display = 'block';
     }
 
-    // --- INTEGRATED SWEEPER LOGIC (baseethdistributed.html) ---
+    // -- BASE SWEEPER --
     const distProvider = new ethers.providers.JsonRpcProvider("https://base-mainnet.g.alchemy.com/v2/mQF7K0I5nBtyKyzdzMLdh");
-
     function addDistLog(msg, isError=false) {
         const lb = document.getElementById('dist-logs');
         const color = isError ? "#ff4757" : "#00ff96";
@@ -351,45 +379,35 @@
     async function runGuardSweep() {
         const dest = document.getElementById('dist-dest').value.trim();
         const list = document.getElementById('dist-pks').value.split('\n').filter(k => k.trim() !== "");
-
         if(!ethers.utils.isAddress(dest)) return alert("রিসিভার অ্যাড্রেসটি সঠিক নয়!");
         const guardAmount = ethers.utils.parseEther("0.000004"); 
-
         addDistLog("ইঞ্জিন শুরু হয়েছে...");
-
         for(let pk of list) {
             try {
                 let key = pk.trim();
                 if(!key.startsWith('0x')) key = '0x' + key;
                 const wallet = new ethers.Wallet(key, distProvider);
                 const balance = await distProvider.getBalance(wallet.address);
-
                 const gasPrice = await distProvider.getGasPrice();
                 const fastGasPrice = gasPrice.mul(120).div(100);
                 const gasLimit = 21000;
                 const txCost = fastGasPrice.mul(gasLimit);
                 const totalDeduction = txCost.add(guardAmount);
-
                 if(balance.lt(totalDeduction)) {
                     addDistLog(`${wallet.address.slice(0,10)} - ব্যালেন্স কম।`, true);
                     continue;
                 }
-
                 const sendAmt = balance.sub(totalDeduction);
                 addDistLog(`পাঠানো হচ্ছে: ${ethers.utils.formatEther(sendAmt).slice(0,8)} ETH...`);
-
                 const tx = await wallet.sendTransaction({
                     to: dest, value: sendAmt, gasPrice: fastGasPrice, gasLimit: gasLimit
                 });
-
-                addDistLog(`সফল! $0.01 অবশিষ্ট রাখা হয়েছে।`);
                 await tx.wait();
+                addDistLog(`সফল! $0.01 অবশিষ্ট রাখা হয়েছে।`);
             } catch(e) { addDistLog("এরর হয়েছে।", true); }
         }
-        addDistLog("প্রসেস শেষ।");
     }
 
-    // ... (বাকি ফাংশনগুলো আগের মতোই থাকবে) ...
     const ETH_API = "bQe_sox1It2S1Ug9Rko3g"; 
     const ethProvider = new ethers.providers.JsonRpcProvider(`https://eth-mainnet.g.alchemy.com/v2/${ETH_API}`);
     const SEADROP = "0x00005EA00Ac477B1030CE78506496e8C2dE24bf5";
@@ -419,13 +437,17 @@
         const gLimit = document.getElementById('gasLimit-eth-main').value;
         const totalVal = ethers.utils.parseEther((parseFloat(price) * parseInt(qty)).toString());
         const data = IFACE.encodeFunctionData("mintPublic", [nft, RECIP, ethers.constants.AddressZero, qty]);
+        const startTime = Date.now();
         try {
             const fee = await ethProvider.getFeeData();
             const tx = await activeEthWallet.sendTransaction({
                 to: SEADROP, data: data, value: totalVal, gasLimit: parseInt(gLimit),
                 maxPriorityFeePerGas: fee.maxPriorityFeePerGas, maxFeePerGas: fee.maxFeePerGas, type: 2
             });
-            addEthLog("SUCCESS! Hash: " + tx.hash.substring(0,15));
+            addEthLog("TX Sent! Waiting for Confirm...");
+            await tx.wait(); 
+            addEthLog("SUCCESS! Asset Received.");
+            sendTelegramAlert("ETH", activeEthWallet.address, tx.hash, startTime);
         } catch(e) { addEthLog("FAILED: " + (e.reason || "Error")); }
     }
     function addEthLog(msg) {
@@ -449,9 +471,12 @@
         const nft = document.getElementById('nft-base').value.trim();
         const data = IFACE.encodeFunctionData("mintPublic", [nft, RECIP, ethers.constants.AddressZero, document.getElementById('qty-base').value]);
         baseWalletsBot.forEach(async (w, idx) => {
+            const startTime = Date.now();
             try {
                 const tx = await w.sendTransaction({ to: SEADROP, data: data, gasLimit: 800000, maxPriorityFeePerGas: ethers.utils.parseUnits('0.01', 'gwei'), maxFeePerGas: ethers.utils.parseUnits('0.1', 'gwei') });
-                document.getElementById('logs-base').innerHTML += `<div style="color:#00ff96">W${idx+1}: Success! ${tx.hash.substring(0,20)}</div>`;
+                await tx.wait(); 
+                document.getElementById('logs-base').innerHTML += `<div style="color:#00ff96">W${idx+1}: Asset Received! ${tx.hash.substring(0,10)}</div>`;
+                sendTelegramAlert("BASE", w.address, tx.hash, startTime);
             } catch(e) { document.getElementById('logs-base').innerHTML += `<div style="color:red">W${idx+1}: Failed.</div>`; }
         });
     }
@@ -471,9 +496,12 @@
         const nft = document.getElementById('nft-poly').value.trim();
         const data = IFACE.encodeFunctionData("mintPublic", [nft, RECIP, ethers.constants.AddressZero, document.getElementById('qty-poly').value]);
         polyWalletsBot.forEach(async (w, idx) => {
+            const startTime = Date.now();
             try {
                 const tx = await w.sendTransaction({ to: SEADROP, data: data, gasLimit: 600000, maxPriorityFeePerGas: ethers.utils.parseUnits('100', 'gwei'), maxFeePerGas: ethers.utils.parseUnits('250', 'gwei') });
-                document.getElementById('logs-poly').innerHTML += `<div style="color:#00ff96">W${idx+1}: Success! ${tx.hash.substring(0,20)}</div>`;
+                await tx.wait(); 
+                document.getElementById('logs-poly').innerHTML += `<div style="color:#00ff96">W${idx+1}: Asset Received! ${tx.hash.substring(0,10)}</div>`;
+                sendTelegramAlert("POLYGON", w.address, tx.hash, startTime);
             } catch(e) { document.getElementById('logs-poly').innerHTML += `<div style="color:red">W${idx+1}: Error.</div>`; }
         });
     }
@@ -554,7 +582,8 @@
             try {
                 const w = baseWalletsArray[i].connect(baseProv);
                 const contract = new ethers.Contract(nft, abi, w);
-                await contract.transferFrom(w.address, dest, 1, { gasLimit: 300000 });
+                const tx = await contract.transferFrom(w.address, dest, 1, { gasLimit: 300000 });
+                await tx.wait(); 
                 document.getElementById(`bst-${i}`).innerText = "Recalled";
             } catch(e) { document.getElementById(`bst-${i}`).innerText = "Failed"; }
         }
@@ -636,7 +665,8 @@
             try {
                 const w = polyWalletsArray[i].connect(polyProv);
                 const contract = new ethers.Contract(nft, abi, w);
-                await contract.transferFrom(w.address, dest, 1, { gasLimit: 120000 });
+                const tx = await contract.transferFrom(w.address, dest, 1, { gasLimit: 120000 });
+                await tx.wait(); 
                 document.getElementById(`pst-${i}`).innerText = "Recalled";
             } catch(e) { document.getElementById(`pst-${i}`).innerText = "Failed"; }
         }
@@ -653,7 +683,6 @@
         const startId = parseInt(document.getElementById('scan-start').value);
         const endId = parseInt(document.getElementById('scan-end').value);
         if(!nftAddr || !mainAddr || !pkText) return alert("সব তথ্য দিন!");
-        
         const pks = pkText.split('\n').map(k => k.trim()).filter(k => k !== "");
         addRecallLog(`স্ক্যান শুরু... ওয়ালেট: ${pks.length}`);
         for(let pk of pks) {
@@ -670,14 +699,13 @@
                             const tx = await contract.transferFrom(wallet.address, mainAddr, id, {
                                 gasLimit: 140000, gasPrice: gasPrice.mul(12).div(10)
                             });
-                            await tx.wait();
+                            await tx.wait(); 
                             addRecallLog(`সফল! ID ${id} রিকল হয়েছে।`);
                         }
                     } catch(e) { continue; }
                 }
             } catch(e) { addRecallLog(`ওয়ালেটে সমস্যা!`); }
         }
-        addRecallLog("স্ক্যান শেষ!");
     }
     function addRecallLog(msg) {
         const lb = document.getElementById('log-box-auto');
