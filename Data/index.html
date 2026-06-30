@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #FFDE4D;
+            --primary-color: #FF4C4C;
+            --secondary-color: #38E54D;
+            --dark-color: #1A1A1A;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        .comic-container {
+            background: var(--white);
+            border: 6px solid var(--dark-color);
+            box-shadow: 12px 12px 0px var(--dark-color);
+            border-radius: 20px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+            transform: rotate(-1deg);
+        }
+
+        .comic-title {
+            font-family: 'Bangers', cursive;
+            font-size: 3.5rem;
+            color: var(--primary-color);
+            text-shadow: 3px 3px 0px var(--dark-color);
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+
+        .step-box {
+            display: none;
+        }
+
+        .step-box.active {
+            display: block;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        label {
+            font-family: 'Bangers', cursive;
+            font-size: 1.8rem;
+            color: var(--dark-color);
+            display: block;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            border: 4px solid var(--dark-color);
+            border-radius: 10px;
+            background: #F8F9FA;
+            font-weight: 700;
+            color: var(--dark-color);
+            outline: none;
+            box-shadow: 4px 4px 0px var(--dark-color);
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]:focus {
+            background: var(--white);
+            box-shadow: 6px 6px 0px var(--primary-color);
+            transform: translate(-2px, -2px);
+        }
+
+        .comic-btn {
+            font-family: 'Bangers', cursive;
+            font-size: 2rem;
+            color: var(--white);
+            background-color: var(--secondary-color);
+            padding: 10px 35px;
+            border: 4px solid var(--dark-color);
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 5px 5px 0px var(--dark-color);
+            transition: all 0.1s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .comic-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 7px 7px 0px var(--dark-color);
+        }
+
+        .comic-btn:active {
+            transform: translate(3px, 3px);
+            box-shadow: 2px 2px 0px var(--dark-color);
+        }
+
+        .creator-tag {
+            margin-top: 40px;
+            font-family: 'Bangers', cursive;
+            font-size: 1.4rem;
+            color: var(--dark-color);
+            letter-spacing: 1px;
+            opacity: 0.9;
+        }
+
+        .creator-name {
+            color: var(--primary-color);
+            background: #FFF;
+            padding: 2px 8px;
+            border: 2px solid var(--dark-color);
+            display: inline-block;
+            transform: rotate(3deg);
+            box-shadow: 2px 2px 0px var(--dark-color);
+        }
+
+        .loading-spinner {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="comic-container">
+        <div class="comic-title">WELCOME!</div>
+
+        <div id="step1" class="step-box active">
+            <div class="input-group">
+                <label for="username">WHAT IS YOUR NAME?</label>
+                <input type="text" id="username" placeholder="Enter your name here..." autocomplete="off">
+            </div>
+            <button class="comic-btn" onclick="nextStep()">NEXT</button>
+        </div>
+
+        <div id="step2" class="step-box">
+            <div class="input-group">
+                <label for="walletaddress">SUBMIT YOUR WALLET ADDRESS</label>
+                <input type="text" id="walletaddress" placeholder="Enter wallet address..." autocomplete="off">
+            </div>
+            <button class="comic-btn" onclick="submitData()">SUBMIT</button>
+        </div>
+
+        <div id="loading" class="step-box">
+            <div class="loading-spinner"></div>
+            <label>PROCESSING DATA...</label>
+        </div>
+
+        <div id="success" class="step-box">
+            <div class="comic-title" style="color: var(--secondary-color);">SUCCESS!</div>
+            <label>YOUR DATA HAS BEEN RECORDED SUCCESSFULLY!</label>
+        </div>
+
+        <div class="creator-tag">
+            MADE BY <span class="creator-name">NAHAL</span>
+        </div>
+    </div>
+
+    <script>
+        const scriptUrl = 'YOUR_GOOGLE_WEB_APP_URL';
+        let userData = {
+            name: '',
+            wallet: ''
+        };
+
+        function nextStep() {
+            const nameInput = document.getElementById('username').value.trim();
+            if (nameInput === '') {
+                alert('Please enter your name!');
+                return;
+            }
+            userData.name = nameInput;
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step2').classList.add('active');
+        }
+
+        function submitData() {
+            const walletInput = document.getElementById('walletaddress').value.trim();
+            if (walletInput === '') {
+                alert('Please enter your wallet address!');
+                return;
+            }
+            userData.wallet = walletInput;
+
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('loading').classList.add('active');
+
+            fetch(scriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(() => {
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('success').classList.add('active');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Something went wrong. Please try again.');
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('step2').classList.add('active');
+            });
+        }
+    </script>
+</body>
+</html>
