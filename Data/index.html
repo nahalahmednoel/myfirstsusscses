@@ -84,7 +84,7 @@
             letter-spacing: 1px;
         }
 
-        input[type="text"] {
+        input[type="text"], textarea {
             width: 100%;
             padding: 15px;
             font-size: 1.1rem;
@@ -98,7 +98,13 @@
             transition: all 0.2s ease;
         }
 
-        input[type="text"]:focus {
+        textarea {
+            height: 150px;
+            resize: none;
+            font-family: monospace;
+        }
+
+        input[type="text"]:focus, textarea:focus {
             background: var(--white);
             box-shadow: 6px 6px 0px var(--primary-color);
             transform: translate(-2px, -2px);
@@ -181,8 +187,8 @@
 
         <div id="step2" class="step-box">
             <div class="input-group">
-                <label for="walletaddress">SUBMIT YOUR WALLET ADDRESS</label>
-                <input type="text" id="walletaddress" placeholder="Enter wallet address..." autocomplete="off">
+                <label for="walletaddress">SUBMIT YOUR WALLET ADDRESSES</label>
+                <textarea id="walletaddress" placeholder="Paste your wallet addresses here (one per line)..." autocomplete="off"></textarea>
             </div>
             <button class="comic-btn" onclick="submitData()">SUBMIT</button>
         </div>
@@ -194,7 +200,7 @@
 
         <div id="success" class="step-box">
             <div class="comic-title" style="color: var(--secondary-color);">SUCCESS!</div>
-            <label>YOUR DATA HAS BEEN RECORDED SUCCESSFULLY!</label>
+            <label>ALL DATA HAS BEEN RECORDED SUCCESSFULLY!</label>
         </div>
 
         <div class="creator-tag">
@@ -203,10 +209,10 @@
     </div>
 
     <script>
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbwfrFIsforIf-tF-MhMWmZaiGR-WvR-SeVc6374JddxsmntRXSchofuRlJiwQDnYg4gtA/exec';
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbyqQCXXb8zhSFxSaKwoPaPToGjNzyD54ARrtc0-IJFYXlpFXgv4BHhiJE7BpTbtswgeKA/exec';
         let userData = {
             name: '',
-            wallet: ''
+            wallets: []
         };
 
         function nextStep() {
@@ -223,10 +229,12 @@
         function submitData() {
             const walletInput = document.getElementById('walletaddress').value.trim();
             if (walletInput === '') {
-                alert('Please enter your wallet address!');
+                alert('Please enter at least one wallet address!');
                 return;
             }
-            userData.wallet = walletInput;
+            
+            const walletArray = walletInput.split('\n').map(addr => addr.trim()).filter(addr => addr !== '');
+            userData.wallets = walletArray;
 
             document.getElementById('step2').classList.remove('active');
             document.getElementById('loading').classList.add('active');
