@@ -1,0 +1,23 @@
+{
+  "name": "mochishood-web3-fullstack",
+  "version": "1.0.0",
+  "description": "Web3 NFT Minting & Transfer Dashboard with Hidden Admin Panel",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": ["web3", "nft", "minting", "ethereum"],
+  "author": "NAHAL AHMED NOEL",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.1.0",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
