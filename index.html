@@ -1,717 +1,570 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NAHAL AUTO NFTs MINT</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script>
-        document.addEventListener('contextmenu', event => event.preventDefault());
-        document.onkeydown = function(e) {
-            if(e.keyCode == 123) return false;
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false;
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
-            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
-        };
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-    <style>
-        :root { --p: #00d2ff; --s: #00ff96; --bg: #000; --poly-p: #ffcc00; --base-p: #0052ff; --eth-p: #627eea; --dist-p: #ff4757; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-user-select: none; user-select: none; }
-        body { background: #000; color: #fff; overflow-x: hidden; min-height: 100vh; }
-        
-        .video-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; z-index: -1; pointer-events: none; opacity: 0.6;
-        }
-
-        #login-screen { 
-            height: 100vh; display: flex; align-items: center; justify-content: center; 
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); position: fixed; width: 100%; z-index: 999;
-        }
-        .login-card { 
-            background: rgba(0,0,0,0.7); padding: 40px; border-radius: 30px; 
-            border: 1px solid rgba(0,210,255,0.3); width: 90%; max-width: 420px; text-align: center;
-            box-shadow: 0 0 50px rgba(0,210,255,0.1);
-        }
-        input.auth-input { width: 100%; padding: 15px; margin: 10px 0; background: rgba(0,0,0,0.8); border: 1px solid #333; color: var(--s); border-radius: 12px; outline: none; }
-        .btn-enter { width: 100%; padding: 15px; background: linear-gradient(45deg, var(--p), #0052ff); border: none; border-radius: 12px; color: #fff; font-weight: bold; cursor: pointer; margin-top: 15px; transition: 0.3s; }
-        
-        .access-section { margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
-        .access-text { font-size: 12px; color: #aaa; margin-bottom: 15px; }
-        .social-group { display: flex; justify-content: center; gap: 15px; }
-        .social-btn { 
-            display: flex; align-items: center; gap: 8px; padding: 10px 18px; 
-            border-radius: 10px; text-decoration: none; color: #fff; font-size: 13px; 
-            font-weight: 600; transition: 0.3s; 
-        }
-        .tw-btn { background: #1DA1F2; }
-        .tg-btn { background: #0088cc; }
-        .social-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
-
-        #dashboard { display: none; padding: 50px 20px; text-align: center; min-height: 100vh; position: relative; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; max-width: 1200px; margin: 50px auto; }
-        
-        .bot-card { 
-            background: rgba(255,255,255,0.05); padding: 40px 20px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1); 
-            cursor: pointer; transition: 0.5s; backdrop-filter: blur(10px);
-        }
-        .bot-card:hover { transform: translateY(-10px); border-color: var(--p); box-shadow: 0 0 30px rgba(0,210,255,0.4); background: rgba(0,210,255,0.1); }
-
-        .page-wrap { display: none; width: 100%; min-height: 100vh; background: rgba(0,0,0,0.95); padding: 20px; position: absolute; top: 0; left: 0; z-index: 1000; overflow-y: auto;}
-        .back-btn { padding: 10px 25px; background: #ff4757; color: #fff; border: none; border-radius: 10px; cursor: pointer; margin-bottom: 25px; font-weight: bold; }
-
-        .terminal-box { max-width: 600px; margin: auto; background: #0d0d0d; border: 1px solid #222; border-radius: 20px; padding: 25px; border-top: 4px solid var(--p); }
-        .wallet-container { max-width: 1000px; margin: auto; background: #0d0d0d; border: 1px solid #222; border-radius: 20px; padding: 25px; }
-        .balance-box { background: #111; border: 1px solid var(--p); border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 20px; }
-        .grid-ctrl { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; }
-        .ctrl-box { background: #111; border: 1px solid #222; padding: 18px; border-radius: 15px; text-align: left; }
-        .wallet-input { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #333; color: var(--s); border-radius: 8px; outline: none; }
-        .wallet-btn { width: 100%; padding: 13px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 5px; font-size: 11px; text-transform: uppercase; }
-        .table-wrap { margin-top: 25px; background: #000; border-radius: 15px; border: 1px solid #222; overflow: auto; max-height: 400px; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th { background: #161616; padding: 12px; text-align: left; color: #555; }
-        td { padding: 12px; border-bottom: 1px solid #111; }
-        .action-link { cursor: pointer; color: var(--p); margin-right: 10px; font-weight: bold; }
-        .logs-area { height: 200px; overflow-y: auto; background: #000; padding: 15px; font-size: 11px; color: #888; border-radius: 10px; border: 1px solid #222; margin-top: 15px; text-align: left; }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
 </head>
 <body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/three@0.137.5/build/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:#04101d}
+  a{color:#8fe9f0;text-decoration:none}
+  a:hover{color:#c9f6f8}
+  ::selection{background:#2bd6e6;color:#04101d}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  @keyframes pulseLock{0%,100%{opacity:.55}50%{opacity:.9}}
+</style>
+</helmet>
+<canvas id="oceanCanvas" style="position:fixed;inset:0;width:100vw;height:100vh;display:block;z-index:0"></canvas>
+<div style="position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(120% 80% at 50% 8%, transparent 40%, rgba(4,16,29,.35) 100%)"></div>
 
-<video id="login-video" class="video-bg" autoplay muted loop>
-    <source src="https://cdn.pixabay.com/video/2022/01/06/103575-664409333_large.mp4" type="video/mp4">
-</video>
+<div style="position:relative;z-index:3;font-family:'Sora',sans-serif;color:#eaf7fb">
 
-<video id="dash-video" class="video-bg" style="display:none;" muted loop>
-    <source src="https://cdn.pixabay.com/video/2019/10/09/27669-365224683_large.mp4" type="video/mp4">
-</video>
-
-<div id="login-screen">
-    <div class="login-card">
-        <h1 style="color:var(--p); margin-bottom:10px; letter-spacing:3px;">NAHAL NFTs MINT BOT</h1>
-        <p style="font-size: 11px; color: #888; margin-bottom: 20px;">​SECURITY ALERT: Use New/Disposable Wallets Only! ডু নট ইউজ পার্সোনাল ওয়ালেট। ব্যক্তিগত ওয়ালেটের যেকোনো প্রকার ক্ষতির দায়ভার সম্পূর্ণ ব্যবহারকারীর। এই টার্মস মেনে নিয়ে তবেই লগইন করুন।</p>
-        <input type="text" id="user" class="auth-input" placeholder="Username">
-        <input type="password" id="pass" class="auth-input" placeholder="Password">
-        <input type="text" id="access-code" class="auth-input" placeholder="Security Code (6 digits)">
-        <input type="text" id="tg-chat-id" class="auth-input" placeholder="Telegram Chat ID">
-        
-        <button class="btn-enter" onclick="login()">ACTIVATE TERMINAL</button>
-
-        <div class="access-section">
-            <p class="access-text">প্যানেল অ্যাক্সেস পেতে ইনবক্স করুন:</p>
-            <div class="social-group">
-                <a href="https://twitter.com/nlnahal" target="_blank" class="social-btn tw-btn">
-                    <i class="fab fa-twitter"></i> Twitter
-                </a>
-                <a href="https://t.me/nahal438" target="_blank" class="social-btn tg-btn">
-                    <i class="fab fa-telegram-plane"></i> Telegram
-                </a>
-            </div>
-        </div>
-
-        <div style="font-size: 10px; color: #444; margin-top: 20px; line-height: 1.5;">
-            By <b style="color:var(--p)">NAHAL AHMED NOEL</b> <br>
-            "এটি আমার বড় একটি পরিকল্পনার প্রথম ধাপ।"
-        </div>
+  <nav style="position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:22px 5vw;backdrop-filter:blur(8px);background:linear-gradient(180deg,rgba(4,16,29,.45),transparent)">
+    <div style="font-family:'Syne',sans-serif;font-weight:800;letter-spacing:.14em;font-size:15px">N · A · N</div>
+    <div style="display:flex;gap:34px;font-size:13.5px;letter-spacing:.05em;opacity:.88">
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#soon">Coming Soon</a>
+      <a href="#contact">Contact</a>
     </div>
-</div>
+  </nav>
 
-<div id="dashboard">
-    <h1 style="font-size:38px; letter-spacing:8px; text-shadow: 0 0 20px var(--p);">WELCOME MASTER NOEL</h1>
-    <div class="grid">
-        <div class="bot-card" onclick="openBot('base')">
-            <h3 style="color:#0052ff; font-size: 22px;">BASE NFT BOT</h3>
-            <p style="font-size:10px; color:#555; margin-top:10px;">CLONE SUCCESS MODE</p>
-        </div>
-        <div class="bot-card" onclick="openBot('poly')">
-            <h3 style="color:#8247e5; font-size: 22px;">POLYGON NFT BOT</h3>
-            <p style="font-size:10px; color:#555; margin-top:10px;">SPEED STRIKE MODE</p>
-        </div>
-        <div class="bot-card" onclick="openBot('eth')">
-            <h3 style="color:#627eea; font-size: 22px;">ETH NFT BOT</h3>
-            <p style="font-size:10px; color:#00ff96; margin-top:10px;">STRIKER V4 ACTIVE</p>
-        </div>
-        <div class="bot-card" onclick="openBot('base-wallet')">
-            <h3 style="color:#0052ff; font-size: 22px;">BASE WALLET</h3>
-            <p style="font-size:10px; color:#555; margin-top:10px;">WALLET MANAGER</p>
-        </div>
-        <div class="bot-card" onclick="openBot('poly-wallet')">
-            <h3 style="color:#ffcc00; font-size: 22px;">POLYGON WALLET</h3>
-            <p style="font-size:10px; color:#555; margin-top:10px;">WALLET MANAGER</p>
-        </div>
-        <div class="bot-card" onclick="openBot('base-recall')" style="border-color: var(--s);">
-            <h3 style="color:var(--s); font-size: 22px;">BASE NFT RECALL</h3>
-            <p style="font-size:10px; color:#555; margin-top:10px;">SMART AUTO SCAN V4</p>
-        </div>
-        <div class="bot-card" onclick="openBot('base-dist')" style="border-color: var(--dist-p);">
-            <h3 style="color:var(--dist-p); font-size: 22px;">BASE ETH DISTRIBUTED</h3>
-            <p style="font-size:10px; color:#555; margin-top:10px;">SECURE SWEEP PRO</p>
-        </div>
+  <!-- HERO -->
+  <section style="height:120vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 6vw;position:relative">
+    <div style="font-size:12px;letter-spacing:.55em;text-transform:uppercase;opacity:.7;margin-bottom:26px">Interactive · 3D · Ocean</div>
+    <h1 style="font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(42px,8.5vw,120px);line-height:.96;letter-spacing:-.02em;text-shadow:0 20px 60px rgba(0,0,0,.35)">Nahal Ahmed Noel</h1>
+    <p style="margin-top:24px;font-size:clamp(15px,1.6vw,20px);font-weight:300;letter-spacing:.02em;max-width:640px;opacity:.9">Full Stack Developer & Creative Technologist crafting immersive, cinematic web experiences.</p>
+    <div id="scrollCue" style="position:absolute;bottom:8vh;display:flex;flex-direction:column;align-items:center;gap:10px;opacity:.75;animation:floaty 2.6s ease-in-out infinite">
+      <span style="font-size:11px;letter-spacing:.35em;text-transform:uppercase">Dive in</span>
+      <span style="width:1px;height:42px;background:linear-gradient(#8fe9f0,transparent)"></span>
     </div>
-</div>
+  </section>
 
-<div id="eth-page" class="page-wrap">
-    <button class="back-btn" onclick="closeBot()">← BACK TO PANEL</button>
-    <div class="terminal-box" style="border-color: var(--eth-p);">
-        <h2 style="text-align:center; color:var(--eth-p); font-size: 18px; margin-bottom: 15px;">ETH STRIKER V4</h2>
-        <textarea id="pks-eth-main" rows="3" class="wallet-input" placeholder="Private Key এখানে দিন"></textarea>
-        <button class="wallet-btn" style="border: 1px solid var(--eth-p); background:#111; color:var(--eth-p);" onclick="checkEthBal()">SYNC & CHECK BALANCE</button>
-        <div id="bal-info-eth" style="font-size: 12px; color: var(--s); margin: 10px 0; text-align: right;">Balance: 0.00 ETH</div>
-        <input type="text" id="nft-eth-main" class="wallet-input" placeholder="NFT Contract Address">
-        <input type="number" id="qty-eth-main" value="1" class="wallet-input" placeholder="Quantity">
-        <p style="font-size: 11px; color: #555;">MINT PRICE (ETH):</p>
-        <input type="number" id="price-eth-main" value="0" step="0.0001" class="wallet-input">
-        <p style="font-size: 11px; color: #555;">MANUAL GAS LIMIT:</p>
-        <input type="number" id="gasLimit-eth-main" value="150000" class="wallet-input">
-        <input type="datetime-local" id="time-eth-main" step="1" class="wallet-input">
-        <button class="btn-enter" style="background:var(--eth-p)" onclick="armEth()">ARM & START STRIKE</button>
-        <div id="log-box-eth" class="logs-area">>> প্রস্তুত...</div>
+  <!-- ABOUT -->
+  <section id="about" style="min-height:100vh;display:flex;align-items:center;padding:12vh 6vw">
+    <div class="reveal" style="max-width:760px;background:rgba(10,32,50,.42);border:1px solid rgba(140,230,240,.16);border-radius:28px;padding:clamp(30px,4vw,60px);backdrop-filter:blur(18px);box-shadow:0 40px 120px rgba(0,0,0,.45)">
+      <div style="font-size:12px;letter-spacing:.4em;text-transform:uppercase;color:#7fe7d6;margin-bottom:18px">About</div>
+      <h2 style="font-family:'Syne',sans-serif;font-weight:700;font-size:clamp(28px,4vw,52px);line-height:1.02;letter-spacing:-.01em">Nahal Ahmed Noel</h2>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 26px">
+        <span style="font-size:12.5px;padding:7px 14px;border-radius:999px;background:rgba(127,231,214,.12);border:1px solid rgba(127,231,214,.28)">Full Stack Developer</span>
+        <span style="font-size:12.5px;padding:7px 14px;border-radius:999px;background:rgba(127,231,214,.12);border:1px solid rgba(127,231,214,.28)">Creative Web Designer</span>
+        <span style="font-size:12.5px;padding:7px 14px;border-radius:999px;background:rgba(127,231,214,.12);border:1px solid rgba(127,231,214,.28)">3D Interactive Specialist</span>
+      </div>
+      <p style="font-size:clamp(15px,1.5vw,18px);line-height:1.75;font-weight:300;opacity:.92;text-wrap:pretty">I build websites that feel less like pages and more like places. Over the past several years I've shipped 200+ projects — from fast, clean business sites to fully immersive 3D worlds — always chasing the same thing: an interface that responds so naturally you forget there's code underneath.</p>
+      <p style="font-size:clamp(15px,1.5vw,18px);line-height:1.75;font-weight:300;opacity:.92;margin-top:16px;text-wrap:pretty">My work sits where high-quality UI design meets modern frontend engineering. I care about the details most people never name — the weight of an easing curve, how a card catches light on hover, whether a scroll feels heavy or effortless. Every build is responsive to the pixel, tuned for performance, and made to run buttery-smooth on any device.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:26px;margin-top:32px">
+        <div><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:34px;color:#7fe7d6">200+</div><div style="font-size:12px;opacity:.7;letter-spacing:.06em">Websites delivered</div></div>
+        <div><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:34px;color:#7fe7d6">100%</div><div style="font-size:12px;opacity:.7;letter-spacing:.06em">Responsive & optimized</div></div>
+        <div><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:34px;color:#7fe7d6">∞</div><div style="font-size:12px;opacity:.7;letter-spacing:.06em">Attention to detail</div></div>
+      </div>
     </div>
-</div>
+  </section>
 
-<div id="base-page" class="page-wrap">
-    <button class="back-btn" onclick="closeBot()">← BACK TO PANEL</button>
-    <div class="wallet-container" style="max-width: 850px;">
-        <h1 style="color:#0052ff; text-align: center; letter-spacing: 5px; font-size: 20px;">NAHAL V26 - CLONE MODE</h1>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
-            <div>
-                <textarea id="pks-base" rows="5" class="wallet-input" placeholder="Base Private Keys..."></textarea>
-                <button class="wallet-btn" style="background:#111; border: 1px solid #0052ff; color: #0052ff;" onclick="initBase()">Sync Wallets</button>
-            </div>
-            <div>
-                <input type="text" id="nft-base" class="wallet-input" placeholder="NFT Contract">
-                <input type="number" id="qty-base" value="1" class="wallet-input">
-                <input type="number" id="price-base" step="0.00001" value="0" class="wallet-input">
-                <input type="datetime-local" id="time-base" step="1" class="wallet-input">
-                <button class="wallet-btn" style="background:#0052ff; color:#fff;" onclick="armBase()">Start Perfect Mint</button>
-            </div>
-        </div>
-        <div id="logs-base" class="logs-area" style="height: 250px;">>> লজিক প্রস্তুত মাস্টার।</div>
+  <!-- SERVICES -->
+  <section id="services" style="min-height:110vh;padding:12vh 6vw;display:flex;flex-direction:column;align-items:center">
+    <div class="reveal" style="text-align:center;margin-bottom:56px">
+      <div style="font-size:12px;letter-spacing:.4em;text-transform:uppercase;color:#7fe7d6;margin-bottom:14px">Services</div>
+      <h2 style="font-family:'Syne',sans-serif;font-weight:700;font-size:clamp(30px,5vw,60px);letter-spacing:-.01em">Work with me</h2>
     </div>
-</div>
-
-<div id="poly-page" class="page-wrap">
-    <button class="back-btn" onclick="closeBot()">← BACK TO PANEL</button>
-    <div class="terminal-box" style="border-color: #8247e5;">
-        <h1 style="text-align: center; color: #8247e5; font-size: 22px;">POLYGON STRIKE ENGINE</h1>
-        <textarea id="pks-poly" rows="5" class="wallet-input" placeholder="Private Keys..."></textarea>
-        <button class="wallet-btn" style="background:#1a1a1a; color:#8247e5; border: 1px solid #8247e5;" onclick="syncPoly()">SYNC WALLETS</button>
-        <input type="text" id="nft-poly" class="wallet-input" placeholder="Contract Address">
-        <input type="number" id="qty-poly" value="1" class="wallet-input">
-        <input type="datetime-local" id="time-poly" step="1" class="wallet-input">
-        <button class="wallet-btn" style="background:#ff4757; color:#fff;" onclick="armPoly()">ARM & MINT</button>
-        <div id="logs-poly" class="logs-area">>> পলিগন মডিউল প্রস্তুত।</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:26px;max-width:900px;width:100%">
+      <div class="reveal tilt" style="position:relative;border-radius:26px;padding:38px 34px;background:rgba(12,38,58,.5);border:1px solid rgba(140,230,240,.2);backdrop-filter:blur(20px);box-shadow:0 40px 110px rgba(0,0,0,.5);overflow:hidden">
+        <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(127,231,214,.14),transparent 55%);pointer-events:none"></div>
+        <div style="font-size:12px;letter-spacing:.3em;text-transform:uppercase;opacity:.65">Package 01</div>
+        <h3 style="font-family:'Syne',sans-serif;font-weight:700;font-size:26px;margin:12px 0 6px">3D Interactive Website</h3>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:44px;color:#8fe9f0;margin-bottom:16px">$200</div>
+        <p style="font-size:14.5px;line-height:1.7;font-weight:300;opacity:.9;margin-bottom:28px">Custom immersive interactive 3D website with premium animations, modern UI, responsive design, optimized performance, and professional deployment.</p>
+        <a class="magnet tgbtn" href="https://t.me/nehal438" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;padding:14px 24px;border-radius:999px;background:linear-gradient(135deg,#2bd6e6,#4aa4ff);color:#052033;font-weight:600;font-size:14px;box-shadow:0 14px 40px rgba(43,214,230,.35)">Contact on Telegram →</a>
+      </div>
+      <div class="reveal tilt" style="position:relative;border-radius:26px;padding:38px 34px;background:rgba(12,38,58,.5);border:1px solid rgba(140,230,240,.2);backdrop-filter:blur(20px);box-shadow:0 40px 110px rgba(0,0,0,.5);overflow:hidden">
+        <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(74,164,255,.14),transparent 55%);pointer-events:none"></div>
+        <div style="font-size:12px;letter-spacing:.3em;text-transform:uppercase;opacity:.65">Package 02</div>
+        <h3 style="font-family:'Syne',sans-serif;font-weight:700;font-size:26px;margin:12px 0 6px">Modern UI Website</h3>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:44px;color:#8fe9f0;margin-bottom:16px">$50</div>
+        <p style="font-size:14.5px;line-height:1.7;font-weight:300;opacity:.9;margin-bottom:28px">Modern responsive landing page or business website with clean UI and fast performance.</p>
+        <a class="magnet tgbtn" href="https://t.me/nehal438" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;padding:14px 24px;border-radius:999px;background:linear-gradient(135deg,#2bd6e6,#4aa4ff);color:#052033;font-weight:600;font-size:14px;box-shadow:0 14px 40px rgba(43,214,230,.35)">Contact on Telegram →</a>
+      </div>
     </div>
-</div>
+    <div class="reveal" style="margin-top:34px;font-size:14px;opacity:.8">Telegram · <a href="https://t.me/nehal438" target="_blank" rel="noopener">@nehal438</a></div>
+  </section>
 
-<div id="base-wallet-page" class="page-wrap">
-    <button class="back-btn" onclick="closeBot()">← BACK TO PANEL</button>
-    <div class="wallet-container">
-        <h1 style="text-align: center; color: var(--base-p); letter-spacing: 4px;">NAHAL BASE MASTER</h1>
-        <div class="balance-box" style="border-color: var(--base-p);">
-            <div id="mainBalBase" style="font-size: 28px; color: var(--s); font-weight: bold; margin: 10px 0;">0.00 ETH</div>
-            <input type="password" id="mainPkBase" class="wallet-input" placeholder="আপনার মেইন প্রাইভেট কী দিন" oninput="unlockBase()" style="text-align: center; max-width: 450px;">
-        </div>
-        <div class="grid-ctrl">
-            <div class="ctrl-box">
-                <h3 style="color:var(--base-p)">💎 Wallet Tools</h3>
-                <input type="number" id="genCountBase" class="wallet-input" value="10">
-                <button class="wallet-btn" style="background:var(--base-p); color:#fff;" onclick="generateBase()">Generate Wallets</button>
-                <button class="wallet-btn" style="background:#333; color:#fff; margin-top:8px;" onclick="exportBaseCSV()">Export CSV</button>
-            </div>
-            <div class="ctrl-box">
-                <h3 style="color:var(--base-p)">⛽ Gas Distributor</h3>
-                <input type="number" id="gasAmtBase" class="wallet-input" step="0.0001" placeholder="Amount (ETH)">
-                <button class="wallet-btn" style="background:var(--s); color:#000;" onclick="distributeBase()">Send ETH To All</button>
-                <button class="wallet-btn" style="background:#111; border:1px solid #333; color:#888; margin-top:8px;" onclick="refreshBaseBal()">Refresh Balances</button>
-            </div>
-            <div class="ctrl-box">
-                <h3 style="color:var(--base-p)">📦 NFT Recall</h3>
-                <input type="text" id="nftContractBase" class="wallet-input" placeholder="NFT Contract Addr">
-                <input type="text" id="destAddrBase" class="wallet-input" placeholder="Destination Addr">
-                <button class="wallet-btn" style="background:#ff4757; color:#fff;" onclick="recallNFTsBase()">Recall All NFTs</button>
-            </div>
-        </div>
-        <div class="table-wrap">
-            <table id="tableBase">
-                <thead><tr><th>#</th><th>Address</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead>
-                <tbody id="listBase"></tbody>
-            </table>
-        </div>
+  <!-- COMING SOON -->
+  <section id="soon" style="min-height:100vh;padding:12vh 6vw;display:flex;flex-direction:column;align-items:center">
+    <div class="reveal" style="text-align:center;margin-bottom:52px">
+      <div style="font-size:12px;letter-spacing:.4em;text-transform:uppercase;color:#7fe7d6;margin-bottom:14px">Unlocking Soon</div>
+      <h2 style="font-family:'Syne',sans-serif;font-weight:700;font-size:clamp(30px,5vw,60px);letter-spacing:-.01em">More Services</h2>
     </div>
-</div>
-
-<div id="poly-wallet-page" class="page-wrap">
-    <button class="back-btn" onclick="closeBot()">← BACK TO PANEL</button>
-    <div class="wallet-container">
-        <h1 style="text-align: center; color: var(--poly-p); letter-spacing: 4px;">NAHAL SECURE MASTER</h1>
-        <div class="balance-box" style="border-color: var(--poly-p);">
-            <div id="mainBalPoly" style="font-size: 28px; color: var(--s); font-weight: bold; margin: 10px 0;">0.00 MATIC</div>
-            <input type="password" id="mainPkPoly" class="wallet-input" placeholder="আপনার মেইন প্রাইভেট কী দিন" oninput="unlockPoly()" style="text-align: center; max-width: 450px;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px;max-width:1000px;width:100%">
+      <sc-for list="{{ locked }}" as="card" hint-placeholder-count="3">
+        <div class="reveal lockcard" style="position:relative;border-radius:22px;padding:40px 28px 34px;min-height:220px;background:rgba(8,26,42,.44);border:1px solid rgba(140,230,240,.12);backdrop-filter:blur(14px);overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end">
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,16,29,.1),rgba(4,16,29,.55));pointer-events:none"></div>
+          <div style="position:absolute;top:20px;right:22px;display:flex;align-items:center;gap:7px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#8fe9f0;animation:pulseLock 2.8s ease-in-out infinite">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8fe9f0" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>Locked
+          </div>
+          <div style="position:relative">
+            <div style="font-size:11px;letter-spacing:.3em;text-transform:uppercase;opacity:.6;margin-bottom:8px">{{ card.tag }}</div>
+            <h3 style="font-family:'Syne',sans-serif;font-weight:700;font-size:22px;line-height:1.1">{{ card.title }}</h3>
+            <p style="font-size:13px;opacity:.7;margin-top:10px;font-weight:300">Coming Soon</p>
+          </div>
         </div>
-        <div class="grid-ctrl">
-            <div class="ctrl-box">
-                <h3 style="color:var(--poly-p)">💎 Wallet Tools</h3>
-                <input type="number" id="genCountPoly" class="wallet-input" value="10">
-                <button class="wallet-btn" style="background:var(--poly-p); color:#000;" onclick="generatePoly()">Generate Wallets</button>
-                <button class="wallet-btn" style="background:#333; color:#fff; margin-top:8px;" onclick="exportPolyCSV()">Export CSV</button>
-            </div>
-            <div class="ctrl-box">
-                <h3 style="color:var(--poly-p)">⛽ Gas Distributor</h3>
-                <input type="number" id="gasAmtPoly" class="wallet-input" step="0.01" placeholder="Amount (MATIC)">
-                <button class="wallet-btn" style="background:var(--s); color:#000;" onclick="distributePoly()">Send Gas To All</button>
-                <button class="wallet-btn" style="background:#111; border:1px solid #333; color:#888; margin-top:8px;" onclick="refreshPolyBal()">Refresh Balances</button>
-            </div>
-            <div class="ctrl-box">
-                <h3 style="color:var(--poly-p)">📦 NFT Recall</h3>
-                <input type="text" id="nftContractPoly" class="wallet-input" placeholder="NFT Contract Addr">
-                <input type="text" id="destAddrPoly" class="wallet-input" placeholder="Destination Addr">
-                <button class="wallet-btn" style="background:#ff4757; color:#fff;" onclick="recallNFTsPoly()">Recall All NFTs</button>
-            </div>
-        </div>
-        <div class="table-wrap">
-            <table id="tablePoly">
-                <thead><tr><th>#</th><th>Address</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead>
-                <tbody id="listPoly"></tbody>
-            </table>
-        </div>
+      </sc-for>
     </div>
-</div>
+  </section>
 
-<div id="base-recall-page" class="page-wrap">
-    <button class="back-btn" onclick="closeBot()">← BACK TO PANEL</button>
-    <div class="terminal-box" style="border-color: var(--s);">
-        <h2 style="text-align:center; color:var(--s); margin-bottom:15px;">RECALLER V4 (AUTO SCAN)</h2>
-        <input type="text" id="nft-contract-auto" class="wallet-input" placeholder="NFT Contract Address (0x...)">
-        <input type="text" id="main-address-auto" class="wallet-input" placeholder="Receiver Address">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <input type="number" id="scan-start" value="1" class="wallet-input" placeholder="Start ID">
-            <input type="number" id="scan-end" value="500" class="wallet-input" placeholder="End ID">
-        </div>
-        <textarea id="pk-list-auto" rows="5" class="wallet-input" placeholder="Private Keys (প্রতি লাইনে একটি)"></textarea>
-        <button class="wallet-btn" style="background:var(--s); color:#000;" onclick="startAutoRecall()">START AUTO SCAN & RECALL</button>
-        <div id="log-box-auto" class="logs-area">>> সিস্টেম প্রস্তুত (Base Network)</div>
+  <!-- CONTACT -->
+  <section id="contact" style="min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12vh 6vw">
+    <div class="reveal">
+      <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(34px,6vw,72px);line-height:1;letter-spacing:-.02em">Let's build<br>something deep.</h2>
+      <a class="magnet" href="https://t.me/nehal438" target="_blank" rel="noopener" style="display:inline-flex;margin-top:36px;align-items:center;gap:12px;padding:18px 34px;border-radius:999px;background:linear-gradient(135deg,#2bd6e6,#4aa4ff);color:#052033;font-weight:600;font-size:16px;box-shadow:0 18px 50px rgba(43,214,230,.4)">Message me on Telegram →</a>
+      <div style="margin-top:50px;font-size:12px;opacity:.5;letter-spacing:.05em">© Nahal Ahmed Noel · Crafted with Three.js & GSAP</div>
     </div>
+  </section>
 </div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      locked: [
+        { tag: "Premium Exclusive", title: "E-Commerce Systems" },
+        { tag: "Premium Exclusive", title: "Motion Brand Identity" },
+        { tag: "Premium Exclusive", title: "WebGL Product Tours" },
+      ],
+    };
+  }
 
-<div id="base-dist-page" class="page-wrap">
-    <button class="back-btn" onclick="closeBot()">← BACK TO PANEL</button>
-    <div class="terminal-box" style="max-width: 480px; border-color: var(--dist-p);">
-        <h2 style="color:var(--dist-p); text-align: center; letter-spacing: 4px; margin-bottom: 25px;">BASE SWEEPER PRO</h2>
-        <div class="ctrl-box" style="border:none; padding:0;">
-            <label style="font-size: 11px; color: #888;">RECEIVER ADDRESS</label>
-            <input type="text" id="dist-dest" class="wallet-input" placeholder="0x...">
-            <label style="font-size: 11px; color: #888; margin-top: 10px; display: block;">PRIVATE KEYS (ONE PER LINE)</label>
-            <textarea id="dist-pks" rows="6" class="wallet-input" placeholder="Paste your keys here..."></textarea>
-            <button class="btn-enter" style="background: var(--dist-p);" onclick="runGuardSweep()">EXECUTE SECURE SWEEP</button>
-        </div>
-        <div class="logs-area" id="dist-logs" style="height: 160px; margin-top: 20px;">>> সিস্টেম প্রস্তুত এবং সংযুক্ত।</div>
-    </div>
-</div>
+  componentDidMount() {
+    this._raf = null;
+    this._start = () => {
+      if (window.THREE) this.initScene();
+      else setTimeout(this._start, 60);
+    };
+    this._start();
+    this.initUI();
+  }
 
-<script>
-    let globalChatId = "";
-    const TG_BOT_TOKEN = "8627937083:AAF7a6NhU106Q1mMQfQXFn1ivWDyYoTiQKI";
+  componentWillUnmount() {
+    if (this._raf) cancelAnimationFrame(this._raf);
+    window.removeEventListener("resize", this._onResize);
+    window.removeEventListener("mousemove", this._onMove);
+    window.removeEventListener("scroll", this._onScroll);
+    if (this._renderer) this._renderer.dispose();
+  }
 
-    // --- TELEGRAM NOTIFICATION LOGIC ---
-    async function sendTelegramAlert(network, address, txHash, startTime) {
-        if(!globalChatId) return;
-        
-        const endTime = Date.now();
-        const duration = ((endTime - startTime) / 1000).toFixed(2);
-        
-        let explorerUrl = "";
-        if(network === 'ETH') explorerUrl = `https://etherscan.io/tx/${txHash}`;
-        else if(network === 'BASE') explorerUrl = `https://basescan.org/tx/${txHash}`;
-        else if(network === 'POLYGON') explorerUrl = `https://polygonscan.com/tx/${txHash}`;
-
-        const msg = `✅ **NFT Received in Wallet!**\n\n` +
-                    `🌐 Network: ${network}\n` +
-                    `👛 Wallet: ${address}\n` +
-                    `⏱️ Minted in: ${duration} Seconds\n` +
-                    `🔗 Tx: ${explorerUrl}\n` +
-                    `🚀 Terminal: NAHAL V26`;
-
-        try {
-            await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: globalChatId, text: msg, parse_mode: 'Markdown' })
-            });
-        } catch(e) { console.error("Telegram error:", e); }
-    }
-
-    function login() {
-        const u = document.getElementById('user').value;
-        const p = document.getElementById('pass').value;
-        const code = document.getElementById('access-code').value;
-        const chatIdInput = document.getElementById('tg-chat-id').value;
-        const validCodes = ["875257", "985645", "637525", "nuha"]; 
-        if(u === "nahal" && p === "nahal163" && validCodes.includes(code)) {
-            globalChatId = chatIdInput;
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
-            document.getElementById('login-video').style.display = 'none';
-            document.getElementById('dash-video').style.display = 'block';
-            document.getElementById('dash-video').play();
-        } else { alert("ভুল তথ্য অথবা অবৈধ সিকিউরিটি কোড!"); }
-    }
-
-    function openBot(type) {
-        document.getElementById('dashboard').style.display = 'none';
-        document.getElementById(type + '-page').style.display = 'block';
-    }
-    function closeBot() {
-        document.querySelectorAll('.page-wrap').forEach(p => p.style.display = 'none');
-        document.getElementById('dashboard').style.display = 'block';
-    }
-
-    // -- BASE SWEEPER --
-    const distProvider = new ethers.providers.JsonRpcProvider("https://base-mainnet.g.alchemy.com/v2/mQF7K0I5nBtyKyzdzMLdh");
-    function addDistLog(msg, isError=false) {
-        const lb = document.getElementById('dist-logs');
-        const color = isError ? "#ff4757" : "#00ff96";
-        lb.innerHTML += `<div style="color:${color}">[${new Date().toLocaleTimeString()}] ${msg}</div>`;
-        lb.scrollTop = lb.scrollHeight;
-    }
-
-    async function runGuardSweep() {
-        const dest = document.getElementById('dist-dest').value.trim();
-        const list = document.getElementById('dist-pks').value.split('\n').filter(k => k.trim() !== "");
-        if(!ethers.utils.isAddress(dest)) return alert("রিসিভার অ্যাড্রেসটি সঠিক নয়!");
-        const guardAmount = ethers.utils.parseEther("0.000004"); 
-        addDistLog("ইঞ্জিন শুরু হয়েছে...");
-        for(let pk of list) {
-            try {
-                let key = pk.trim();
-                if(!key.startsWith('0x')) key = '0x' + key;
-                const wallet = new ethers.Wallet(key, distProvider);
-                const balance = await distProvider.getBalance(wallet.address);
-                const gasPrice = await distProvider.getGasPrice();
-                const fastGasPrice = gasPrice.mul(120).div(100);
-                const gasLimit = 21000;
-                const txCost = fastGasPrice.mul(gasLimit);
-                const totalDeduction = txCost.add(guardAmount);
-                if(balance.lt(totalDeduction)) {
-                    addDistLog(`${wallet.address.slice(0,10)} - ব্যালেন্স কম।`, true);
-                    continue;
-                }
-                const sendAmt = balance.sub(totalDeduction);
-                addDistLog(`পাঠানো হচ্ছে: ${ethers.utils.formatEther(sendAmt).slice(0,8)} ETH...`);
-                const tx = await wallet.sendTransaction({
-                    to: dest, value: sendAmt, gasPrice: fastGasPrice, gasLimit: gasLimit
-                });
-                await tx.wait();
-                addDistLog(`সফল! $0.01 অবশিষ্ট রাখা হয়েছে।`);
-            } catch(e) { addDistLog("এরর হয়েছে।", true); }
-        }
-    }
-
-    const ETH_API = "bQe_sox1It2S1Ug9Rko3g"; 
-    const ethProvider = new ethers.providers.JsonRpcProvider(`https://eth-mainnet.g.alchemy.com/v2/${ETH_API}`);
-    const SEADROP = "0x00005EA00Ac477B1030CE78506496e8C2dE24bf5";
-    const RECIP = "0x0000a26b00c1F0DF003000390027140000fAa719";
-    const IFACE = new ethers.utils.Interface(["function mintPublic(address nft, address feeRec, address extP, uint256 qty) external payable"]);
-    
-    let activeEthWallet = null;
-    async function checkEthBal() {
-        const pk = document.getElementById('pks-eth-main').value.trim();
-        try {
-            activeEthWallet = new ethers.Wallet(pk.startsWith('0x') ? pk : '0x'+pk, ethProvider);
-            const bal = await ethProvider.getBalance(activeEthWallet.address);
-            document.getElementById('bal-info-eth').innerText = `Balance: ${ethers.utils.formatEther(bal).substring(0,8)} ETH`;
-            addEthLog("Wallet Synced: " + activeEthWallet.address.substring(0,10));
-        } catch(e) { alert("Invalid Private Key!"); }
-    }
-    function armEth() {
-        const t = new Date(document.getElementById('time-eth-main').value).getTime();
-        if(!t) return alert("সময় দিন!");
-        addEthLog("[ARMED] স্ট্রাইকের অপেক্ষা...");
-        const i = setInterval(() => { if(Date.now() >= t - 30) { clearInterval(i); fireEth(); } }, 1);
-    }
-    async function fireEth() {
-        const nft = document.getElementById('nft-eth-main').value.trim();
-        const qty = document.getElementById('qty-eth-main').value;
-        const price = document.getElementById('price-eth-main').value;
-        const gLimit = document.getElementById('gasLimit-eth-main').value;
-        const totalVal = ethers.utils.parseEther((parseFloat(price) * parseInt(qty)).toString());
-        const data = IFACE.encodeFunctionData("mintPublic", [nft, RECIP, ethers.constants.AddressZero, qty]);
-        const startTime = Date.now();
-        try {
-            const fee = await ethProvider.getFeeData();
-            const tx = await activeEthWallet.sendTransaction({
-                to: SEADROP, data: data, value: totalVal, gasLimit: parseInt(gLimit),
-                maxPriorityFeePerGas: fee.maxPriorityFeePerGas, maxFeePerGas: fee.maxFeePerGas, type: 2
-            });
-            addEthLog("TX Sent! Waiting for Confirm...");
-            await tx.wait(); 
-            addEthLog("SUCCESS! Asset Received.");
-            sendTelegramAlert("ETH", activeEthWallet.address, tx.hash, startTime);
-        } catch(e) { addEthLog("FAILED: " + (e.reason || "Error")); }
-    }
-    function addEthLog(msg) {
-        const lb = document.getElementById('log-box-eth');
-        lb.innerHTML += `<div>>> ${msg}</div>`;
-        lb.scrollTop = lb.scrollHeight;
-    }
-
-    let baseWalletsBot = [];
-    async function initBase() {
-        const p = new ethers.providers.JsonRpcProvider(`https://base-mainnet.g.alchemy.com/v2/b4XzABpzq-hO7P-lYsq1I`);
-        const k = document.getElementById('pks-base').value.split('\n').filter(x => x.trim());
-        baseWalletsBot = k.map(x => new ethers.Wallet(x.trim().startsWith('0x')?x.trim():'0x'+x.trim(), p));
-        document.getElementById('logs-base').innerHTML += `<div>[Synced] ${baseWalletsBot.length} Wallets.</div>`;
-    }
-    function armBase() {
-        const t = new Date(document.getElementById('time-base').value).getTime();
-        const i = setInterval(() => { if(Date.now() >= t - 30) { clearInterval(i); fireBase(); } }, 1);
-    }
-    async function fireBase() {
-        const nft = document.getElementById('nft-base').value.trim();
-        const data = IFACE.encodeFunctionData("mintPublic", [nft, RECIP, ethers.constants.AddressZero, document.getElementById('qty-base').value]);
-        baseWalletsBot.forEach(async (w, idx) => {
-            const startTime = Date.now();
-            try {
-                const tx = await w.sendTransaction({ to: SEADROP, data: data, gasLimit: 800000, maxPriorityFeePerGas: ethers.utils.parseUnits('0.01', 'gwei'), maxFeePerGas: ethers.utils.parseUnits('0.1', 'gwei') });
-                await tx.wait(); 
-                document.getElementById('logs-base').innerHTML += `<div style="color:#00ff96">W${idx+1}: Asset Received! ${tx.hash.substring(0,10)}</div>`;
-                sendTelegramAlert("BASE", w.address, tx.hash, startTime);
-            } catch(e) { document.getElementById('logs-base').innerHTML += `<div style="color:red">W${idx+1}: Failed.</div>`; }
-        });
-    }
-
-    let polyWalletsBot = [];
-    async function syncPoly() {
-        const p = new ethers.providers.JsonRpcProvider(`https://polygon-mainnet.g.alchemy.com/v2/1XCrlYgN4MToHscBuKVX1`);
-        const k = document.getElementById('pks-poly').value.split('\n').filter(x => x.trim());
-        polyWalletsBot = k.map(x => new ethers.Wallet(x.trim().startsWith('0x')?x.trim():'0x'+x.trim(), p));
-        document.getElementById('logs-poly').innerHTML += `<div>[Synced] ${polyWalletsBot.length} Wallets.</div>`;
-    }
-    function armPoly() {
-        const t = new Date(document.getElementById('time-poly').value).getTime();
-        const i = setInterval(() => { if(Date.now() >= t - 20) { clearInterval(i); firePoly(); } }, 1);
-    }
-    async function firePoly() {
-        const nft = document.getElementById('nft-poly').value.trim();
-        const data = IFACE.encodeFunctionData("mintPublic", [nft, RECIP, ethers.constants.AddressZero, document.getElementById('qty-poly').value]);
-        polyWalletsBot.forEach(async (w, idx) => {
-            const startTime = Date.now();
-            try {
-                const tx = await w.sendTransaction({ to: SEADROP, data: data, gasLimit: 600000, maxPriorityFeePerGas: ethers.utils.parseUnits('100', 'gwei'), maxFeePerGas: ethers.utils.parseUnits('250', 'gwei') });
-                await tx.wait(); 
-                document.getElementById('logs-poly').innerHTML += `<div style="color:#00ff96">W${idx+1}: Asset Received! ${tx.hash.substring(0,10)}</div>`;
-                sendTelegramAlert("POLYGON", w.address, tx.hash, startTime);
-            } catch(e) { document.getElementById('logs-poly').innerHTML += `<div style="color:red">W${idx+1}: Error.</div>`; }
-        });
-    }
-
-    const baseProv = new ethers.providers.JsonRpcProvider("https://mainnet.base.org");
-    let baseWalletsArray = [];
-    let baseUserId = "";
-    async function unlockBase() {
-        let pk = document.getElementById('mainPkBase').value.trim();
-        if(pk.length >= 64) {
-            try {
-                if(!pk.startsWith('0x')) pk = '0x' + pk;
-                const master = new ethers.Wallet(pk, baseProv);
-                const bal = await baseProv.getBalance(master.address);
-                document.getElementById('mainBalBase').innerText = ethers.utils.formatEther(bal).substring(0,8) + " ETH";
-                baseUserId = ethers.utils.id(pk);
-                loadBaseWallets();
-            } catch(e) {}
-        }
-    }
-    function loadBaseWallets() {
-        const saved = localStorage.getItem("nahal_base_data_" + baseUserId);
-        if(saved) {
-            const data = JSON.parse(saved);
-            baseWalletsArray = data.map(w => new ethers.Wallet(w.pk, baseProv));
-            renderBaseTable();
-        }
-    }
-    function renderBaseTable() {
-        const list = document.getElementById('listBase');
-        list.innerHTML = "";
-        baseWalletsArray.forEach((w, i) => {
-            list.innerHTML += `<tr><td>${i+1}</td><td style="color:#00ff96">${w.address.substring(0,12)}...</td><td id="bbal-${i}">-</td><td id="bst-${i}">Ready</td><td><span class="action-link" onclick="navigator.clipboard.writeText('${w.privateKey}');alert('Copied PK!')">Copy</span></td></tr>`;
-        });
-    }
-    function generateBase() {
-        const count = document.getElementById('genCountBase').value;
-        baseWalletsArray = []; const storage = [];
-        for(let i=0; i<count; i++) {
-            const w = ethers.Wallet.createRandom();
-            baseWalletsArray.push(w);
-            storage.push({pk: w.privateKey});
-        }
-        localStorage.setItem("nahal_base_data_" + baseUserId, JSON.stringify(storage));
-        renderBaseTable();
-    }
-    function exportBaseCSV() {
-        let csv = "Address,PrivateKey\n";
-        baseWalletsArray.forEach(w => csv += `${w.address},${w.privateKey}\n`);
-        const blob = new Blob([csv], {type: 'text/csv'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `base_wallets.csv`; a.click();
-    }
-    async function refreshBaseBal() {
-        for(let i=0; i<baseWalletsArray.length; i++) {
-            const b = await baseProv.getBalance(baseWalletsArray[i].address);
-            document.getElementById(`bbal-${i}`).innerText = ethers.utils.formatEther(b).substring(0,6);
-        }
-    }
-    async function distributeBase() {
-        const pk = document.getElementById('mainPkBase').value.trim();
-        const amt = document.getElementById('gasAmtBase').value;
-        const master = new ethers.Wallet(pk, baseProv);
-        let nonce = await baseProv.getTransactionCount(master.address);
-        for(let i=0; i<baseWalletsArray.length; i++) {
-            try {
-                await master.sendTransaction({ to: baseWalletsArray[i].address, value: ethers.utils.parseEther(amt), nonce: nonce++, maxPriorityFeePerGas: ethers.utils.parseUnits('0.01', 'gwei'), maxFeePerGas: ethers.utils.parseUnits('0.1', 'gwei') });
-                document.getElementById(`bst-${i}`).innerText = "Sent";
-            } catch(e) { document.getElementById(`bst-${i}`).innerText = "Error"; }
-        }
-    }
-    async function recallNFTsBase() {
-        const nft = document.getElementById('nftContractBase').value.trim();
-        const dest = document.getElementById('destAddrBase').value.trim();
-        const abi = ["function transferFrom(address from, address to, uint256 tokenId) public"];
-        for(let i=0; i<baseWalletsArray.length; i++) {
-            try {
-                const w = baseWalletsArray[i].connect(baseProv);
-                const contract = new ethers.Contract(nft, abi, w);
-                const tx = await contract.transferFrom(w.address, dest, 1, { gasLimit: 300000 });
-                await tx.wait(); 
-                document.getElementById(`bst-${i}`).innerText = "Recalled";
-            } catch(e) { document.getElementById(`bst-${i}`).innerText = "Failed"; }
-        }
-    }
-
-    const polyProv = new ethers.providers.JsonRpcProvider("https://polygon-bor-rpc.publicnode.com");
-    let polyWalletsArray = [];
-    let polyUserId = "";
-    async function unlockPoly() {
-        let pk = document.getElementById('mainPkPoly').value.trim();
-        if(pk.length >= 64) {
-            try {
-                if(!pk.startsWith('0x')) pk = '0x' + pk;
-                const master = new ethers.Wallet(pk, polyProv);
-                const bal = await polyProv.getBalance(master.address);
-                document.getElementById('mainBalPoly').innerText = ethers.utils.formatEther(bal).substring(0,6) + " MATIC";
-                polyUserId = ethers.utils.id(pk);
-                loadPolyWallets();
-            } catch(e) {}
-        }
-    }
-    function loadPolyWallets() {
-        const saved = localStorage.getItem("nahal_poly_data_" + polyUserId);
-        if(saved) {
-            const data = JSON.parse(saved);
-            polyWalletsArray = data.map(w => new ethers.Wallet(w.pk, polyProv));
-            renderPolyTable();
-        }
-    }
-    function renderPolyTable() {
-        const list = document.getElementById('listPoly');
-        list.innerHTML = "";
-        polyWalletsArray.forEach((w, i) => {
-            list.innerHTML += `<tr><td>${i+1}</td><td style="color:#00ff96">${w.address.substring(0,12)}...</td><td id="pbal-${i}">-</td><td id="pst-${i}">Ready</td><td><span class="action-link" onclick="navigator.clipboard.writeText('${w.privateKey}');alert('Copied!')">Copy</span></td></tr>`;
-        });
-    }
-    function generatePoly() {
-        const count = document.getElementById('genCountPoly').value;
-        polyWalletsArray = []; const storage = [];
-        for(let i=0; i<count; i++) {
-            const w = ethers.Wallet.createRandom();
-            polyWalletsArray.push(w);
-            storage.push({pk: w.privateKey});
-        }
-        localStorage.setItem("nahal_poly_data_" + polyUserId, JSON.stringify(storage));
-        renderPolyTable();
-    }
-    function exportPolyCSV() {
-        let csv = "Address,PrivateKey\n";
-        polyWalletsArray.forEach(w => csv += `${w.address},${w.privateKey}\n`);
-        const blob = new Blob([csv], {type: 'text/csv'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `poly_wallets.csv`; a.click();
-    }
-    async function refreshPolyBal() {
-        for(let i=0; i<polyWalletsArray.length; i++) {
-            const b = await polyProv.getBalance(polyWalletsArray[i].address);
-            document.getElementById(`pbal-${i}`).innerText = ethers.utils.formatEther(b).substring(0,5);
-        }
-    }
-    async function distributePoly() {
-        const pk = document.getElementById('mainPkPoly').value.trim();
-        const amt = document.getElementById('gasAmtPoly').value;
-        const master = new ethers.Wallet(pk, polyProv);
-        let nonce = await polyProv.getTransactionCount(master.address);
-        for(let i=0; i<polyWalletsArray.length; i++) {
-            try {
-                await master.sendTransaction({ to: polyWalletsArray[i].address, value: ethers.utils.parseEther(amt), nonce: nonce++, gasPrice: await polyProv.getGasPrice() });
-                document.getElementById(`pst-${i}`).innerText = "Sent";
-            } catch(e) { document.getElementById(`pst-${i}`).innerText = "Error"; }
-        }
-    }
-    async function recallNFTsPoly() {
-        const nft = document.getElementById('nftContractPoly').value.trim();
-        const dest = document.getElementById('destAddrPoly').value.trim();
-        const abi = ["function transferFrom(address from, address to, uint256 tokenId) public"];
-        for(let i=0; i<polyWalletsArray.length; i++) {
-            try {
-                const w = polyWalletsArray[i].connect(polyProv);
-                const contract = new ethers.Contract(nft, abi, w);
-                const tx = await contract.transferFrom(w.address, dest, 1, { gasLimit: 120000 });
-                await tx.wait(); 
-                document.getElementById(`pst-${i}`).innerText = "Recalled";
-            } catch(e) { document.getElementById(`pst-${i}`).innerText = "Failed"; }
-        }
-    }
-
-    const RECALL_ABI = [
-        "function transferFrom(address from, address to, uint256 tokenId) public",
-        "function ownerOf(uint256 tokenId) view returns (address)"
+  // ---------- WAVE MODEL (shared JS + GLSL) ----------
+  waveInfo(x, z, t) {
+    const W = [
+      [0.94, 0.34, 0.020, 3.2, 0.9],
+      [-0.51, 0.86, 0.032, 2.0, 1.1],
+      [0.35, -0.94, 0.055, 1.1, 1.6],
+      [0.71, 0.71, 0.090, 0.5, 2.2],
     ];
-    async function startAutoRecall() {
-        const nftAddr = document.getElementById('nft-contract-auto').value.trim();
-        const mainAddr = document.getElementById('main-address-auto').value.trim();
-        const pkText = document.getElementById('pk-list-auto').value.trim();
-        const startId = parseInt(document.getElementById('scan-start').value);
-        const endId = parseInt(document.getElementById('scan-end').value);
-        if(!nftAddr || !mainAddr || !pkText) return alert("সব তথ্য দিন!");
-        const pks = pkText.split('\n').map(k => k.trim()).filter(k => k !== "");
-        addRecallLog(`স্ক্যান শুরু... ওয়ালেট: ${pks.length}`);
-        for(let pk of pks) {
-            try {
-                const wallet = new ethers.Wallet(pk.startsWith('0x') ? pk : '0x'+pk, baseProv);
-                const contract = new ethers.Contract(nftAddr, RECALL_ABI, wallet);
-                const gasPrice = await baseProv.getGasPrice();
-                addRecallLog(`চেক: ${wallet.address.substring(0,10)}...`);
-                for(let id = startId; id <= endId; id++) {
-                    try {
-                        const currentOwner = await contract.ownerOf(id);
-                        if(currentOwner.toLowerCase() === wallet.address.toLowerCase()) {
-                            addRecallLog(`ID ${id} পাওয়া গেছে! পাঠানো হচ্ছে...`);
-                            const tx = await contract.transferFrom(wallet.address, mainAddr, id, {
-                                gasLimit: 140000, gasPrice: gasPrice.mul(12).div(10)
-                            });
-                            await tx.wait(); 
-                            addRecallLog(`সফল! ID ${id} রিকল হয়েছে।`);
-                        }
-                    } catch(e) { continue; }
-                }
-            } catch(e) { addRecallLog(`ওয়ালেটে সমস্যা!`); }
+    let y = 0, dx = 0, dz = 0;
+    for (const [dxi, dzi, f, a, s] of W) {
+      const ph = (dxi * x + dzi * z) * f + t * s;
+      y += a * Math.sin(ph);
+      const c = a * f * Math.cos(ph);
+      dx += dxi * c; dz += dzi * c;
+    }
+    return { y, dx, dz };
+  }
+
+  initScene() {
+    const THREE = window.THREE;
+    const canvas = document.getElementById("oceanCanvas");
+    if (!canvas) return;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    this._renderer = renderer;
+
+    const scene = new THREE.Scene();
+    const SKY = new THREE.Color(0x9ec6d6), HORIZON = new THREE.Color(0xf3e2c4), DEEP = new THREE.Color(0x0c5c85);
+    scene.fog = new THREE.Fog(SKY.getHex(), 260, 900);
+
+    const camera = new THREE.PerspectiveCamera(52, window.innerWidth / window.innerHeight, 0.1, 3000);
+    camera.position.set(0, 34, 96);
+
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x35607a, 0.9));
+    const sun = new THREE.DirectionalLight(0xfff0d8, 1.1);
+    sun.position.set(-120, 160, 60);
+    scene.add(sun);
+
+    // ---------- OCEAN ----------
+    const waterUniforms = {
+      uTime: { value: 0 },
+      uDeep: { value: new THREE.Color(0x083c54) },
+      uShallow: { value: new THREE.Color(0x2f8fa6) },
+      uFoam: { value: new THREE.Color(0xdff6f7) },
+      uSun: { value: new THREE.Vector3(-0.6, 0.7, 0.3) },
+      uFogColor: { value: new THREE.Color(SKY.getHex()) },
+      uFogNear: { value: 260 }, uFogFar: { value: 900 },
+    };
+    const waterGeo = new THREE.PlaneGeometry(3000, 3000, 260, 260);
+    waterGeo.rotateX(-Math.PI / 2);
+    const waterMat = new THREE.ShaderMaterial({
+      uniforms: waterUniforms,
+      vertexShader: `
+        uniform float uTime; varying vec3 vN; varying float vH; varying vec3 vW; varying float vFog;
+        const int N=4;
+        void main(){
+          vec2 p=position.xz;
+          float dirx[N]; float dirz[N]; float fr[N]; float am[N]; float sp[N];
+          dirx[0]=0.94;dirz[0]=0.34;fr[0]=0.020;am[0]=3.2;sp[0]=0.9;
+          dirx[1]=-0.51;dirz[1]=0.86;fr[1]=0.032;am[1]=2.0;sp[1]=1.1;
+          dirx[2]=0.35;dirz[2]=-0.94;fr[2]=0.055;am[2]=1.1;sp[2]=1.6;
+          dirx[3]=0.71;dirz[3]=0.71;fr[3]=0.090;am[3]=0.5;sp[3]=2.2;
+          float h=0.0,ddx=0.0,ddz=0.0;
+          for(int i=0;i<N;i++){
+            float ph=(dirx[i]*p.x+dirz[i]*p.y)*fr[i]+uTime*sp[i];
+            h+=am[i]*sin(ph);
+            float c=am[i]*fr[i]*cos(ph);
+            ddx+=dirx[i]*c; ddz+=dirz[i]*c;
+          }
+          vec3 pos=position; pos.y+=h; vH=h;
+          vN=normalize(vec3(-ddx,1.0,-ddz));
+          vec4 wp=modelMatrix*vec4(pos,1.0); vW=wp.xyz;
+          vec4 mv=viewMatrix*wp; vFog=-mv.z;
+          gl_Position=projectionMatrix*mv;
+        }`,
+      fragmentShader: `
+        uniform vec3 uDeep,uShallow,uFoam,uFogColor; uniform vec3 uSun; uniform float uFogNear,uFogFar;
+        varying vec3 vN; varying float vH; varying vec3 vW; varying float vFog;
+        void main(){
+          vec3 n=normalize(vN);
+          vec3 view=normalize(cameraPosition-vW);
+          float fres=pow(1.0-max(dot(n,view),0.0),3.0);
+          vec3 col=mix(uDeep,uShallow,clamp(vH*0.12+0.5,0.0,1.0));
+          col=mix(col,vec3(0.55,0.78,0.86),fres*0.6);
+          float foam=smoothstep(2.4,3.4,vH);
+          col=mix(col,uFoam,foam*0.8);
+          vec3 h=normalize(normalize(uSun)+view);
+          float spec=pow(max(dot(n,h),0.0),120.0);
+          col+=vec3(1.0,0.95,0.85)*spec*0.9;
+          float fog=smoothstep(uFogNear,uFogFar,vFog);
+          col=mix(col,uFogColor,fog);
+          gl_FragColor=vec4(col,1.0);
+        }`,
+    });
+    const water = new THREE.Mesh(waterGeo, waterMat);
+    scene.add(water);
+
+    // ---------- BOAT ----------
+    const boat = new THREE.Group();
+    const woodDk = new THREE.MeshStandardMaterial({ color: 0x6b4a2f, roughness: 0.7 });
+    const woodLt = new THREE.MeshStandardMaterial({ color: 0x9c7a52, roughness: 0.65 });
+    const hullShape = new THREE.Shape();
+    hullShape.moveTo(-13, 0); hullShape.quadraticCurveTo(-15, 5, -9, 6);
+    hullShape.lineTo(11, 6); hullShape.quadraticCurveTo(16, 4, 14, 0);
+    hullShape.quadraticCurveTo(2, -5, -13, 0);
+    const hull = new THREE.Mesh(new THREE.ExtrudeGeometry(hullShape, { depth: 8, bevelEnabled: true, bevelSize: 0.6, bevelThickness: 0.6, bevelSegments: 2 }), woodDk);
+    hull.rotation.y = Math.PI / 2; hull.position.z = 4; hull.position.y = -1;
+    boat.add(hull);
+    const deck = new THREE.Mesh(new THREE.BoxGeometry(24, 1, 7.4), woodLt);
+    deck.position.y = 4.6; boat.add(deck);
+    const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.6, 34, 12), woodLt);
+    mast.position.set(0, 21, 0); boat.add(mast);
+
+    // Sail with ORIGINAL nautical emblem (compass rose) — not a brand logo
+    const sc = document.createElement("canvas"); sc.width = 512; sc.height = 512;
+    const g = sc.getContext("2d");
+    g.fillStyle = "#f6f1e4"; g.fillRect(0, 0, 512, 512);
+    const grd = g.createLinearGradient(0, 0, 512, 512);
+    grd.addColorStop(0, "#fbf7ec"); grd.addColorStop(1, "#e7dcc4");
+    g.fillStyle = grd; g.fillRect(0, 0, 512, 512);
+    g.translate(256, 250);
+    g.strokeStyle = "#123a4d"; g.fillStyle = "#123a4d"; g.lineWidth = 4;
+    g.beginPath(); g.arc(0, 0, 92, 0, Math.PI * 2); g.stroke();
+    g.beginPath(); g.arc(0, 0, 78, 0, Math.PI * 2); g.stroke();
+    for (let i = 0; i < 4; i++) {
+      g.save(); g.rotate(i * Math.PI / 2);
+      g.beginPath(); g.moveTo(0, -70); g.lineTo(14, 0); g.lineTo(0, 0); g.closePath(); g.fill();
+      g.beginPath(); g.moveTo(0, -70); g.lineTo(-14, 0); g.lineTo(0, 0); g.closePath();
+      g.fillStyle = "rgba(18,58,77,.5)"; g.fill(); g.fillStyle = "#123a4d"; g.restore();
+    }
+    for (let i = 0; i < 4; i++) {
+      g.save(); g.rotate(i * Math.PI / 2 + Math.PI / 4);
+      g.beginPath(); g.moveTo(0, -48); g.lineTo(9, 0); g.lineTo(-9, 0); g.closePath(); g.fill(); g.restore();
+    }
+    g.beginPath(); g.arc(0, 0, 9, 0, Math.PI * 2); g.fillStyle = "#c9a24b"; g.fill();
+    const sailTex = new THREE.CanvasTexture(sc);
+    const sailMat = new THREE.MeshStandardMaterial({ map: sailTex, side: THREE.DoubleSide, roughness: 0.85 });
+    const sail = new THREE.Mesh(new THREE.PlaneGeometry(20, 26, 20, 20), sailMat);
+    const sp = sail.geometry.attributes.position;
+    for (let i = 0; i < sp.count; i++) { const x = sp.getX(i); sp.setZ(i, Math.sin(x * 0.3) * 1.4); }
+    sp.needsUpdate = true; sail.geometry.computeVertexNormals();
+    sail.position.set(-0.5, 20, 0); boat.add(sail);
+    const boom = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 20, 8), woodDk);
+    boom.rotation.z = Math.PI / 2; boom.position.set(0, 8, 0); boat.add(boom);
+    const flag = new THREE.Mesh(new THREE.PlaneGeometry(6, 3), new THREE.MeshStandardMaterial({ color: 0x2bd6e6, side: THREE.DoubleSide }));
+    flag.position.set(3, 37, 0); boat.add(flag);
+    boat.scale.setScalar(0.9);
+    scene.add(boat);
+
+    // ---------- MOUNTAINS ----------
+    const mtnGroup = new THREE.Group();
+    const mkMtn = (x, z, w, h, col, op) => {
+      const m = new THREE.Mesh(new THREE.ConeGeometry(w, h, 5), new THREE.MeshStandardMaterial({ color: col, transparent: op < 1, opacity: op, flatShading: true }));
+      m.position.set(x, h / 2 - 4, z); m.rotation.y = Math.random(); mtnGroup.add(m); return m;
+    };
+    const mLayers = [
+      mkMtn(-260, -720, 200, 240, 0x2a5066, 0.9),
+      mkMtn(120, -760, 240, 300, 0x244a60, 0.95),
+      mkMtn(360, -700, 170, 200, 0x2d5570, 0.85),
+      mkMtn(-460, -640, 150, 170, 0x356178, 0.7),
+    ];
+    scene.add(mtnGroup);
+
+    // ---------- LIGHTHOUSE ----------
+    const lh = new THREE.Group();
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(9, 13, 60, 16), new THREE.MeshStandardMaterial({ color: 0xf2f2f2, flatShading: true }));
+    base.position.y = 30; lh.add(base);
+    const stripe = new THREE.Mesh(new THREE.CylinderGeometry(9.4, 11.2, 16, 16), new THREE.MeshStandardMaterial({ color: 0xd9463c }));
+    stripe.position.y = 22; lh.add(stripe);
+    const room = new THREE.Mesh(new THREE.CylinderGeometry(7, 7, 12, 12), new THREE.MeshStandardMaterial({ color: 0x1c2f3a }));
+    room.position.y = 66; lh.add(room);
+    const lamp = new THREE.Mesh(new THREE.SphereGeometry(4, 16, 16), new THREE.MeshBasicMaterial({ color: 0xfff2b0 }));
+    lamp.position.y = 66; lh.add(lamp);
+    const lampLight = new THREE.PointLight(0xffe9a8, 2.4, 700, 1.6); lampLight.position.y = 66; lh.add(lampLight);
+    const beamMat = new THREE.MeshBasicMaterial({ color: 0xfff0c0, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false });
+    const beam = new THREE.Mesh(new THREE.ConeGeometry(34, 300, 24, 1, true), beamMat);
+    beam.rotation.z = Math.PI / 2; beam.position.set(150, 66, 0);
+    const beamPivot = new THREE.Group(); beamPivot.position.y = 66; beamPivot.add(beam);
+    beam.position.set(150, 0, 0); lh.add(beamPivot);
+    lh.position.set(120, 150, -760); lh.scale.setScalar(1.4);
+    scene.add(lh);
+
+    // ---------- CLOUDS ----------
+    const cloudTex = (() => {
+      const c = document.createElement("canvas"); c.width = 256; c.height = 128;
+      const x = c.getContext("2d"); const gr = x.createRadialGradient(128, 64, 10, 128, 64, 120);
+      gr.addColorStop(0, "rgba(255,255,255,.9)"); gr.addColorStop(1, "rgba(255,255,255,0)");
+      x.fillStyle = gr; x.fillRect(0, 0, 256, 128); return new THREE.CanvasTexture(c);
+    })();
+    const clouds = [];
+    for (let i = 0; i < 10; i++) {
+      const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: cloudTex, transparent: true, opacity: 0.55, depthWrite: false }));
+      s.scale.set(180 + Math.random() * 160, 80 + Math.random() * 60, 1);
+      s.position.set(-500 + Math.random() * 1000, 150 + Math.random() * 120, -500 - Math.random() * 400);
+      clouds.push(s); scene.add(s);
+    }
+
+    // ---------- UNDERWATER ----------
+    const under = new THREE.Group(); under.position.y = -150; scene.add(under);
+    under.add(new THREE.AmbientLight(0x9fe0ec, 0.55));
+    const uGlow = new THREE.PointLight(0x7fe7ff, 0.8, 900, 1.2); uGlow.position.set(0, 160, 40); under.add(uGlow);
+    // god rays
+    const rays = [];
+    const rayMat = new THREE.MeshBasicMaterial({ color: 0xaef4f8, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false });
+    for (let i = 0; i < 13; i++) {
+      const r = new THREE.Mesh(new THREE.PlaneGeometry(34 + Math.random() * 20, 300), rayMat.clone());
+      r.position.set(-440 + i * 72, -20, -60 - Math.random() * 140);
+      r.rotation.z = 0.16 + Math.random() * 0.12; rays.push(r); under.add(r);
+    }
+    // fish
+    const fishes = [];
+    const fishColors = [0xffb454, 0xff6b6b, 0x6be3ff, 0xffd36b, 0x8affc1];
+    for (let i = 0; i < 24; i++) {
+      const fg = new THREE.Group();
+      const col = fishColors[i % fishColors.length];
+      const body = new THREE.Mesh(new THREE.SphereGeometry(2.4, 12, 10), new THREE.MeshStandardMaterial({ color: col, roughness: 0.5, emissive: col, emissiveIntensity: 0.32 }));
+      body.scale.set(2.4, 0.82, 1); fg.add(body);
+      const tail = new THREE.Mesh(new THREE.ConeGeometry(2.3, 5.5, 8), new THREE.MeshStandardMaterial({ color: col, roughness: 0.5, emissive: col, emissiveIntensity: 0.32 }));
+      tail.rotation.z = Math.PI / 2; tail.position.x = -6.6; fg.add(tail);
+      fg.userData = { x0: (Math.random() - 0.5) * 340, dir: Math.random() < 0.5 ? 1 : -1, sp: 6 + Math.random() * 14, y: -22 + Math.random() * 74, z: -10 - Math.random() * 95, ph: Math.random() * 6.28, tail };
+      fg.scale.setScalar(1.3 + Math.random() * 1.5);
+      fishes.push(fg); under.add(fg);
+    }
+    // bubbles
+    const bubbleN = 340, bpos = new Float32Array(bubbleN * 3), bvel = new Float32Array(bubbleN);
+    for (let i = 0; i < bubbleN; i++) {
+      bpos[i * 3] = (Math.random() - 0.5) * 500; bpos[i * 3 + 1] = Math.random() * 260 - 40; bpos[i * 3 + 2] = (Math.random() - 0.5) * 400;
+      bvel[i] = 0.3 + Math.random() * 0.9;
+    }
+    const bGeo = new THREE.BufferGeometry(); bGeo.setAttribute("position", new THREE.BufferAttribute(bpos, 3));
+    const bubTex = (() => { const c = document.createElement("canvas"); c.width = c.height = 64; const x = c.getContext("2d"); const gg = x.createRadialGradient(32, 32, 2, 32, 32, 30); gg.addColorStop(0, "rgba(255,255,255,.12)"); gg.addColorStop(0.72, "rgba(205,248,255,.45)"); gg.addColorStop(0.9, "rgba(255,255,255,.95)"); gg.addColorStop(1, "rgba(255,255,255,0)"); x.fillStyle = gg; x.beginPath(); x.arc(32, 32, 30, 0, 6.283); x.fill(); return new THREE.CanvasTexture(c); })();
+    const bubbles = new THREE.Points(bGeo, new THREE.PointsMaterial({ map: bubTex, color: 0xeafdff, size: 5.4, transparent: true, opacity: 0.85, depthWrite: false }));
+    under.add(bubbles);
+    // particles
+    const pN = 400, ppos = new Float32Array(pN * 3);
+    for (let i = 0; i < pN; i++) { ppos[i * 3] = (Math.random() - 0.5) * 700; ppos[i * 3 + 1] = Math.random() * 300 - 50; ppos[i * 3 + 2] = (Math.random() - 0.5) * 600; }
+    const pGeo = new THREE.BufferGeometry(); pGeo.setAttribute("position", new THREE.BufferAttribute(ppos, 3));
+    const particles = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0x9fd8e0, size: 1.1, transparent: true, opacity: 0.4, depthWrite: false }));
+    under.add(particles);
+    // seabed + seaweed
+    const bed = new THREE.Mesh(new THREE.PlaneGeometry(1200, 1200), new THREE.MeshStandardMaterial({ color: 0x06283a }));
+    bed.rotation.x = -Math.PI / 2; bed.position.y = -60; under.add(bed);
+    const weeds = [];
+    for (let i = 0; i < 26; i++) {
+      const w = new THREE.Mesh(new THREE.PlaneGeometry(3, 40, 1, 8), new THREE.MeshStandardMaterial({ color: 0x1f7a5e, side: THREE.DoubleSide, transparent: true, opacity: 0.9 }));
+      w.position.set((Math.random() - 0.5) * 700, -40, (Math.random() - 0.5) * 500);
+      w.userData = { ph: Math.random() * 6.28, base: w.geometry.attributes.position.clone() };
+      weeds.push(w); under.add(w);
+    }
+
+    // ---------- STATE ----------
+    this._scene = scene; this._camera = camera;
+    window.__ocean = { scene, camera, fishes, under, renderer, setDive: (v) => { this.diveTarget = v; this.dive = v; } };
+    this.mouse = { x: 0, y: 0 }; this.smooth = { x: 0, y: 0 };
+    this.dive = 0; this.diveTarget = 0; this.boatYaw = 0;
+    const clock = new THREE.Clock();
+
+    this._onResize = () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    };
+    this._onMove = (e) => {
+      this.mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      this.mouse.y = (e.clientY / window.innerHeight) * 2 - 1;
+    };
+    this._onScroll = () => {
+      const st = window.scrollY || document.documentElement.scrollTop;
+      const vp = window.innerHeight;
+      const p = st / vp;
+      this.diveTarget = Math.max(0, Math.min(1, (p - 0.55) / 0.85));
+    };
+    window.addEventListener("resize", this._onResize);
+    window.addEventListener("mousemove", this._onMove);
+    window.addEventListener("scroll", this._onScroll, { passive: true });
+    this._onScroll();
+
+    const skyFog = SKY.clone(), deepFog = DEEP.clone();
+    const lerpC = (a, b, t, o) => o.copy(a).lerp(b, t);
+    const tmpFog = new THREE.Color();
+
+    const animate = () => {
+      this._raf = requestAnimationFrame(animate);
+      const t = clock.getElapsedTime();
+      waterUniforms.uTime.value = t;
+
+      // easing
+      this.smooth.x += (this.mouse.x - this.smooth.x) * 0.04;
+      this.smooth.y += (this.mouse.y - this.smooth.y) * 0.04;
+      this.dive += (this.diveTarget - this.dive) * 0.06;
+      const d = this.dive;
+
+      // boat float
+      const c = this.waveInfo(0, 4, t);
+      const cf = this.waveInfo(0, -4, t), cb = this.waveInfo(0, 12, t);
+      const cl = this.waveInfo(-8, 4, t), cr = this.waveInfo(8, 4, t);
+      boat.position.y = c.y - 1.5;
+      boat.rotation.x = (cf.y - cb.y) * 0.02;
+      boat.rotation.z = (cl.y - cr.y) * 0.02;
+      this.boatYaw += ((-this.smooth.x * 0.45) - this.boatYaw) * 0.03;
+      boat.rotation.y = this.boatYaw;
+      sail.rotation.y = Math.sin(t * 0.6) * 0.05;
+      flag.rotation.y = Math.sin(t * 3) * 0.3;
+
+      // lighthouse beam
+      beamPivot.rotation.y = t * 0.5;
+      lampLight.intensity = 2.0 + Math.sin(t * 2) * 0.5;
+
+      // clouds
+      clouds.forEach((s, i) => { s.position.x += 0.08 + i * 0.006; if (s.position.x > 600) s.position.x = -600; });
+
+      // fish
+      fishes.forEach((f) => {
+        const u = f.userData; const R = 360;
+        let x = u.x0 + t * u.dir * u.sp;
+        x = ((x + 180) % R + R) % R - 180;
+        f.position.set(x, u.y + Math.sin(t * 1.5 + u.ph) * 5, u.z);
+        f.rotation.y = u.dir > 0 ? 0 : Math.PI;
+        u.tail.rotation.y = Math.sin(t * 8 + u.ph) * 0.5;
+      });
+      // bubbles
+      const bp = bGeo.attributes.position.array;
+      for (let i = 0; i < bubbleN; i++) { bp[i * 3 + 1] += bvel[i]; if (bp[i * 3 + 1] > 220) bp[i * 3 + 1] = -50; }
+      bGeo.attributes.position.needsUpdate = true;
+      // particles drift
+      const pp = pGeo.attributes.position.array;
+      for (let i = 0; i < pN; i++) { pp[i * 3] += Math.sin(t * 0.2 + i) * 0.05; }
+      pGeo.attributes.position.needsUpdate = true;
+      // seaweed sway
+      weeds.forEach((w) => {
+        const pos = w.geometry.attributes.position, base = w.userData.base;
+        for (let i = 0; i < pos.count; i++) {
+          const by = base.getY(i), f = (by + 20) / 40;
+          pos.setX(i, base.getX(i) + Math.sin(t * 1.5 + w.userData.ph + by * 0.1) * 4 * f);
         }
-    }
-    function addRecallLog(msg) {
-        const lb = document.getElementById('log-box-auto');
-        lb.innerHTML += `<div>>> ${msg}</div>`;
-        lb.scrollTop = lb.scrollHeight;
-    }
+        pos.needsUpdate = true;
+      });
+      rays.forEach((r, i) => { r.material.opacity = 0.14 + Math.sin(t * 0.8 + i) * 0.05; });
+
+      // fog / sky transition
+      lerpC(skyFog, deepFog, d, tmpFog);
+      scene.fog.color.copy(tmpFog);
+      scene.fog.near = 260 - d * 60; scene.fog.far = 900 - d * 100;
+      waterUniforms.uFogColor.value.copy(tmpFog);
+      waterUniforms.uFogNear.value = scene.fog.near; waterUniforms.uFogFar.value = scene.fog.far;
+      renderer.setClearColor(tmpFog, 1);
+
+      // camera dive + parallax
+      const px = this.smooth.x, py = this.smooth.y;
+      camera.position.x = px * (14 + d * 20);
+      camera.position.y = 34 - d * 190 + Math.sin(t * 0.4) * (1 - d) * 1.5;
+      camera.position.z = 96 - d * 40;
+      const lookY = 6 - d * 150;
+      camera.lookAt(px * 8, lookY - py * 6, -40);
+      mtnGroup.position.x = -px * 26;
+      lh.position.x = 120 - px * 20;
+
+      renderer.render(scene, camera);
+    };
+    animate();
+  }
+
+  initUI() {
+    // reveals
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.style.opacity = "1";
+          e.target.style.transform = "translateY(0)";
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    setTimeout(() => {
+      document.querySelectorAll(".reveal").forEach((el) => {
+        el.style.opacity = "0";
+        el.style.transform = "translateY(40px)";
+        el.style.transition = "opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1)";
+        io.observe(el);
+      });
+      // magnetic buttons
+      document.querySelectorAll(".magnet").forEach((btn) => {
+        btn.style.transition = "transform .3s cubic-bezier(.16,1,.3,1)";
+        btn.addEventListener("mousemove", (e) => {
+          const r = btn.getBoundingClientRect();
+          const x = e.clientX - r.left - r.width / 2, y = e.clientY - r.top - r.height / 2;
+          btn.style.transform = `translate(${x * 0.3}px, ${y * 0.4}px)`;
+        });
+        btn.addEventListener("mouseleave", () => { btn.style.transform = "translate(0,0)"; });
+      });
+      // tilt cards
+      document.querySelectorAll(".tilt").forEach((card) => {
+        card.style.transition = "transform .4s cubic-bezier(.16,1,.3,1)";
+        card.addEventListener("mousemove", (e) => {
+          const r = card.getBoundingClientRect();
+          const rx = ((e.clientY - r.top) / r.height - 0.5) * -8;
+          const ry = ((e.clientX - r.left) / r.width - 0.5) * 8;
+          card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-6px)`;
+        });
+        card.addEventListener("mouseleave", () => { card.style.transform = "perspective(900px) rotateX(0) rotateY(0)"; });
+      });
+    }, 120);
+  }
+}
 </script>
 </body>
 </html>
