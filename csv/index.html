@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERC20 Wallet Cleaner & Filter Terminal</title>
+    <style>
+        :root {
+            --bright-green: #00ff66;
+            --bright-cyan: #00f0ff;
+            --bright-red: #ff0055;
+            --bright-yellow: #ffee00;
+            --bright-white: #ffffff;
+            --bg-dark: #0a0b10;
+            --panel-bg: rgba(15, 20, 30, 0.85);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--bright-cyan);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.05) 0%, transparent 80%),
+                linear-gradient(rgba(0, 255, 102, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 102, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 20px 20px, 20px 20px;
+        }
+
+        .terminal-container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--panel-bg);
+            border: 2px solid var(--bright-cyan);
+            border-radius: 10px;
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.2), inset 0 0 15px rgba(0, 240, 255, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .terminal-header {
+            background: rgba(0, 240, 255, 0.1);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--bright-cyan);
+        }
+
+        .terminal-title {
+            color: var(--bright-white);
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-shadow: 0 0 8px var(--bright-white);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .dot-red { background: var(--bright-red); box-shadow: 0 0 8px var(--bright-red); }
+        .dot-yellow { background: var(--bright-yellow); box-shadow: 0 0 8px var(--bright-yellow); }
+        .dot-green { background: var(--bright-green); box-shadow: 0 0 8px var(--bright-green); }
+
+        .terminal-body {
+            padding: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: var(--bright-yellow);
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-shadow: 0 0 5px var(--bright-yellow);
+        }
+
+        textarea {
+            width: 100%;
+            height: 180px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--bright-green);
+            color: var(--bright-white);
+            padding: 15px;
+            font-size: 0.95rem;
+            border-radius: 5px;
+            outline: none;
+            resize: vertical;
+            box-shadow: inset 0 0 10px rgba(0, 255, 102, 0.2);
+        }
+
+        textarea:focus {
+            border-color: var(--bright-cyan);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.4), inset 0 0 10px rgba(0, 240, 255, 0.2);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 180px;
+            padding: 14px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-filter {
+            background: var(--bright-green);
+            color: #000;
+            box-shadow: 0 0 15px var(--bright-green);
+        }
+
+        .btn-filter:hover {
+            background: var(--bright-white);
+            box-shadow: 0 0 25px var(--bright-white);
+            transform: translateY(-2px);
+        }
+
+        .btn-download {
+            background: var(--bright-cyan);
+            color: #000;
+            box-shadow: 0 0 15px var(--bright-cyan);
+        }
+
+        .btn-download:hover {
+            background: var(--bright-white);
+            box-shadow: 0 0 25px var(--bright-white);
+            transform: translateY(-2px);
+        }
+
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-card.total { border-color: var(--bright-cyan); }
+        .stat-card.valid { border-color: var(--bright-green); }
+        .stat-card.invalid { border-color: var(--bright-red); }
+        .stat-card.duplicate { border-color: var(--bright-yellow); }
+
+        .stat-val {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .stat-card.total .stat-val { color: var(--bright-cyan); text-shadow: 0 0 8px var(--bright-cyan); }
+        .stat-card.valid .stat-val { color: var(--bright-green); text-shadow: 0 0 8px var(--bright-green); }
+        .stat-card.invalid .stat-val { color: var(--bright-red); text-shadow: 0 0 8px var(--bright-red); }
+        .stat-card.duplicate .stat-val { color: var(--bright-yellow); text-shadow: 0 0 8px var(--bright-yellow); }
+
+        .terminal-output {
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid var(--bright-yellow);
+            border-radius: 5px;
+            padding: 15px;
+            height: 150px;
+            overflow-y: auto;
+            color: var(--bright-white);
+            font-size: 0.85rem;
+        }
+
+        .log-line {
+            margin-bottom: 5px;
+        }
+        .log-success { color: var(--bright-green); }
+        .log-error { color: var(--bright-red); }
+        .log-warn { color: var(--bright-yellow); }
+        .log-info { color: var(--bright-cyan); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--bright-cyan);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="terminal-container">
+    <div class="terminal-header">
+        <div class="terminal-title">
+            <span>>_</span> ETH_WALLET_FILTER_TERMINAL_v1.0
+        </div>
+        <div class="terminal-dots">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+        </div>
+    </div>
+
+    <div class="terminal-body">
+        <div class="input-group">
+            <label for="rawWallets">[INPUT] Paste raw Ethereum/ERC20 wallet addresses below:</label>
+            <textarea id="rawWallets" placeholder="0x1234... (Paste multiple addresses, separated by newlines or commas)"></textarea>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-filter" onclick="processWallets()">[EXECUTE FILTER]</button>
+            <button class="btn-download" onclick="downloadCSV()">[EXPORT CSV]</button>
+        </div>
+
+        <div class="stats-panel">
+            <div class="stat-card total">
+                <div>TOTAL LOADED</div>
+                <div id="statTotal" class="stat-val">0</div>
+            </div>
+            <div class="stat-card valid">
+                <div>CLEAN & VALID</div>
+                <div id="statValid" class="stat-val">0</div>
+            </div>
+            <div class="stat-card invalid">
+                <div>REMOVED (INVALID)</div>
+                <div id="statInvalid" class="stat-val">0</div>
+            </div>
+            <div class="stat-card duplicate">
+                <div>REMOVED (DUPLICATES)</div>
+                <div id="statDuplicate" class="stat-val">0</div>
+            </div>
+        </div>
+
+        <label>[CONSOLE LOGS]</label>
+        <div id="terminalLog" class="terminal-output">
+            <div class="log-line log-info">System initialized... Ready to filter ERC20 addresses.</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let validAddresses = [];
+
+    // Validates ERC-20 / ETH address format using Regex
+    function isValidETHAddress(address) {
+        return /^0x[a-fA-F0-9]{40}$/.test(address);
+    }
+
+    function log(message, type = 'info') {
+        const logBox = document.getElementById('terminalLog');
+        const line = document.createElement('div');
+        line.className = `log-line log-${type}`;
+        line.innerText = `[${new Date().toLocaleTimeString()}] ${message}`;
+        logBox.appendChild(line);
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function processWallets() {
+        const rawInput = document.getElementById('rawWallets').value;
+        if (!rawInput.trim()) {
+            log('Error: No input data provided!', 'error');
+            return;
+        }
+
+        // Split input by lines, commas, or spaces
+        const lines = rawInput.split(/[\n,\s]+/);
+        
+        let totalCount = 0;
+        let invalidCount = 0;
+        let duplicateCount = 0;
+        
+        validAddresses = [];
+        const seen = new Set();
+
+        lines.forEach(item => {
+            const cleanItem = item.trim();
+            if (!cleanItem) return;
+            
+            totalCount++;
+            
+            // Validate ETH format
+            if (!isValidETHAddress(cleanItem)) {
+                invalidCount++;
+            } else {
+                // Check duplicates (Case-insensitive check, standard formatting)
+                const formattedAddress = cleanItem.toLowerCase();
+                if (seen.has(formattedAddress)) {
+                    duplicateCount++;
+                } else {
+                    seen.add(formattedAddress);
+                    // Keep original case or formatted standard
+                    validAddresses.push(cleanItem);
+                }
+            }
+        });
+
+        // Update Dashboard Stats
+        document.getElementById('statTotal').innerText = totalCount;
+        document.getElementById('statValid').innerText = validAddresses.length;
+        document.getElementById('statInvalid').innerText = invalidCount;
+        document.getElementById('statDuplicate').innerText = duplicateCount;
+
+        // System Logs
+        log(`Processing complete! Total: ${totalCount}`, 'info');
+        if (invalidCount > 0) log(`Removed ${invalidCount} invalid addresses.`, 'error');
+        if (duplicateCount > 0) log(`Removed ${duplicateCount} duplicate addresses.`, 'warn');
+        log(`Successfully filtered ${validAddresses.length} clean addresses.`, 'success');
+    }
+
+    function downloadCSV() {
+        if (validAddresses.length === 0) {
+            log('Error: No valid addresses to export! Please run filter first.', 'error');
+            return;
+        }
+
+        // CSV Header structure matched with your provided file
+        const headers = ["Wallet address", "Custom mint limit (optional)", "Custom price in native token e.g. ETH (optional)"];
+        
+        let csvContent = headers.map(h => `"${h}"`).join(",") + "\n";
+
+        validAddresses.forEach(addr => {
+            csvContent += `"${addr}",,\n`;
+        });
+
+        // Blob creation for file download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "openseawallet_filtered.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        log('CSV File successfully generated and downloaded!', 'success');
+    }
+</script>
+
+</body>
+</html>
