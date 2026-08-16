@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFT Collection Generator</title>
+    <!-- JSZip Library for zipping thousands of files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        :root {
+            --primary: #6C5CE7;
+            --secondary: #A29BFE;
+            --bg: #0F0E17;
+            --surface: #1E1D2B;
+            --text: #FFFFFF;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .container { background-color: var(--surface); padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 100%; max-width: 600px; border: 1px solid #2A2938; }
+        h2 { text-align: center; margin-bottom: 30px; color: var(--secondary); letter-spacing: 1px; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #D1D1E9; font-size: 14px; }
+        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #3A3950; background-color: #2A2938; color: white; font-size: 14px; outline: none; transition: 0.3s; }
+        input:focus, select:focus { border-color: var(--primary); }
+        button { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--primary), #8E78FF); border: none; border-radius: 8px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; margin-top: 10px; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4); }
+        button:disabled { background: #4b4b4b; cursor: not-allowed; transform: none; box-shadow: none; }
+        #status-container { margin-top: 25px; text-align: center; display: none; }
+        #status-text { margin-bottom: 10px; font-weight: bold; color: var(--secondary); }
+        progress { width: 100%; height: 20px; border-radius: 10px; overflow: hidden; appearance: none; }
+        progress::-webkit-progress-bar { background-color: #2A2938; border-radius: 10px; }
+        progress::-webkit-progress-value { background: linear-gradient(90deg, var(--primary), #00D2FF); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Collection Generator</h2>
+    
+    <div class="input-group">
+        <label for="imageUpload">WebP ছবি আপলোড করুন (এক বা একাধিক)</label>
+        <input type="file" id="imageUpload" accept="image/webp" multiple>
+    </div>
+
+    <div class="input-group">
+        <label for="formatSelect">আউটপুট ফরম্যাট</label>
+        <select id="formatSelect">
+            <option value="png">PNG</option>
+            <option value="jpeg">JPG</option>
+        </select>
+    </div>
+
+    <div class="input-group">
+        <label for="totalAmount">মোট কতগুলো ছবি তৈরি করতে চান? (যেমন: 10000)</label>
+        <input type="number" id="totalAmount" placeholder="10000" min="1">
+    </div>
+
+    <div class="input-group">
+        <label for="baseName">মেটাডেটা নাম (যেমন: 8BIT BROKER)</label>
+        <input type="text" id="baseName" placeholder="8BIT BROKER">
+    </div>
+
+    <button id="generateBtn">Generate & Download ZIP</button>
+
+    <div id="status-container">
+        <div id="status-text">Processing: 0%</div>
+        <progress id="progressBar" value="0" max="100"></progress>
+    </div>
+</div>
+
+<script>
+    document.getElementById('generateBtn').addEventListener('click', async () => {
+        const files = document.getElementById('imageUpload').files;
+        const format = document.getElementById('formatSelect').value;
+        const ext = format === 'jpeg' ? 'jpg' : 'png';
+        const totalAmount = parseInt(document.getElementById('totalAmount').value);
+        const baseName = document.getElementById('baseName').value.trim();
+
+        if (files.length === 0) return alert('অনুগ্রহ করে অন্তত একটি WebP ছবি আপলোড করুন!');
+        if (!totalAmount || totalAmount <= 0) return alert('সঠিক পরিমাণ উল্লেখ করুন!');
+        if (!baseName) return alert('অনুগ্রহ করে বেস নাম দিন!');
+
+        const generateBtn = document.getElementById('generateBtn');
+        const statusContainer = document.getElementById('status-container');
+        const statusText = document.getElementById('status-text');
+        const progressBar = document.getElementById('progressBar');
+
+        generateBtn.disabled = true;
+        statusContainer.style.display = 'block';
+
+        const zip = new JSZip();
+        const imgFolder = zip.folder("images");
+        
+        // মেটাডেটা CSV এর হেডার তৈরি
+        let csvContent = "tokenID,name,description,file_name\n";
+
+        // ছবিগুলো লোড করার ফাংশন
+        const loadImages = Array.from(files).map(file => {
+            return new Promise((resolve) => {
+                const url = URL.createObjectURL(file);
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.src = url;
+            });
+        });
+
+        const loadedImages = await Promise.all(loadImages);
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        for (let i = 1; i <= totalAmount; i++) {
+            // সিরিয়াল অনুযায়ী আপলোড করা ছবিগুলি চক্রাকারে ব্যবহার করা হবে
+            const currentImg = loadedImages[(i - 1) % loadedImages.length];
+            
+            canvas.width = currentImg.width;
+            canvas.height = currentImg.height;
+
+            // যদি JPG হয় তবে ব্যাকগ্রাউন্ড সাদা করে দেওয়া (WebP স্বচ্ছ হতে পারে)
+            if (format === 'jpeg') {
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+            
+            ctx.drawImage(currentImg, 0, 0);
+
+            // ছবি Canvas থেকে Blob এ কনভার্ট করা
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, `image/${format}`, 1.0));
+            const fileName = `${i}.${ext}`;
+            
+            // জিপের ভেতর ছবি যুক্ত করা
+            imgFolder.file(fileName, blob);
+
+            // CSV এর জন্য সারি যুক্ত করা
+            csvContent += `${i},"${baseName} #${i}",,${fileName}\n`;
+
+            // UI আপডেট করা (প্রতি ২০টি ছবি পর পর আপডেট হবে ব্রাউজার হ্যাং ঠেকানোর জন্য)
+            if (i % 20 === 0 || i === totalAmount) {
+                const progress = Math.round((i / totalAmount) * 100);
+                progressBar.value = progress;
+                statusText.innerText = `তৈরি হচ্ছে: ${i} / ${totalAmount} (${progress}%)`;
+                await new Promise(r => setTimeout(r, 0)); // Yield to main thread
+            }
+        }
+
+        statusText.innerText = "ZIP ফাইল প্যাক করা হচ্ছে, দয়া করে অপেক্ষা করুন...";
+        
+        // জিপের ভেতর আপনার নির্দিষ্ট নামের ফাইল যুক্ত করা হলো
+        zip.file("NFTMETADATA.csv", csvContent);
+
+        // ZIP জেনারেট এবং ডাউনলোড
+        const zipBlob = await zip.generateAsync({ type: "blob" });
+        const downloadUrl = URL.createObjectURL(zipBlob);
+        
+        const a = document.createElement("a");
+        a.href = downloadUrl;
+        a.download = `${baseName}_Collection.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        statusText.innerText = "সম্পন্ন হয়েছে! ডাউনলোড শুরু হয়েছে।";
+        generateBtn.disabled = false;
+    });
+</script>
+
+</body>
+</html>
