@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NFT Collection Generator - Super Fast</title>
+    <title>NFT Collection Generator - Pro Edition</title>
     <!-- JSZip Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
@@ -16,91 +16,148 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--bg); color: var(--text); padding: 40px 20px; display: flex; justify-content: center; min-height: 100vh; }
-        .container { background-color: var(--surface); padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); width: 100%; max-width: 650px; border: 1px solid #454d50; }
+        .container { background-color: var(--surface); padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); width: 100%; max-width: 700px; border: 1px solid #454d50; }
         h2 { text-align: center; margin-bottom: 25px; color: var(--primary); }
+        
+        /* Tab System Styles */
+        .tabs { display: flex; gap: 10px; margin-bottom: 25px; }
+        .tab-btn { flex: 1; padding: 12px; background: #1e272e; border: 1px solid #636e72; color: #b2bec3; cursor: pointer; border-radius: 8px; font-weight: bold; font-size: 15px; transition: 0.3s; }
+        .tab-btn:hover { background: #353b48; }
+        .tab-btn.active { background: var(--primary); color: #1e272e; border-color: var(--primary); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
         .input-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-weight: 600; color: #b2bec3; font-size: 14px; }
         input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #636e72; background-color: #1e272e; color: white; font-size: 14px; outline: none; }
         input:focus, select:focus { border-color: var(--primary); }
-        button { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary), #0984e3); border: none; border-radius: 8px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-        button:hover { filter: brightness(1.1); transform: translateY(-2px); }
-        button:disabled { background: #636e72; cursor: not-allowed; transform: none; }
+        button.action-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary), #0984e3); border: none; border-radius: 8px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        button.action-btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        button.action-btn:disabled { background: #636e72; cursor: not-allowed; transform: none; }
         
-        #status-text { margin-top: 15px; text-align: center; font-weight: bold; color: #ffeaa7; }
+        .status-text { margin-top: 15px; text-align: center; font-weight: bold; color: #ffeaa7; }
         
         .download-section { margin-top: 30px; display: none; padding-top: 20px; border-top: 1px solid #636e72; }
-        .batch-btn { background: linear-gradient(135deg, #6c5ce7, #a29bfe); margin-bottom: 10px; }
-        .csv-btn { background: linear-gradient(135deg, #00b894, #55efc4); margin-bottom: 20px; color: #2d3436; }
+        .batch-btn { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; color: white; background: linear-gradient(135deg, #6c5ce7, #a29bfe); margin-bottom: 10px; transition: 0.2s; }
+        .batch-btn:hover { filter: brightness(1.1); }
+        .csv-btn { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; background: linear-gradient(135deg, #00b894, #55efc4); margin-bottom: 20px; color: #2d3436; transition: 0.2s; }
+        .csv-btn:hover { filter: brightness(1.1); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>⚡ Fast NFT Generator</h2>
+    <h2>⚡ NFT Studio Pro</h2>
     
-    <div class="input-group">
-        <label>WebP ছবি আপলোড করুন</label>
-        <input type="file" id="imageUpload" accept="image/webp" multiple>
+    <!-- Tab Buttons -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('webpTab')">🖼️ WebP to PNG/JPG</button>
+        <button class="tab-btn" onclick="switchTab('gifTab')">🎬 GIF Copier</button>
     </div>
 
-    <div class="input-group">
-        <label>আউটপুট ফরম্যাট</label>
-        <select id="formatSelect">
-            <option value="png">PNG</option>
-            <option value="jpeg">JPG</option>
-        </select>
-    </div>
-
-    <div style="display: flex; gap: 15px;">
-        <div class="input-group" style="flex: 1;">
-            <label>মোট ছবির সংখ্যা</label>
-            <input type="number" id="totalAmount" placeholder="10000" value="10000" min="1">
+    <!-- TAB 1: WEBP TO PNG/JPG (আগের টুলটি) -->
+    <div id="webpTab" class="tab-content active">
+        <div class="input-group">
+            <label>WebP ছবি আপলোড করুন</label>
+            <input type="file" id="imageUpload1" accept="image/webp" multiple>
         </div>
-        <div class="input-group" style="flex: 1;">
-            <label>প্রতি ব্যাচে কতগুলো (যেমন: 1000)</label>
-            <input type="number" id="batchSize" placeholder="1000" value="1000" min="1">
+        <div class="input-group">
+            <label>আউটপুট ফরম্যাট</label>
+            <select id="formatSelect1">
+                <option value="png">PNG</option>
+                <option value="jpeg">JPG</option>
+            </select>
+        </div>
+        <div style="display: flex; gap: 15px;">
+            <div class="input-group" style="flex: 1;">
+                <label>মোট ছবির সংখ্যা</label>
+                <input type="number" id="totalAmount1" placeholder="10000" value="10000" min="1">
+            </div>
+            <div class="input-group" style="flex: 1;">
+                <label>প্রতি ব্যাচে কতগুলো</label>
+                <input type="number" id="batchSize1" placeholder="1000" value="1000" min="1">
+            </div>
+        </div>
+        <div class="input-group">
+            <label>মেটাডেটা নাম (যেমন: 8BIT BROKER)</label>
+            <input type="text" id="baseName1" placeholder="8BIT BROKER">
+        </div>
+        <button class="action-btn" id="prepareBtn1">ফাইলের সিস্টেম প্রস্তুত করুন</button>
+        <div class="status-text" id="status-text1"></div>
+        
+        <div class="download-section" id="downloadSection1">
+            <h3 style="text-align: center; margin-bottom: 15px; color: #fdcb6e;">ডাউনলোড প্যানেল</h3>
+            <button id="downloadCsvBtn1" class="csv-btn">📥 সম্পূর্ণ "NFTMETADATA.csv" ডাউনলোড করুন</button>
+            <div id="batchContainer1"></div>
         </div>
     </div>
 
-    <div class="input-group">
-        <label>মেটাডেটা নাম (যেমন: 8BIT BROKER)</label>
-        <input type="text" id="baseName" placeholder="8BIT BROKER">
+    <!-- TAB 2: GIF COPIER (নতুন টুলটি) -->
+    <div id="gifTab" class="tab-content">
+        <div class="input-group">
+            <label>GIF ফাইল আপলোড করুন (একটি বা একাধিক)</label>
+            <input type="file" id="imageUpload2" accept="image/gif" multiple>
+        </div>
+        <div style="display: flex; gap: 15px;">
+            <div class="input-group" style="flex: 1;">
+                <label>মোট GIF সংখ্যা</label>
+                <input type="number" id="totalAmount2" placeholder="6000" value="6000" min="1">
+            </div>
+            <div class="input-group" style="flex: 1;">
+                <label>প্রতি ব্যাচে কতগুলো</label>
+                <input type="number" id="batchSize2" placeholder="1000" value="1000" min="1">
+            </div>
+        </div>
+        <div class="input-group">
+            <label>মেটাডেটা নাম (যেমন: 8BIT BROKER)</label>
+            <input type="text" id="baseName2" placeholder="8BIT BROKER">
+        </div>
+        <button class="action-btn" id="prepareBtn2">GIF সিস্টেম প্রস্তুত করুন</button>
+        <div class="status-text" id="status-text2"></div>
+        
+        <div class="download-section" id="downloadSection2">
+            <h3 style="text-align: center; margin-bottom: 15px; color: #fdcb6e;">ডাউনলোড প্যানেল</h3>
+            <button id="downloadCsvBtn2" class="csv-btn">📥 সম্পূর্ণ "NFTMETADATA.csv" ডাউনলোড করুন</button>
+            <div id="batchContainer2"></div>
+        </div>
     </div>
 
-    <button id="prepareBtn">ফাইলের সিস্টেম প্রস্তুত করুন</button>
-    <div id="status-text"></div>
-
-    <div class="download-section" id="downloadSection">
-        <h3 style="text-align: center; margin-bottom: 15px; color: #fdcb6e;">ডাউনলোড প্যানেল</h3>
-        <button id="downloadFullCsvBtn" class="csv-btn">📥 সম্পূর্ণ "NFTMETADATA.csv" ডাউনলোড করুন</button>
-        <div id="batchButtonsContainer"></div>
-    </div>
 </div>
 
 <script>
-    let convertedBlobs = [];
-    let config = {};
+    // Tab Switching Logic
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+    }
 
-    document.getElementById('prepareBtn').addEventListener('click', async () => {
-        const files = document.getElementById('imageUpload').files;
-        config.format = document.getElementById('formatSelect').value;
-        config.ext = config.format === 'jpeg' ? 'jpg' : 'png';
-        config.totalAmount = parseInt(document.getElementById('totalAmount').value);
-        config.batchSize = parseInt(document.getElementById('batchSize').value);
-        config.baseName = document.getElementById('baseName').value.trim();
+    // ==========================================
+    // TAB 1: WEBP TO PNG/JPG LOGIC
+    // ==========================================
+    let convertedBlobs1 = [];
+    let config1 = {};
 
-        if (files.length === 0) return alert('অন্তত একটি ছবি আপলোড করুন!');
-        if (!config.totalAmount || !config.batchSize) return alert('সংখ্যা সঠিকভাবে দিন!');
-        if (!config.baseName) return alert('বেস নাম দিন!');
+    document.getElementById('prepareBtn1').addEventListener('click', async () => {
+        const files = document.getElementById('imageUpload1').files;
+        config1.format = document.getElementById('formatSelect1').value;
+        config1.ext = config1.format === 'jpeg' ? 'jpg' : 'png';
+        config1.totalAmount = parseInt(document.getElementById('totalAmount1').value);
+        config1.batchSize = parseInt(document.getElementById('batchSize1').value);
+        config1.baseName = document.getElementById('baseName1').value.trim();
 
-        const prepareBtn = document.getElementById('prepareBtn');
-        const statusText = document.getElementById('status-text');
+        if (files.length === 0) return alert('অন্তত একটি WebP ছবি আপলোড করুন!');
+        if (!config1.totalAmount || !config1.batchSize) return alert('সংখ্যা সঠিকভাবে দিন!');
+        if (!config1.baseName) return alert('বেস নাম দিন!');
+
+        const prepareBtn = document.getElementById('prepareBtn1');
+        const statusText = document.getElementById('status-text1');
         
         prepareBtn.disabled = true;
-        statusText.innerText = "মূল ছবিগুলো কনভার্ট করা হচ্ছে, অপেক্ষা করুন...";
-        convertedBlobs = []; // Reset
+        statusText.innerText = "ছবি কনভার্ট হচ্ছে, অপেক্ষা করুন...";
+        convertedBlobs1 = []; 
 
-        // ১. ছবি লোড করা
         const loadImages = Array.from(files).map(file => {
             return new Promise((resolve) => {
                 const url = URL.createObjectURL(file);
@@ -111,39 +168,70 @@
         });
         const loadedImages = await Promise.all(loadImages);
 
-        // ২. মাত্র একবার কনভার্ট করে মেমোরিতে রাখা (সুপার ফাস্ট)
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
 
         for (let i = 0; i < loadedImages.length; i++) {
-            statusText.innerText = `কনভার্ট হচ্ছে: অরিজিনাল ছবি ${i+1}/${loadedImages.length}`;
+            statusText.innerText = `কনভার্ট হচ্ছে: ছবি ${i+1}/${loadedImages.length}`;
             const img = loadedImages[i];
             canvas.width = img.width;
             canvas.height = img.height;
-
-            if (config.format === 'jpeg') {
+            if (config1.format === 'jpeg') {
                 ctx.fillStyle = '#FFFFFF';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             } else {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
-            
             ctx.drawImage(img, 0, 0);
-            const blob = await new Promise(resolve => canvas.toBlob(resolve, `image/${config.format}`, 1.0));
-            convertedBlobs.push(blob);
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, `image/${config1.format}`, 1.0));
+            convertedBlobs1.push(blob);
         }
 
-        // ৩. ব্যাচ বাটন তৈরি করা
         statusText.innerText = "সিস্টেম প্রস্তুত! এখন নিচে থেকে ডাউনলোড করুন।";
         prepareBtn.disabled = false;
-        
-        generateDownloadUI();
+        generateDownloadUI(1, config1, convertedBlobs1);
     });
 
-    function generateDownloadUI() {
-        const downloadSection = document.getElementById('downloadSection');
-        const container = document.getElementById('batchButtonsContainer');
-        container.innerHTML = ''; // Clear previous
+    // ==========================================
+    // TAB 2: GIF COPIER LOGIC (Super Fast)
+    // ==========================================
+    let gifFiles = [];
+    let config2 = {};
+
+    document.getElementById('prepareBtn2').addEventListener('click', async () => {
+        const files = document.getElementById('imageUpload2').files;
+        config2.ext = 'gif'; // Fixed extension
+        config2.totalAmount = parseInt(document.getElementById('totalAmount2').value);
+        config2.batchSize = parseInt(document.getElementById('batchSize2').value);
+        config2.baseName = document.getElementById('baseName2').value.trim();
+
+        if (files.length === 0) return alert('অন্তত একটি GIF ছবি আপলোড করুন!');
+        if (!config2.totalAmount || !config2.batchSize) return alert('সংখ্যা সঠিকভাবে দিন!');
+        if (!config2.baseName) return alert('বেস নাম দিন!');
+
+        const prepareBtn = document.getElementById('prepareBtn2');
+        const statusText = document.getElementById('status-text2');
+        
+        prepareBtn.disabled = true;
+        statusText.innerText = "ফাইল প্রসেসিং হচ্ছে...";
+        
+        // GIF এর ক্ষেত্রে কোন কনভার্সন দরকার নেই, সরাসরি File Object কপি হবে
+        gifFiles = Array.from(files); 
+
+        setTimeout(() => {
+            statusText.innerText = "সিস্টেম প্রস্তুত! এখন নিচে থেকে ডাউনলোড করুন।";
+            prepareBtn.disabled = false;
+            generateDownloadUI(2, config2, gifFiles);
+        }, 300); // 300ms delay just to show UI update smoothly
+    });
+
+    // ==========================================
+    // SHARED DOWNLOAD UI & LOGIC
+    // ==========================================
+    function generateDownloadUI(tabIndex, config, fileArray) {
+        const downloadSection = document.getElementById(`downloadSection${tabIndex}`);
+        const container = document.getElementById(`batchContainer${tabIndex}`);
+        container.innerHTML = ''; 
         
         downloadSection.style.display = 'block';
 
@@ -155,28 +243,27 @@
             
             const btn = document.createElement('button');
             btn.className = 'batch-btn';
-            btn.innerText = `📦 ডাউনলোড পার্ট ${b + 1} (ছবি ${start} থেকে ${end})`;
+            btn.innerText = `📦 ডাউনলোড পার্ট ${b + 1} (${start} - ${end})`;
             
-            btn.onclick = () => downloadBatch(start, end, btn);
+            btn.onclick = () => downloadBatch(start, end, btn, config.ext, fileArray);
             container.appendChild(btn);
         }
 
-        // সম্পূর্ণ CSV ডাউনলোড বাটন সেটআপ
-        document.getElementById('downloadFullCsvBtn').onclick = downloadFullCSV;
+        document.getElementById(`downloadCsvBtn${tabIndex}`).onclick = () => downloadFullCSV(config);
     }
 
-    async function downloadBatch(start, end, btnElement) {
+    async function downloadBatch(start, end, btnElement, ext, fileArray) {
         btnElement.disabled = true;
         const originalText = btnElement.innerText;
-        btnElement.innerText = "⏳ ফাইল প্যাক করা হচ্ছে...";
+        btnElement.innerText = "⏳ ফাইল জিপ করা হচ্ছে...";
 
         const zip = new JSZip();
         
-        // শুধু জিপের কাজ, কোনো কনভার্সন নেই তাই সাথে সাথে হয়ে যাবে
         for (let i = start; i <= end; i++) {
-            const blobToUse = convertedBlobs[(i - 1) % convertedBlobs.length];
-            const fileName = `${i}.${config.ext}`;
-            zip.file(fileName, blobToUse);
+            // সিরিয়াল অনুযায়ী অরিজিনাল ফাইল বা ব্লব ব্যবহার
+            const fileToUse = fileArray[(i - 1) % fileArray.length];
+            const fileName = `${i}.${ext}`;
+            zip.file(fileName, fileToUse);
         }
 
         const zipBlob = await zip.generateAsync({ type: "blob" });
@@ -184,7 +271,7 @@
         
         const a = document.createElement("a");
         a.href = url;
-        a.download = `Images_${start}_to_${end}.zip`;
+        a.download = `Batch_${start}_to_${end}.zip`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -196,7 +283,7 @@
         }, 2000);
     }
 
-    function downloadFullCSV() {
+    function downloadFullCSV(config) {
         let csvContent = "tokenID,name,description,file_name\n";
         for (let i = 1; i <= config.totalAmount; i++) {
             const fileName = `${i}.${config.ext}`;
