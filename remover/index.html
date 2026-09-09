@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MiNI BRoKER — Wallet Desk</title>
+<title>Wallet Screening</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -65,12 +65,11 @@ td.num,th.num{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-nu
 .block-b{padding:18px}
 
 label{display:block;font-size:11.5px;color:var(--dim);margin-bottom:6px;font-weight:500}
-input[type=number],input[type=text],textarea,select{
+input[type=number],input[type=text],select{
   width:100%;background:var(--bg);border:1px solid var(--line);color:var(--ink);
   font-family:"IBM Plex Mono",monospace;font-size:13px;padding:11px 12px;border-radius:0;
 }
-textarea{min-height:210px;resize:vertical;line-height:1.6}
-input:focus,textarea:focus,select:focus{outline:none;border-color:var(--violet);box-shadow:0 0 0 1px var(--violet)}
+input:focus,select:focus{outline:none;border-color:var(--violet);box-shadow:0 0 0 1px var(--violet)}
 input[type=file]{font-family:inherit;font-size:12.5px;color:var(--dim);padding:9px 0;border:none;background:none;width:100%}
 input[type=file]::file-selector-button{background:var(--panel-3);border:1px solid var(--line);color:var(--ink);font-family:inherit;font-size:12px;padding:8px 14px;margin-right:12px;cursor:pointer}
 .duo{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
@@ -146,10 +145,10 @@ a{color:var(--violet)}
 
 <div class="mast">
   <div>
-    <h1 class="mark">MiNI <em>BRoKER</em> — wallet desk</h1>
+    <h1 class="mark">Wallet <em>screening</em></h1>
     <p class="tagline">Separate real collectors from empty wallets. Every address is checked for its ETH balance and its history of NFT transfers on Robinhood Chain.</p>
   </div>
-  <div class="livebox"><span class="dot"></span><span>desk online</span></div>
+  <div class="livebox"><span class="dot"></span><span>online</span></div>
 </div>
 
 <div class="tabs" role="tablist">
@@ -161,9 +160,20 @@ a{color:var(--violet)}
 <div class="cols">
   <div>
     <div class="block">
-      <div class="block-h"><h2>Addresses</h2><span class="meta" id="cntA">0 detected</span></div>
+      <div class="block-h"><h2>Upload file</h2><span class="meta" id="cntA">no file</span></div>
       <div class="block-b">
-        <textarea id="addrs" spellcheck="false" placeholder="Paste your list here — one address per line.&#10;Extra columns, commas and stray text are ignored."></textarea>
+        <label for="fileA">CSV containing a wallet address column</label>
+        <input type="file" id="fileA" accept=".csv,text/csv">
+        <div class="duo">
+          <div>
+            <label for="colAddrA">Wallet column</label>
+            <select id="colAddrA"><option>—</option></select>
+          </div>
+          <div>
+            <label for="colNoteA">Extra column to keep (optional)</label>
+            <select id="colNoteA"><option>—</option></select>
+          </div>
+        </div>
         <div class="duo">
           <div>
             <label for="minEth">Minimum ETH balance</label>
@@ -175,7 +185,7 @@ a{color:var(--violet)}
           </div>
         </div>
         <div class="acts">
-          <button class="go" id="run">Run screen</button>
+          <button class="go" id="run" disabled>Run screen</button>
           <button class="alt" id="stop" disabled>Stop</button>
           <button class="alt" id="linkBtn" disabled>Trace connections</button>
         </div>
@@ -191,8 +201,8 @@ a{color:var(--violet)}
       </div>
       <div class="tw">
         <table id="tA">
-          <thead><tr><th>Wallet</th><th class="num">ETH</th><th class="num">NFT transfers</th><th>Status</th><th>Detail</th></tr></thead>
-          <tbody><tr><td colspan="5" class="none">Paste addresses and run the screen.</td></tr></tbody>
+          <thead><tr><th class="num">Row</th><th>Wallet</th><th class="num">ETH</th><th class="num">NFT transfers</th><th>Status</th><th>Detail</th></tr></thead>
+          <tbody><tr><td colspan="6" class="none">Upload a CSV to begin.</td></tr></tbody>
         </table>
       </div>
       <div class="acts">
@@ -451,8 +461,8 @@ function makeRig(cid){
     cg.addColorStop(0,'rgba(255,182,72,'+(0.1+heat*0.42)+')');
     cg.addColorStop(1,'rgba(255,182,72,0)');
     ctx.fillStyle=cg; ctx.beginPath(); ctx.arc(c[0],c[1],58,0,7); ctx.fill();
-    ctx.font='700 15px Silkscreen, monospace'; ctx.textAlign='center';
-    ctx.fillStyle='rgba(238,241,246,'+(0.45+heat*0.5)+')'; ctx.fillText('MB',c[0],c[1]+5);
+    ctx.beginPath(); ctx.arc(c[0],c[1],7+heat*4,0,7);
+    ctx.fillStyle='rgba(255,200,120,'+(0.4+heat*0.6)+')'; ctx.fill();
 
     heat*=0.975;
     requestAnimationFrame(loop);
@@ -491,22 +501,6 @@ function readCSV(t){
   }
   if(cur!==''||row.length){ row.push(cur); rows.push(row); }
   return rows.filter(function(r){return r.some(function(c){return c.trim()!=='';});});
-}
-function sift(text){
-  const good=new Set(), bad=[];
-  text.split(/[\s,;|]+/).forEach(function(tok){
-    const t=tok.trim(); if(!t) return;
-    if(ADDR_RE.test(t)){ good.add(t.toLowerCase()); return; }
-    if(!/0x/i.test(t) && !/^[0-9a-fA-F]{30,}$/.test(t)) return;
-    const hex=t.replace(/^0x/i,'');
-    let why='not a valid address';
-    if(!/^0x/i.test(t)) why='missing the 0x prefix';
-    else if(/[^0-9a-fA-F]/.test(hex)) why='contains characters outside 0-9 and a-f';
-    else if(hex.length<40) why='too short — '+hex.length+' of 40 characters';
-    else if(hex.length>40) why='too long — '+hex.length+' of 40 characters';
-    bad.push({raw:t,why:why});
-  });
-  return {good:Array.from(good),bad:bad};
 }
 
 /* ---- screening ---- */
@@ -568,7 +562,7 @@ async function screen(addrs,opts,ui){
 }
 
 /* ---- panel 1 ---- */
-const A={rows:[],bad:[],links:[],f:'all'};
+const A={head:[],raw:[],rows:[],bad:[],links:[],f:'all'};
 const uiA={
   say:function(m,c){say('fA',m,c);},
   step:function(f,d,t){$('pcA').textContent=Math.round(f*100)+'%';$('bfA').style.width=(f*100)+'%';$('phA').textContent='Group '+d+' of '+t;},
@@ -577,27 +571,26 @@ const uiA={
 function tallyA(){
   $('nP').textContent=A.rows.filter(function(r){return r.state==='pass';}).length;
   $('nR').textContent=A.rows.filter(function(r){return r.state==='fail';}).length;
-  $('nX').textContent=A.bad.length;
+  $('nX').textContent=A.rows.filter(function(r){return r.state==='bad';}).length||A.bad.length;
 }
 function drawA(){
   const tb=$('tA').querySelector('tbody');
-  if(A.f==='bad'){
-    tb.innerHTML=A.bad.length?A.bad.map(function(b){
-      return '<tr class="r"><td class="addr" colspan="4">'+b.raw.slice(0,60)+'</td><td class="why tag x">'+b.why+'</td></tr>';
-    }).join(''):'<tr><td colspan="5" class="none">No malformed addresses found.</td></tr>';
-    return;
-  }
   let rows=A.rows;
   if(A.f==='pass') rows=rows.filter(function(r){return r.state==='pass';});
   if(A.f==='fail') rows=rows.filter(function(r){return r.state==='fail';});
+  if(A.f==='bad')  rows=rows.filter(function(r){return r.state==='bad';});
   tb.innerHTML=rows.length?rows.map(function(r){
+    const cls=r.state==='pass'?'p':(r.state==='bad'?'x':'r');
+    const txt=r.state==='pass'?'Accepted':(r.state==='bad'?'Invalid':'Rejected');
+    const cell=r.addr?short(r.addr):'<span class="tag x">'+((r.rawAddr||'empty').slice(0,24))+'</span>';
     return '<tr class="'+(r.state==='pass'?'p':'r')+'">'+
-      '<td class="addr" title="'+r.addr+'">'+short(r.addr)+'</td>'+
-      '<td class="num">'+(r.eth===null?'—':fmtEth(r.eth))+'</td>'+
-      '<td class="num">'+(r.nft===null?'—':r.nft+(r.more?'+':''))+'</td>'+
-      '<td><span class="tag '+(r.state==='pass'?'p':'r')+'">'+(r.state==='pass'?'Accepted':'Rejected')+'</span></td>'+
+      '<td class="num">'+r.row+'</td>'+
+      '<td class="addr" title="'+(r.addr||r.rawAddr||'')+'">'+cell+'</td>'+
+      '<td class="num">'+(r.eth===null||r.eth===undefined?'—':fmtEth(r.eth))+'</td>'+
+      '<td class="num">'+(r.nft===null||r.nft===undefined?'—':r.nft+(r.more?'+':''))+'</td>'+
+      '<td><span class="tag '+cls+'">'+txt+'</span></td>'+
       '<td class="why">'+r.why+'</td></tr>';
-  }).join(''):'<tr><td colspan="5" class="none">Nothing here.</td></tr>';
+  }).join(''):'<tr><td colspan="6" class="none">Nothing here.</td></tr>';
 }
 Array.prototype.forEach.call(document.querySelectorAll('[data-f]'),function(b){
   b.onclick=function(){
@@ -605,27 +598,75 @@ Array.prototype.forEach.call(document.querySelectorAll('[data-f]'),function(b){
     b.setAttribute('aria-pressed','true'); A.f=b.dataset.f; drawA();
   };
 });
-$('addrs').addEventListener('input',function(e){
-  const s=sift(e.target.value);
-  $('cntA').textContent=s.good.length+' valid'+(s.bad.length?' · '+s.bad.length+' malformed':'');
-});
+$('fileA').onchange=async function(e){
+  const f=e.target.files[0]; if(!f) return;
+  const rows=readCSV(await f.text());
+  if(!rows.length){ uiA.say('That file is empty.','e'); return; }
+
+  // treat the first row as a header only if it holds no wallet address
+  const looksHeader=!rows[0].some(function(c){return /0x[0-9a-fA-F]{40}/.test(c);});
+  A.head=looksHeader?rows[0].map(function(h){return h.trim();}):rows[0].map(function(_,i){return 'Column '+(i+1);});
+  A.raw=looksHeader?rows.slice(1):rows;
+
+  const op=A.head.map(function(h,i){return '<option value="'+i+'">'+(h||('Column '+(i+1)))+'</option>';}).join('');
+  $('colAddrA').innerHTML=op;
+  $('colNoteA').innerHTML='<option value="-1">none</option>'+op;
+
+  // pick the column that actually contains the most addresses
+  let best=0,bestN=-1;
+  A.head.forEach(function(_,i){
+    const n=A.raw.filter(function(r){return /0x[0-9a-fA-F]{40}/.test(r[i]||'');}).length;
+    if(n>bestN){bestN=n;best=i;}
+  });
+  $('colAddrA').value=best;
+
+  const found=A.raw.filter(function(r){return /0x[0-9a-fA-F]{40}/.test(r[best]||'');}).length;
+  $('cntA').textContent=A.raw.length+' rows · '+found+' with an address';
+  $('run').disabled=false;
+  uiA.say('Loaded '+A.raw.length+' rows'+(looksHeader?' with a header row':' (no header detected)')+'.','g');
+};
 
 $('run').onclick=async function(){
-  const s=sift($('addrs').value);
-  if(!s.good.length){ uiA.say('No valid addresses found.','e'); return; }
-  A.rows=[]; A.bad=s.bad; A.links=[];
+  const ai=parseInt($('colAddrA').value), ni=parseInt($('colNoteA').value);
+  const rows=A.raw.map(function(r,i){
+    const cell=(r[ai]||'').trim();
+    const m=cell.match(/0x[0-9a-fA-F]{40}/);
+    const exact=m&&ADDR_RE.test(m[0]);
+    let why='no valid wallet address in this row';
+    if(cell && !exact){
+      const hex=cell.replace(/^0x/i,'');
+      if(!/0x/i.test(cell)) why='missing the 0x prefix';
+      else if(/[^0-9a-fA-F]/.test(hex)) why='contains characters outside 0-9 and a-f';
+      else if(hex.length<40) why='too short — '+hex.length+' of 40 characters';
+      else if(hex.length>40) why='too long — '+hex.length+' of 40 characters';
+    }
+    return {row:i+(A.head[0]==='Column 1'?1:2),rawAddr:cell,
+            note:ni>=0?(r[ni]||'').trim():'',
+            addr:exact?m[0].toLowerCase():'',badWhy:why};
+  });
+  const uniq=Array.from(new Set(rows.filter(function(r){return r.addr;}).map(function(r){return r.addr;})));
+  if(!uniq.length){ uiA.say('No valid addresses in that column — try a different one.','e'); return; }
+
+  A.rows=[]; A.links=[];
   $('run').disabled=true; $('stop').disabled=false; $('linkBtn').disabled=true; $('linkOut').hidden=true;
   ['dlP','dlR','dlB','dlA','dlL','dlC'].forEach(function(i){$(i).disabled=true;});
-  uiA.say('Screening '+s.good.length+' wallets'+(s.bad.length?' · '+s.bad.length+' malformed set aside':'')+'…','g');
-  tallyA();
+  const badN=rows.length-rows.filter(function(r){return r.addr;}).length;
+  uiA.say('Screening '+uniq.length+' wallets from '+rows.length+' rows'+(badN?' · '+badN+' invalid set aside':'')+'…','g');
+
   try{
-    const m=await screen(s.good,{minEth:parseFloat($('minEth').value)||0,minNft:parseInt($('minNft').value)||0},uiA);
-    A.rows=Array.from(m.values()); drawA(); tallyA();
+    const m=await screen(uniq,{minEth:parseFloat($('minEth').value)||0,minNft:parseInt($('minNft').value)||0},uiA);
+    A.rows=rows.map(function(r){
+      if(!r.addr) return Object.assign({},r,{eth:null,nft:null,state:'bad',why:r.badWhy});
+      const g=m.get(r.addr)||{};
+      return Object.assign({},r,{eth:g.eth===undefined?null:g.eth,nft:g.nft===undefined?null:g.nft,
+        more:g.more,state:g.state==='pass'?'pass':'fail',why:g.why||'not checked'});
+    });
+    drawA(); tallyA();
     const p=A.rows.filter(function(r){return r.state==='pass';}).length;
     uiA.say('Finished — '+p+' accepted, '+(A.rows.length-p)+' rejected.','g');
     $('phA').textContent='Complete'; $('pcA').textContent='100%'; $('bfA').style.width='100%';
     ['dlP','dlR','dlA'].forEach(function(i){$(i).disabled=false;});
-    $('dlB').disabled=!A.bad.length;
+    $('dlB').disabled=!badN;
     $('linkBtn').disabled=false; $('linkOut').hidden=false;
   }catch(e){ uiA.say('Stopped: '+e.message,'e'); }
   $('run').disabled=false; $('stop').disabled=true;
@@ -633,7 +674,7 @@ $('run').onclick=async function(){
 $('stop').onclick=function(){ location.reload(); };
 
 $('linkBtn').onclick=async function(){
-  const all=A.rows.map(function(r){return r.addr;});
+  const all=Array.from(new Set(A.rows.filter(function(r){return r.addr;}).map(function(r){return r.addr;})));
   const set=new Set(all);
   const ok=new Set(A.rows.filter(function(r){return r.state==='pass';}).map(function(r){return r.addr;}));
   if(all.length<2){ uiA.say('Need at least two screened wallets.','e'); return; }
@@ -694,12 +735,15 @@ $('linkBtn').onclick=async function(){
   $('linkBtn').disabled=false; $('run').disabled=false;
 };
 
-const HA=['wallet','eth_balance','nft_transfers','status','detail'];
-function RA(r){ return [r.addr,r.eth===null?'':r.eth,r.nft===null?'':r.nft,r.state==='pass'?'accepted':'rejected',r.why]; }
+const HA=['row','wallet','kept_column','eth_balance','nft_transfers','status','detail'];
+function RA(r){
+  const st=r.state==='pass'?'accepted':(r.state==='bad'?'invalid':'rejected');
+  return [r.row,r.addr||r.rawAddr,r.note||'',r.eth===null?'':r.eth,r.nft===null?'':r.nft,st,r.why];
+}
 $('dlP').onclick=function(){ save('accepted.csv',HA,A.rows.filter(function(r){return r.state==='pass';}).map(RA)); };
 $('dlR').onclick=function(){ save('rejected.csv',HA,A.rows.filter(function(r){return r.state==='fail';}).map(RA)); };
-$('dlB').onclick=function(){ save('invalid-addresses.csv',['raw_value','problem'],A.bad.map(function(b){return [b.raw,b.why];})); };
-$('dlA').onclick=function(){ save('all-wallets.csv',HA,A.rows.map(RA)); };
+$('dlB').onclick=function(){ save('invalid-rows.csv',HA,A.rows.filter(function(r){return r.state==='bad';}).map(RA)); };
+$('dlA').onclick=function(){ save('all-rows.csv',HA,A.rows.map(RA)); };
 $('dlL').onclick=function(){
   save('connections.csv',['wallet_a','wallet_b','transfers','direction','both_accepted'],
     A.links.map(function(l){return [l.a,l.b,l.n,l.two?'both ways':'one way',l.both?'yes':'no'];}));
