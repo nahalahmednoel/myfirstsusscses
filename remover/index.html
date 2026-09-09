@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MiNI BRoKER — Wallet Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08090d;
+  --panel:#11141c;
+  --panel-2:#171b26;
+  --panel-3:#1e2431;
+  --line:#262d3c;
+  --line-hi:#38425a;
+  --amber:#ffb648;
+  --amber-dim:#8a6428;
+  --mint:#4ee0a3;
+  --coral:#ff6d5e;
+  --violet:#8b7bf0;
+  --ink:#eef1f6;
+  --dim:#7a8496;
+  --dimmer:#4d5666;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,sans-serif;
+  font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased;
+}
+td.num,th.num{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+
+.ticker{background:#05060a;border-bottom:1px solid var(--line);overflow:hidden;white-space:nowrap;height:34px;display:flex;align-items:center}
+.ticker div{display:inline-block;padding-left:100%;animation:slide 42s linear infinite}
+.ticker span{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--dim);margin-right:34px;letter-spacing:.4px}
+.ticker b{color:var(--amber);font-weight:500}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+@media(prefers-reduced-motion:reduce){.ticker div{animation:none;padding-left:16px}}
+
+.shell{max-width:1240px;margin:0 auto;padding:0 22px 90px}
+.mast{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:34px 0 22px;flex-wrap:wrap}
+.mark{font-family:"Silkscreen",monospace;font-size:26px;line-height:1;color:var(--ink);margin:0}
+.mark em{font-style:normal;color:var(--amber)}
+.tagline{color:var(--dim);font-size:13.5px;margin:10px 0 0;max-width:56ch}
+.livebox{display:flex;align-items:center;gap:9px;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--dim)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 10px var(--mint)}
+
+.tabs{display:flex;gap:2px;background:var(--panel);padding:4px;border:1px solid var(--line);width:fit-content;margin-bottom:26px;max-width:100%;overflow-x:auto}
+.tab{background:none;border:none;color:var(--dim);font-family:inherit;font-size:13px;font-weight:500;padding:10px 20px;cursor:pointer;white-space:nowrap}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--panel-3);color:var(--amber)}
+.tab:focus-visible{outline:2px solid var(--violet);outline-offset:-2px}
+.panel[hidden]{display:none}
+
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:26px;align-items:start}
+@media(max-width:940px){.cols{grid-template-columns:minmax(0,1fr)}}
+
+.block{background:var(--panel);border:1px solid var(--line)}
+.block-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--panel-2)}
+.block-h h2{font-size:12.5px;font-weight:600;margin:0;color:var(--ink)}
+.block-h .meta{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--dimmer)}
+.block-b{padding:18px}
+
+label{display:block;font-size:11.5px;color:var(--dim);margin-bottom:6px;font-weight:500}
+input[type=number],input[type=text],textarea,select{
+  width:100%;background:var(--bg);border:1px solid var(--line);color:var(--ink);
+  font-family:"IBM Plex Mono",monospace;font-size:13px;padding:11px 12px;border-radius:0;
+}
+textarea{min-height:210px;resize:vertical;line-height:1.6}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--violet);box-shadow:0 0 0 1px var(--violet)}
+input[type=file]{font-family:inherit;font-size:12.5px;color:var(--dim);padding:9px 0;border:none;background:none;width:100%}
+input[type=file]::file-selector-button{background:var(--panel-3);border:1px solid var(--line);color:var(--ink);font-family:inherit;font-size:12px;padding:8px 14px;margin-right:12px;cursor:pointer}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+@media(max-width:540px){.duo{grid-template-columns:1fr}}
+
+.go{background:var(--amber);color:#12100a;border:none;font-family:inherit;font-size:13px;font-weight:600;padding:13px 24px;cursor:pointer}
+.go:hover:not(:disabled){background:#ffc76e}
+.go:disabled{background:var(--amber-dim);color:#0d0f14;cursor:not-allowed}
+.alt{background:none;border:1px solid var(--line-hi);color:var(--ink);font-family:inherit;font-size:12.5px;padding:12px 17px;cursor:pointer}
+.alt:hover:not(:disabled){border-color:var(--amber);color:var(--amber)}
+.alt:disabled{opacity:.3;cursor:not-allowed}
+button:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+.acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+
+.rig{position:sticky;top:20px;background:var(--panel);border:1px solid var(--line)}
+#rigA,#rigB{display:block;width:100%;height:264px;background:linear-gradient(180deg,#0d1118,#06080c)}
+.gauge{padding:16px 18px;border-top:1px solid var(--line)}
+.gauge-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
+.gauge-top span{font-size:11.5px;color:var(--dim)}
+.gauge-top b{font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:500;color:var(--amber);letter-spacing:-.5px}
+.track{height:5px;background:var(--bg);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--amber);transition:width .3s ease}
+.counts{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
+.count{padding:13px 14px;border-right:1px solid var(--line)}
+.count:last-child{border-right:none}
+.count b{display:block;font-family:"IBM Plex Mono",monospace;font-size:19px;font-weight:500;line-height:1.2}
+.count span{font-size:10.5px;color:var(--dimmer)}
+.count.p b{color:var(--mint)} .count.r b{color:var(--coral)} .count.x b{color:var(--violet)}
+.feed{height:118px;overflow-y:auto;padding:12px 18px 16px;border-top:1px solid var(--line);font-family:"IBM Plex Mono",monospace;font-size:11px;line-height:1.7;color:var(--dim)}
+.feed div{word-break:break-word}
+.feed .e{color:var(--coral)} .feed .g{color:var(--mint)} .feed .w{color:var(--amber)}
+
+.out{margin-top:26px}
+.seg{display:flex;gap:2px;background:var(--panel);padding:3px;border:1px solid var(--line);flex-wrap:wrap}
+.seg button{background:none;border:none;color:var(--dim);font-family:inherit;font-size:11.5px;padding:7px 14px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--panel-3);color:var(--amber)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-top:none;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:660px}
+th,td{text-align:left;padding:11px 16px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{background:var(--panel-2);color:var(--dim);font-weight:500;font-size:11px}
+td.num,th.num{text-align:right}
+td.addr{font-family:"IBM Plex Mono",monospace;font-size:11.5px}
+tbody tr:hover{background:var(--panel-2)}
+tr.p td:first-child{box-shadow:inset 2px 0 0 var(--mint)}
+tr.r td:first-child{box-shadow:inset 2px 0 0 var(--coral)}
+.tag{font-size:11px;font-weight:600}
+.tag.p{color:var(--mint)} .tag.r{color:var(--coral)} .tag.x{color:var(--violet)}
+.none{padding:42px 18px;text-align:center;color:var(--dimmer);font-size:12.5px}
+a{color:var(--violet)}
+.why{color:var(--dimmer);font-size:11.5px;white-space:normal;min-width:180px}
+
+.flag{border:1px solid var(--amber-dim);background:rgba(255,182,72,.06);padding:14px 16px;margin:26px 0 0;font-size:12.5px;color:#d6c8ab}
+.flag b{color:var(--amber)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="ticker"><div>
+  <span>CHAIN <b>ROBINHOOD MAINNET</b></span>
+  <span>ID <b>4663</b></span>
+  <span>GAS <b>ETH</b></span>
+  <span>SCREEN <b>NATIVE BALANCE + NFT TRANSFER HISTORY</b></span>
+  <span>ENDPOINTS <b id="epn">5</b></span>
+  <span>MODE <b>WHITELIST VERIFICATION</b></span>
+  <span>CHAIN <b>ROBINHOOD MAINNET</b></span>
+  <span>ID <b>4663</b></span>
+  <span>GAS <b>ETH</b></span>
+  <span>SCREEN <b>NATIVE BALANCE + NFT TRANSFER HISTORY</b></span>
+</div></div>
+
+<div class="shell">
+
+<div class="mast">
+  <div>
+    <h1 class="mark">MiNI <em>BRoKER</em> — wallet desk</h1>
+    <p class="tagline">Separate real collectors from empty wallets. Every address is checked for its ETH balance and its history of NFT transfers on Robinhood Chain.</p>
+  </div>
+  <div class="livebox"><span class="dot"></span><span>desk online</span></div>
+</div>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" id="t1" aria-controls="p1" aria-selected="true">Wallet screen</button>
+  <button class="tab" role="tab" id="t2" aria-controls="p2" aria-selected="false">CSV with X posts</button>
+</div>
+
+<section class="panel" id="p1" role="tabpanel" aria-labelledby="t1">
+<div class="cols">
+  <div>
+    <div class="block">
+      <div class="block-h"><h2>Addresses</h2><span class="meta" id="cntA">0 detected</span></div>
+      <div class="block-b">
+        <textarea id="addrs" spellcheck="false" placeholder="Paste your list here — one address per line.&#10;Extra columns, commas and stray text are ignored."></textarea>
+        <div class="duo">
+          <div>
+            <label for="minEth">Minimum ETH balance</label>
+            <input type="number" id="minEth" value="0.001" min="0" step="any">
+          </div>
+          <div>
+            <label for="minNft">Minimum NFT transfers</label>
+            <input type="number" id="minNft" value="5" min="0" step="1">
+          </div>
+        </div>
+        <div class="acts">
+          <button class="go" id="run">Run screen</button>
+          <button class="alt" id="stop" disabled>Stop</button>
+          <button class="alt" id="linkBtn" disabled>Trace connections</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="out">
+      <div class="seg" role="group" aria-label="Filter results">
+        <button data-f="all" aria-pressed="true">All</button>
+        <button data-f="pass" aria-pressed="false">Accepted</button>
+        <button data-f="fail" aria-pressed="false">Rejected</button>
+        <button data-f="bad" aria-pressed="false">Invalid</button>
+      </div>
+      <div class="tw">
+        <table id="tA">
+          <thead><tr><th>Wallet</th><th class="num">ETH</th><th class="num">NFT transfers</th><th>Status</th><th>Detail</th></tr></thead>
+          <tbody><tr><td colspan="5" class="none">Paste addresses and run the screen.</td></tr></tbody>
+        </table>
+      </div>
+      <div class="acts">
+        <button class="alt" id="dlP" disabled>Accepted CSV</button>
+        <button class="alt" id="dlR" disabled>Rejected CSV</button>
+        <button class="alt" id="dlB" disabled>Invalid CSV</button>
+        <button class="alt" id="dlA" disabled>Everything CSV</button>
+      </div>
+    </div>
+
+    <div class="out" id="linkOut" hidden>
+      <div class="seg"><button aria-pressed="true">Connected wallets</button></div>
+      <div class="tw">
+        <table id="tL">
+          <thead><tr><th>Wallet A</th><th>Wallet B</th><th class="num">Transfers</th><th>Direction</th><th>Both accepted</th></tr></thead>
+          <tbody><tr><td colspan="5" class="none">Run the screen first, then trace connections.</td></tr></tbody>
+        </table>
+      </div>
+      <div class="acts">
+        <button class="alt" id="dlL" disabled>Connections CSV</button>
+        <button class="alt" id="dlC" disabled>Clusters CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <aside>
+    <div class="rig">
+      <canvas id="rigA" width="740" height="528" aria-label="Processing activity"></canvas>
+      <div class="gauge">
+        <div class="gauge-top"><span id="phA">Idle</span><b id="pcA">0%</b></div>
+        <div class="track"><i id="bfA"></i></div>
+      </div>
+      <div class="counts">
+        <div class="count p"><b id="nP">0</b><span>accepted</span></div>
+        <div class="count r"><b id="nR">0</b><span>rejected</span></div>
+        <div class="count x"><b id="nX">0</b><span>invalid</span></div>
+      </div>
+      <div class="feed" id="fA"><div>Desk ready.</div></div>
+    </div>
+  </aside>
+</div>
+</section>
+
+<section class="panel" id="p2" role="tabpanel" aria-labelledby="t2" hidden>
+<div class="cols">
+  <div>
+    <div class="block">
+      <div class="block-h"><h2>Upload file</h2><span class="meta" id="cntB">no file</span></div>
+      <div class="block-b">
+        <label for="file">CSV containing an X post link column and a wallet column</label>
+        <input type="file" id="file" accept=".csv,text/csv">
+        <div class="duo">
+          <div>
+            <label for="colPost">X post link column</label>
+            <select id="colPost"><option>—</option></select>
+          </div>
+          <div>
+            <label for="colAddr">Wallet column</label>
+            <select id="colAddr"><option>—</option></select>
+          </div>
+        </div>
+        <div class="duo">
+          <div>
+            <label for="minEthB">Minimum ETH balance</label>
+            <input type="number" id="minEthB" value="0.001" min="0" step="any">
+          </div>
+          <div>
+            <label for="minNftB">Minimum NFT transfers</label>
+            <input type="number" id="minNftB" value="5" min="0" step="1">
+          </div>
+        </div>
+        <div class="acts">
+          <button class="go" id="runB" disabled>Run screen</button>
+          <button class="alt" id="stopB" disabled>Stop</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="out">
+      <div class="seg" role="group" aria-label="Filter results">
+        <button data-fb="all" aria-pressed="true">All</button>
+        <button data-fb="pass" aria-pressed="false">Accepted</button>
+        <button data-fb="fail" aria-pressed="false">Rejected</button>
+        <button data-fb="bad" aria-pressed="false">Invalid</button>
+      </div>
+      <div class="tw">
+        <table id="tB">
+          <thead><tr><th class="num">Row</th><th>Wallet</th><th class="num">ETH</th><th class="num">NFT transfers</th><th>Status</th><th>X post</th></tr></thead>
+          <tbody><tr><td colspan="6" class="none">Upload a CSV to begin.</td></tr></tbody>
+        </table>
+      </div>
+      <div class="acts">
+        <button class="alt" id="dlPB" disabled>Accepted CSV</button>
+        <button class="alt" id="dlRB" disabled>Rejected CSV</button>
+        <button class="alt" id="dlAB" disabled>Everything CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <aside>
+    <div class="rig">
+      <canvas id="rigB" width="740" height="528" aria-label="Processing activity"></canvas>
+      <div class="gauge">
+        <div class="gauge-top"><span id="phB">Idle</span><b id="pcB">0%</b></div>
+        <div class="track"><i id="bfB"></i></div>
+      </div>
+      <div class="counts">
+        <div class="count p"><b id="nPB">0</b><span>accepted</span></div>
+        <div class="count r"><b id="nRB">0</b><span>rejected</span></div>
+        <div class="count x"><b id="nXB">0</b><span>rows</span></div>
+      </div>
+      <div class="feed" id="fB"><div>Waiting for a file.</div></div>
+    </div>
+  </aside>
+</div>
+</section>
+
+<div class="flag">
+  <b>Keep this file private.</b> The API keys inside are base64-encoded, which hides them from a
+  casual look at the source — but base64 is encoding, not encryption, and anyone can decode it
+  from the browser console. Run this locally or behind a login, and rotate the keys in Alchemy if
+  you suspect misuse.
+</div>
+
+</div>
+
+<script>
+"use strict";
+
+const ENC=[
+"aHR0cHM6Ly9yb2Jpbmhvb2QtbWFpbm5ldC5nLmFsY2hlbXkuY29tL3YyL2FsY2hfaDlLb2tobE04eEh3dlJPMWNmS1hX",
+"aHR0cHM6Ly9yb2Jpbmhvb2QtbWFpbm5ldC5nLmFsY2hlbXkuY29tL3YyL2FsY2hfSzRWYnlwb3kzTEdLMnpUM1RCYkth",
+"aHR0cHM6Ly9yb2Jpbmhvb2QtbWFpbm5ldC5nLmFsY2hlbXkuY29tL3YyL2FsY2hfdmFwejg3a1VycjRiTDM2WUxfQzRC",
+"aHR0cHM6Ly9yb2Jpbmhvb2QtbWFpbm5ldC5nLmFsY2hlbXkuY29tL3YyL2FsY2hfMlhHQ0hQQ2JEN1MyQi1aSTlBcGV4",
+"aHR0cHM6Ly9yb2Jpbmhvb2QtbWFpbm5ldC5nLmFsY2hlbXkuY29tL3YyL2FsY2hfcnh2eXRJbnlROUFrZHU5Nk52MGk1"
+];
+const EPS=ENC.map(function(s){return atob(s);});
+document.getElementById('epn').textContent=EPS.length;
+
+const $=function(id){return document.getElementById(id);};
+const sleep=function(ms){return new Promise(function(r){setTimeout(r,ms);});};
+const ADDR_RE=/^0x[0-9a-fA-F]{40}$/;
+function weiToEth(h){try{return Number(BigInt(h))/1e18;}catch(e){return 0;}}
+function fmtEth(n){return n===0?'0':(n<0.000001?n.toExponential(2):String(+n.toFixed(6)));}
+function short(a){return a.slice(0,8)+'…'+a.slice(-6);}
+
+/* ---- rate-limited pool with automatic retries ---- */
+const GAP=3000;
+const MAX_TRIES=5;
+
+function Pool(urls){
+  this.urls=urls; this.q=[]; this.alive=true; this.halt=false;
+  const self=this;
+  this.workers=urls.map(function(u,i){return self._run(u,i);});
+}
+Pool.prototype.send=function(payload){
+  const self=this;
+  return new Promise(function(res,rej){ self.q.push({payload:payload,res:res,rej:rej,tries:0}); });
+};
+Pool.prototype._run=async function(url,idx){
+  await sleep((GAP/this.urls.length)*idx);
+  while(!this.halt){
+    const job=this.q.shift();
+    if(!job){ if(!this.alive) return; await sleep(100); continue; }
+    const t0=performance.now();
+    try{
+      const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(job.payload)});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const j=await r.json();
+      job.res(j); burst(idx);
+    }catch(e){
+      job.tries++;
+      if(job.tries<MAX_TRIES && !this.halt){ await sleep(700*job.tries); this.q.push(job); }
+      else job.rej(e);
+    }
+    const spent=performance.now()-t0;
+    if(spent<GAP) await sleep(GAP-spent);
+  }
+  this.q.forEach(function(j){ j.rej(new Error('stopped')); });
+  this.q.length=0;
+};
+Pool.prototype.close=function(){ this.alive=false; };
+Pool.prototype.kill=function(){ this.halt=true; this.alive=false; };
+
+/* ---- visual rig ---- */
+function makeRig(cid){
+  const cv=$(cid), ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+  let rot=0.4, heat=0, sparks=[], glow=new Array(EPS.length).fill(0);
+  const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function P(x,y,z){
+    const c=Math.cos(rot), s=Math.sin(rot);
+    const X=x*c-z*s, Z=x*s+z*c, d=500/(500+Z+200);
+    return [W/2+X*d, H/2+(y-30)*d-Z*0.16, d];
+  }
+  function V(cx,cy,cz,w,h,dp){
+    const p=[];
+    for(const a of[-1,1])for(const b of[-1,1])for(const c of[-1,1])
+      p.push(P(cx+a*w/2,cy+b*h/2,cz+c*dp/2));
+    return p;
+  }
+  const F=[[0,1,3,2],[4,6,7,5],[0,4,5,1],[2,3,7,6],[0,2,6,4],[1,5,7,3]];
+  const lanes=EPS.map(function(_,i){return {a:(i/EPS.length)*Math.PI*2+0.3,r0:290,r1:74,id:i};});
+
+  (function loop(){
+    ctx.clearRect(0,0,W,H);
+    if(!still) rot+=0.0018+heat*0.005;
+
+    ctx.strokeStyle='rgba(56,66,90,.30)'; ctx.lineWidth=1;
+    for(let g=-3;g<=3;g++){
+      let a=P(g*80,52,-280), b=P(g*80,52,280);
+      ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();
+      a=P(-280,52,g*80); b=P(280,52,g*80);
+      ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();
+    }
+
+    lanes.forEach(function(L){
+      const pts=[];
+      for(let s=0;s<=24;s++){
+        const t=s/24, r=L.r0+(L.r1-L.r0)*t;
+        pts.push(P(Math.cos(L.a)*r,50-Math.sin(t*Math.PI)*14,Math.sin(L.a)*r));
+      }
+      ctx.beginPath();
+      pts.forEach(function(p,i){ i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]); });
+      const g=glow[L.id];
+      ctx.strokeStyle=g>0?'rgba(255,182,72,'+(0.3+g*0.6)+')':'rgba(56,66,90,.55)';
+      ctx.lineWidth=g>0?2.2:1.4; ctx.stroke();
+      const e=pts[0];
+      ctx.beginPath(); ctx.arc(e[0],e[1],3.5+g*3,0,7);
+      ctx.fillStyle=g>0?'rgba(255,182,72,'+(0.55+g*0.45)+')':'rgba(77,86,102,.7)'; ctx.fill();
+      if(g>0) glow[L.id]=Math.max(0,g-0.016);
+    });
+
+    sparks=sparks.filter(function(s){return s.t<1;});
+    sparks.forEach(function(s){
+      s.t+=0.017+heat*0.01;
+      const L=lanes[s.l], r=L.r0+(L.r1-L.r0)*s.t;
+      const q=P(Math.cos(L.a)*r,50-Math.sin(s.t*Math.PI)*14,Math.sin(L.a)*r);
+      const g=ctx.createRadialGradient(q[0],q[1],0,q[0],q[1],12);
+      g.addColorStop(0,'rgba(255,200,120,.95)'); g.addColorStop(1,'rgba(255,182,72,0)');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(q[0],q[1],12,0,7); ctx.fill();
+    });
+
+    const bx=V(0,16,0,142,40,142);
+    F.map(function(f){return {f:f,z:f.reduce(function(s,i){return s+bx[i][2];},0)/4};})
+     .sort(function(a,b){return a.z-b.z;})
+     .forEach(function(o,i){
+      ctx.beginPath();
+      o.f.forEach(function(k,j){ j?ctx.lineTo(bx[k][0],bx[k][1]):ctx.moveTo(bx[k][0],bx[k][1]); });
+      ctx.closePath();
+      ctx.fillStyle='rgba(23,27,38,'+(0.9+i*0.02)+')'; ctx.fill();
+      ctx.strokeStyle='rgba(255,182,72,'+(0.22+heat*0.45)+')'; ctx.lineWidth=1.2; ctx.stroke();
+    });
+
+    const c=P(0,-6,0);
+    const cg=ctx.createRadialGradient(c[0],c[1],0,c[0],c[1],58);
+    cg.addColorStop(0,'rgba(255,182,72,'+(0.1+heat*0.42)+')');
+    cg.addColorStop(1,'rgba(255,182,72,0)');
+    ctx.fillStyle=cg; ctx.beginPath(); ctx.arc(c[0],c[1],58,0,7); ctx.fill();
+    ctx.font='700 15px Silkscreen, monospace'; ctx.textAlign='center';
+    ctx.fillStyle='rgba(238,241,246,'+(0.45+heat*0.5)+')'; ctx.fillText('MB',c[0],c[1]+5);
+
+    heat*=0.975;
+    requestAnimationFrame(loop);
+  })();
+
+  return { hit:function(i){ heat=Math.min(1,heat+0.45); glow[i%EPS.length]=1; sparks.push({l:i%EPS.length,t:0}); } };
+}
+const rigA=makeRig('rigA'), rigB=makeRig('rigB');
+let live=rigA;
+function burst(i){ live.hit(i); }
+
+/* ---- utils ---- */
+function say(box,msg,cls){
+  const b=$(box), d=document.createElement('div');
+  if(cls) d.className=cls;
+  d.textContent=msg; b.appendChild(d); b.scrollTop=b.scrollHeight;
+  while(b.children.length>160) b.removeChild(b.firstChild);
+}
+function esc(v){ const s=String(v===null||v===undefined?'':v); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
+function save(name,head,rows){
+  const csv=[head.map(esc).join(',')].concat(rows.map(function(r){return r.map(esc).join(',');})).join('\r\n');
+  const u=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
+  const a=document.createElement('a'); a.href=u; a.download=name; a.click();
+  setTimeout(function(){URL.revokeObjectURL(u);},1500);
+}
+function readCSV(t){
+  const rows=[]; let row=[], cur='', q=false;
+  t=t.replace(/^\uFEFF/,'');
+  for(let i=0;i<t.length;i++){
+    const c=t[i];
+    if(q){ if(c==='"'){ if(t[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=c; }
+    else if(c==='"') q=true;
+    else if(c===','){ row.push(cur); cur=''; }
+    else if(c==='\n'){ row.push(cur); rows.push(row); row=[]; cur=''; }
+    else if(c!=='\r') cur+=c;
+  }
+  if(cur!==''||row.length){ row.push(cur); rows.push(row); }
+  return rows.filter(function(r){return r.some(function(c){return c.trim()!=='';});});
+}
+function sift(text){
+  const good=new Set(), bad=[];
+  text.split(/[\s,;|]+/).forEach(function(tok){
+    const t=tok.trim(); if(!t) return;
+    if(ADDR_RE.test(t)){ good.add(t.toLowerCase()); return; }
+    if(!/0x/i.test(t) && !/^[0-9a-fA-F]{30,}$/.test(t)) return;
+    const hex=t.replace(/^0x/i,'');
+    let why='not a valid address';
+    if(!/^0x/i.test(t)) why='missing the 0x prefix';
+    else if(/[^0-9a-fA-F]/.test(hex)) why='contains characters outside 0-9 and a-f';
+    else if(hex.length<40) why='too short — '+hex.length+' of 40 characters';
+    else if(hex.length>40) why='too long — '+hex.length+' of 40 characters';
+    bad.push({raw:t,why:why});
+  });
+  return {good:Array.from(good),bad:bad};
+}
+
+/* ---- screening ---- */
+async function screen(addrs,opts,ui){
+  const minEth=opts.minEth, minNft=opts.minNft;
+  const pool=new Pool(EPS);
+  const out=new Map();
+  const SIZE=8;
+  const groups=[];
+  for(let i=0;i<addrs.length;i+=SIZE) groups.push(addrs.slice(i,i+SIZE));
+
+  let done=0;
+  const jobs=groups.map(async function(grp){
+    const body=[]; let id=1; const map={};
+    grp.forEach(function(a){
+      body.push({jsonrpc:'2.0',id:id,method:'eth_getBalance',params:[a,'latest']}); map[id++]=[a,'bal'];
+      body.push({jsonrpc:'2.0',id:id,method:'alchemy_getAssetTransfers',params:[{fromAddress:a,category:['erc721','erc1155'],withMetadata:false,maxCount:'0x3e8'}]}); map[id++]=[a,'t'];
+      body.push({jsonrpc:'2.0',id:id,method:'alchemy_getAssetTransfers',params:[{toAddress:a,category:['erc721','erc1155'],withMetadata:false,maxCount:'0x3e8'}]}); map[id++]=[a,'t'];
+    });
+    try{
+      const res=await pool.send(body);
+      const arr=Array.isArray(res)?res:[res];
+      const acc={};
+      grp.forEach(function(a){ acc[a]={eth:null,nft:0,err:null,more:false}; });
+      arr.forEach(function(r){
+        const t=map[r.id]; if(!t) return;
+        const a=t[0], kind=t[1], s=acc[a];
+        if(r.error){ s.err=r.error.message; return; }
+        if(kind==='bal') s.eth=weiToEth(r.result);
+        else{
+          s.nft+=((r.result&&r.result.transfers)||[]).length;
+          if(r.result&&r.result.pageKey) s.more=true;
+        }
+      });
+      grp.forEach(function(a){
+        const s=acc[a];
+        if(s.err||s.eth===null){
+          out.set(a,{addr:a,eth:s.eth,nft:null,state:'fail',why:s.err||'no response from node'});
+        }else{
+          const okE=s.eth>=minEth, okN=s.nft>=minNft;
+          const why = okE&&okN ? 'meets both thresholds'
+            : (!okE&&!okN) ? 'balance and NFT history both below threshold'
+            : !okE ? 'balance below threshold' : 'fewer than '+minNft+' NFT transfers';
+          out.set(a,{addr:a,eth:s.eth,nft:s.nft,more:s.more,state:(okE&&okN)?'pass':'fail',why:why});
+        }
+      });
+    }catch(e){
+      grp.forEach(function(a){ out.set(a,{addr:a,eth:null,nft:null,state:'fail',why:'lookup failed after retries: '+e.message}); });
+      ui.say('A group failed after '+MAX_TRIES+' attempts: '+e.message,'e');
+    }
+    done++;
+    ui.step(done/groups.length,done,groups.length);
+    ui.tick(out);
+  });
+
+  await Promise.all(jobs);
+  pool.close(); pool.kill();
+  return out;
+}
+
+/* ---- panel 1 ---- */
+const A={rows:[],bad:[],links:[],f:'all'};
+const uiA={
+  say:function(m,c){say('fA',m,c);},
+  step:function(f,d,t){$('pcA').textContent=Math.round(f*100)+'%';$('bfA').style.width=(f*100)+'%';$('phA').textContent='Group '+d+' of '+t;},
+  tick:function(m){A.rows=Array.from(m.values());drawA();tallyA();}
+};
+function tallyA(){
+  $('nP').textContent=A.rows.filter(function(r){return r.state==='pass';}).length;
+  $('nR').textContent=A.rows.filter(function(r){return r.state==='fail';}).length;
+  $('nX').textContent=A.bad.length;
+}
+function drawA(){
+  const tb=$('tA').querySelector('tbody');
+  if(A.f==='bad'){
+    tb.innerHTML=A.bad.length?A.bad.map(function(b){
+      return '<tr class="r"><td class="addr" colspan="4">'+b.raw.slice(0,60)+'</td><td class="why tag x">'+b.why+'</td></tr>';
+    }).join(''):'<tr><td colspan="5" class="none">No malformed addresses found.</td></tr>';
+    return;
+  }
+  let rows=A.rows;
+  if(A.f==='pass') rows=rows.filter(function(r){return r.state==='pass';});
+  if(A.f==='fail') rows=rows.filter(function(r){return r.state==='fail';});
+  tb.innerHTML=rows.length?rows.map(function(r){
+    return '<tr class="'+(r.state==='pass'?'p':'r')+'">'+
+      '<td class="addr" title="'+r.addr+'">'+short(r.addr)+'</td>'+
+      '<td class="num">'+(r.eth===null?'—':fmtEth(r.eth))+'</td>'+
+      '<td class="num">'+(r.nft===null?'—':r.nft+(r.more?'+':''))+'</td>'+
+      '<td><span class="tag '+(r.state==='pass'?'p':'r')+'">'+(r.state==='pass'?'Accepted':'Rejected')+'</span></td>'+
+      '<td class="why">'+r.why+'</td></tr>';
+  }).join(''):'<tr><td colspan="5" class="none">Nothing here.</td></tr>';
+}
+Array.prototype.forEach.call(document.querySelectorAll('[data-f]'),function(b){
+  b.onclick=function(){
+    Array.prototype.forEach.call(document.querySelectorAll('[data-f]'),function(x){x.setAttribute('aria-pressed','false');});
+    b.setAttribute('aria-pressed','true'); A.f=b.dataset.f; drawA();
+  };
+});
+$('addrs').addEventListener('input',function(e){
+  const s=sift(e.target.value);
+  $('cntA').textContent=s.good.length+' valid'+(s.bad.length?' · '+s.bad.length+' malformed':'');
+});
+
+$('run').onclick=async function(){
+  const s=sift($('addrs').value);
+  if(!s.good.length){ uiA.say('No valid addresses found.','e'); return; }
+  A.rows=[]; A.bad=s.bad; A.links=[];
+  $('run').disabled=true; $('stop').disabled=false; $('linkBtn').disabled=true; $('linkOut').hidden=true;
+  ['dlP','dlR','dlB','dlA','dlL','dlC'].forEach(function(i){$(i).disabled=true;});
+  uiA.say('Screening '+s.good.length+' wallets'+(s.bad.length?' · '+s.bad.length+' malformed set aside':'')+'…','g');
+  tallyA();
+  try{
+    const m=await screen(s.good,{minEth:parseFloat($('minEth').value)||0,minNft:parseInt($('minNft').value)||0},uiA);
+    A.rows=Array.from(m.values()); drawA(); tallyA();
+    const p=A.rows.filter(function(r){return r.state==='pass';}).length;
+    uiA.say('Finished — '+p+' accepted, '+(A.rows.length-p)+' rejected.','g');
+    $('phA').textContent='Complete'; $('pcA').textContent='100%'; $('bfA').style.width='100%';
+    ['dlP','dlR','dlA'].forEach(function(i){$(i).disabled=false;});
+    $('dlB').disabled=!A.bad.length;
+    $('linkBtn').disabled=false; $('linkOut').hidden=false;
+  }catch(e){ uiA.say('Stopped: '+e.message,'e'); }
+  $('run').disabled=false; $('stop').disabled=true;
+};
+$('stop').onclick=function(){ location.reload(); };
+
+$('linkBtn').onclick=async function(){
+  const all=A.rows.map(function(r){return r.addr;});
+  const set=new Set(all);
+  const ok=new Set(A.rows.filter(function(r){return r.state==='pass';}).map(function(r){return r.addr;}));
+  if(all.length<2){ uiA.say('Need at least two screened wallets.','e'); return; }
+  $('linkBtn').disabled=true; $('run').disabled=true;
+  uiA.say('Tracing transfers between '+all.length+' wallets…','g');
+  $('phA').textContent='Tracing'; $('pcA').textContent='0%'; $('bfA').style.width='0%';
+
+  const pool=new Pool(EPS), edges=new Map();
+  let done=0, warned=false;
+  const SZ=8, grp=[];
+  for(let i=0;i<all.length;i+=SZ) grp.push(all.slice(i,i+SZ));
+
+  await Promise.all(grp.map(async function(g){
+    const body=[]; let id=1; const map={};
+    g.forEach(function(a){
+      body.push({jsonrpc:'2.0',id:id,method:'alchemy_getAssetTransfers',params:[{fromAddress:a,category:['external','erc20','erc721','erc1155'],withMetadata:false,maxCount:'0x3e8'}]});
+      map[id++]=a;
+    });
+    try{
+      const res=await pool.send(body);
+      (Array.isArray(res)?res:[res]).forEach(function(r){
+        const from=map[r.id]; if(!from) return;
+        if(r.error){ if(!warned){ warned=true; uiA.say('Transfer history unavailable: '+r.error.message,'e'); } return; }
+        (((r.result&&r.result.transfers)||[])).forEach(function(t){
+          const to=(t.to||'').toLowerCase();
+          if(to&&to!==from&&set.has(to)){ const k=from+'>'+to; edges.set(k,(edges.get(k)||0)+1); }
+        });
+      });
+    }catch(e){ uiA.say('Trace group failed: '+e.message,'e'); }
+    done++;
+    const f=done/grp.length;
+    $('pcA').textContent=Math.round(f*100)+'%'; $('bfA').style.width=(f*100)+'%';
+    $('phA').textContent='Traced '+done+' of '+grp.length;
+  }));
+  pool.close(); pool.kill();
+
+  const seen=new Set(), out=[];
+  edges.forEach(function(n,k){
+    const parts=k.split('>'), a=parts[0], b=parts[1];
+    const rev=edges.get(b+'>'+a), pair=[a,b].sort().join('|');
+    if(seen.has(pair)) return; seen.add(pair);
+    out.push({a:a,b:b,n:n+(rev||0),two:!!rev,both:ok.has(a)&&ok.has(b)});
+  });
+  out.sort(function(x,y){return y.n-x.n;});
+  A.links=out;
+
+  $('tL').querySelector('tbody').innerHTML=out.length?out.map(function(l){
+    return '<tr><td class="addr" title="'+l.a+'">'+short(l.a)+'</td>'+
+      '<td class="addr" title="'+l.b+'">'+short(l.b)+'</td>'+
+      '<td class="num">'+l.n+'</td>'+
+      '<td>'+(l.two?'<span class="tag x">both ways</span>':'one way')+'</td>'+
+      '<td>'+(l.both?'<span class="tag x">yes</span>':'no')+'</td></tr>';
+  }).join(''):'<tr><td colspan="5" class="none">No transfers found between these wallets.</td></tr>';
+
+  uiA.say(out.length+' connected pair'+(out.length===1?'':'s')+'. Accepted list unchanged.','g');
+  $('phA').textContent='Complete'; $('pcA').textContent='100%'; $('bfA').style.width='100%';
+  $('dlL').disabled=!out.length; $('dlC').disabled=!out.length;
+  $('linkBtn').disabled=false; $('run').disabled=false;
+};
+
+const HA=['wallet','eth_balance','nft_transfers','status','detail'];
+function RA(r){ return [r.addr,r.eth===null?'':r.eth,r.nft===null?'':r.nft,r.state==='pass'?'accepted':'rejected',r.why]; }
+$('dlP').onclick=function(){ save('accepted.csv',HA,A.rows.filter(function(r){return r.state==='pass';}).map(RA)); };
+$('dlR').onclick=function(){ save('rejected.csv',HA,A.rows.filter(function(r){return r.state==='fail';}).map(RA)); };
+$('dlB').onclick=function(){ save('invalid-addresses.csv',['raw_value','problem'],A.bad.map(function(b){return [b.raw,b.why];})); };
+$('dlA').onclick=function(){ save('all-wallets.csv',HA,A.rows.map(RA)); };
+$('dlL').onclick=function(){
+  save('connections.csv',['wallet_a','wallet_b','transfers','direction','both_accepted'],
+    A.links.map(function(l){return [l.a,l.b,l.n,l.two?'both ways':'one way',l.both?'yes':'no'];}));
+};
+$('dlC').onclick=function(){
+  const par={};
+  function find(x){ par[x]=par[x]||x; return par[x]===x?x:(par[x]=find(par[x])); }
+  A.links.forEach(function(l){ par[find(l.a)]=find(l.b); });
+  const grp={};
+  Object.keys(par).forEach(function(a){ const r=find(a); (grp[r]=grp[r]||[]).push(a); });
+  const by=new Map(A.rows.map(function(r){return [r.addr,r];}));
+  const rows=[]; let g=0;
+  Object.keys(grp).map(function(k){return grp[k];}).filter(function(m){return m.length>1;}).forEach(function(m){
+    g++;
+    m.forEach(function(a){
+      const r=by.get(a)||{};
+      rows.push(['cluster-'+g,m.length,a,r.eth===undefined?'':r.eth,r.nft===undefined?'':r.nft,r.state==='pass'?'accepted':'rejected']);
+    });
+  });
+  save('clusters.csv',['cluster_id','size','wallet','eth_balance','nft_transfers','status'],rows);
+};
+
+/* ---- panel 2 ---- */
+const B={head:[],raw:[],rows:[],f:'all'};
+const uiB={
+  say:function(m,c){say('fB',m,c);},
+  step:function(f,d,t){$('pcB').textContent=Math.round(f*100)+'%';$('bfB').style.width=(f*100)+'%';$('phB').textContent='Group '+d+' of '+t;},
+  tick:function(){}
+};
+
+$('file').onchange=async function(e){
+  const f=e.target.files[0]; if(!f) return;
+  const rows=readCSV(await f.text());
+  if(rows.length<2){ uiB.say('No data rows in that file.','e'); return; }
+  B.head=rows[0].map(function(h){return h.trim();});
+  B.raw=rows.slice(1);
+  const op=B.head.map(function(h,i){return '<option value="'+i+'">'+(h||('Column '+(i+1)))+'</option>';}).join('');
+  $('colPost').innerHTML=op; $('colAddr').innerHTML=op;
+  function gi(re){ return B.head.findIndex(function(h){return re.test(h);}); }
+  const pi=gi(/post|link|url|tweet|\bx\b/i), ai=gi(/wallet|address|eth|0x/i);
+  if(pi>=0) $('colPost').value=pi;
+  if(ai>=0) $('colAddr').value=ai; else if(B.head.length>1) $('colAddr').value=1;
+  $('cntB').textContent=B.raw.length+' rows · '+B.head.length+' columns';
+  $('nXB').textContent=B.raw.length;
+  $('runB').disabled=false;
+  uiB.say('Loaded '+B.raw.length+' rows.','g');
+};
+
+function drawB(){
+  const tb=$('tB').querySelector('tbody');
+  let rows=B.rows;
+  if(B.f==='pass') rows=rows.filter(function(r){return r.state==='pass';});
+  if(B.f==='fail') rows=rows.filter(function(r){return r.state==='fail';});
+  if(B.f==='bad')  rows=rows.filter(function(r){return r.state==='bad';});
+  tb.innerHTML=rows.length?rows.map(function(r){
+    const tagCls=r.state==='pass'?'p':(r.state==='bad'?'x':'r');
+    const tagTxt=r.state==='pass'?'Accepted':(r.state==='bad'?'Invalid':'Rejected');
+    const cell=r.addr?short(r.addr):'<span class="tag x">'+((r.rawAddr||'empty').slice(0,22))+'</span>';
+    return '<tr class="'+(r.state==='pass'?'p':'r')+'">'+
+      '<td class="num">'+r.row+'</td>'+
+      '<td class="addr" title="'+(r.addr||r.rawAddr||'')+'">'+cell+'</td>'+
+      '<td class="num">'+(r.eth===null||r.eth===undefined?'—':fmtEth(r.eth))+'</td>'+
+      '<td class="num">'+(r.nft===null||r.nft===undefined?'—':r.nft+(r.more?'+':''))+'</td>'+
+      '<td><span class="tag '+tagCls+'">'+tagTxt+'</span></td>'+
+      '<td>'+(r.post?'<a href="'+r.post+'" target="_blank" rel="noopener noreferrer">open</a>':'<span style="color:var(--dimmer)">—</span>')+'</td></tr>';
+  }).join(''):'<tr><td colspan="6" class="none">Nothing here.</td></tr>';
+}
+Array.prototype.forEach.call(document.querySelectorAll('[data-fb]'),function(b){
+  b.onclick=function(){
+    Array.prototype.forEach.call(document.querySelectorAll('[data-fb]'),function(x){x.setAttribute('aria-pressed','false');});
+    b.setAttribute('aria-pressed','true'); B.f=b.dataset.fb; drawB();
+  };
+});
+
+$('runB').onclick=async function(){
+  const pi=parseInt($('colPost').value), ai=parseInt($('colAddr').value);
+  const rows=B.raw.map(function(r,i){
+    const cell=(r[ai]||'').trim();
+    const m=cell.match(/0x[0-9a-fA-F]{40}/);
+    const exact=m&&ADDR_RE.test(m[0]);
+    return {row:i+2,post:(r[pi]||'').trim(),rawAddr:cell,addr:exact?m[0].toLowerCase():''};
+  });
+  const uniq=Array.from(new Set(rows.filter(function(r){return r.addr;}).map(function(r){return r.addr;})));
+  if(!uniq.length){ uiB.say('No valid wallet addresses in that column.','e'); return; }
+  $('runB').disabled=true; $('stopB').disabled=false;
+  ['dlPB','dlRB','dlAB'].forEach(function(i){$(i).disabled=true;});
+  const badCount=rows.length-rows.filter(function(r){return r.addr;}).length;
+  uiB.say('Screening '+uniq.length+' wallets from '+rows.length+' rows'+(badCount?' · '+badCount+' rows have no valid address':'')+'…','g');
+  try{
+    const m=await screen(uniq,{minEth:parseFloat($('minEthB').value)||0,minNft:parseInt($('minNftB').value)||0},uiB);
+    B.rows=rows.map(function(r){
+      if(!r.addr) return Object.assign({},r,{eth:null,nft:null,state:'bad',why:'no valid wallet address in this row'});
+      const g=m.get(r.addr)||{};
+      return Object.assign({},r,{eth:g.eth===undefined?null:g.eth,nft:g.nft===undefined?null:g.nft,more:g.more,state:g.state==='pass'?'pass':'fail',why:g.why||'not checked'});
+    });
+    drawB();
+    const p=B.rows.filter(function(r){return r.state==='pass';}).length;
+    $('nPB').textContent=p; $('nRB').textContent=B.rows.length-p;
+    uiB.say('Finished — '+p+' accepted, '+(B.rows.length-p)+' rejected.','g');
+    $('phB').textContent='Complete'; $('pcB').textContent='100%'; $('bfB').style.width='100%';
+    ['dlPB','dlRB','dlAB'].forEach(function(i){$(i).disabled=false;});
+  }catch(e){ uiB.say('Stopped: '+e.message,'e'); }
+  $('runB').disabled=false; $('stopB').disabled=true;
+};
+$('stopB').onclick=function(){ location.reload(); };
+
+const HB=['row','x_post_link','wallet','eth_balance','nft_transfers','status','detail'];
+function RB(r){
+  const st=r.state==='pass'?'accepted':(r.state==='bad'?'invalid':'rejected');
+  return [r.row,r.post,r.addr||r.rawAddr,r.eth===null?'':r.eth,r.nft===null?'':r.nft,st,r.why];
+}
+$('dlPB').onclick=function(){ save('accepted-with-posts.csv',HB,B.rows.filter(function(r){return r.state==='pass';}).map(RB)); };
+$('dlRB').onclick=function(){ save('rejected-with-posts.csv',HB,B.rows.filter(function(r){return r.state!=='pass';}).map(RB)); };
+$('dlAB').onclick=function(){ save('all-with-posts.csv',HB,B.rows.map(RB)); };
+
+Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){
+  t.onclick=function(){
+    Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(x){x.setAttribute('aria-selected','false');});
+    t.setAttribute('aria-selected','true');
+    $('p1').hidden=(t.id!=='t1');
+    $('p2').hidden=(t.id!=='t2');
+    live=(t.id==='t1')?rigA:rigB;
+  };
+});
+</script>
+</body>
+</html>
