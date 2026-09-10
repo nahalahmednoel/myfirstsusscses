@@ -85,7 +85,7 @@ button:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
 .acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
 
 .rig{position:sticky;top:20px;background:var(--panel);border:1px solid var(--line)}
-#rigA,#rigB{display:block;width:100%;height:264px;background:linear-gradient(180deg,#0d1118,#06080c)}
+#rigA,#rigB{display:block;width:100%;height:206px;background:radial-gradient(120% 100% at 50% 24%,#141c2b 0%,#0a0e16 58%,#06080c 100%)}
 .gauge{padding:16px 18px;border-top:1px solid var(--line)}
 .gauge-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
 .gauge-top span{font-size:11.5px;color:var(--dim)}
@@ -133,7 +133,7 @@ a{color:var(--violet)}
   <span>ID <b>4663</b></span>
   <span>GAS <b>ETH</b></span>
   <span>SCREEN <b>NATIVE BALANCE + NFT TRANSFER HISTORY</b></span>
-  <span>ENDPOINTS <b id="epn">5</b></span>
+  <span>ENDPOINTS <b id="epn">11</b></span>
   <span>MODE <b>WHITELIST VERIFICATION</b></span>
   <span>CHAIN <b>ROBINHOOD MAINNET</b></span>
   <span>ID <b>4663</b></span>
@@ -184,6 +184,16 @@ a{color:var(--violet)}
             <input type="number" id="minNft" value="5" min="0" step="1">
           </div>
         </div>
+        <div class="duo">
+          <div>
+            <label for="rps">Requests per second, each endpoint</label>
+            <input type="number" id="rps" value="3" min="0.2" max="10" step="0.5">
+          </div>
+          <div>
+            <label>Total speed</label>
+            <input type="text" id="rpsOut" value="" readonly>
+          </div>
+        </div>
         <div class="acts">
           <button class="go" id="run" disabled>Run screen</button>
           <button class="alt" id="stop" disabled>Stop</button>
@@ -198,6 +208,7 @@ a{color:var(--violet)}
         <button data-f="pass" aria-pressed="false">Accepted</button>
         <button data-f="fail" aria-pressed="false">Rejected</button>
         <button data-f="bad" aria-pressed="false">Invalid</button>
+        <button data-f="skip" aria-pressed="false">Not checked</button>
       </div>
       <div class="tw">
         <table id="tA">
@@ -230,7 +241,7 @@ a{color:var(--violet)}
 
   <aside>
     <div class="rig">
-      <canvas id="rigA" width="740" height="528" aria-label="Processing activity"></canvas>
+      <canvas id="rigA" width="760" height="424" aria-label="Processing activity"></canvas>
       <div class="gauge">
         <div class="gauge-top"><span id="phA">Idle</span><b id="pcA">0%</b></div>
         <div class="track"><i id="bfA"></i></div>
@@ -287,6 +298,7 @@ a{color:var(--violet)}
         <button data-fb="pass" aria-pressed="false">Accepted</button>
         <button data-fb="fail" aria-pressed="false">Rejected</button>
         <button data-fb="bad" aria-pressed="false">Invalid</button>
+        <button data-fb="skip" aria-pressed="false">Not checked</button>
       </div>
       <div class="tw">
         <table id="tB">
@@ -304,7 +316,7 @@ a{color:var(--violet)}
 
   <aside>
     <div class="rig">
-      <canvas id="rigB" width="740" height="528" aria-label="Processing activity"></canvas>
+      <canvas id="rigB" width="760" height="424" aria-label="Processing activity"></canvas>
       <div class="gauge">
         <div class="gauge-top"><span id="phB">Idle</span><b id="pcB">0%</b></div>
         <div class="track"><i id="bfB"></i></div>
@@ -321,6 +333,13 @@ a{color:var(--violet)}
 </section>
 
 <div class="flag">
+  <b>If you see rate-limit errors, lower the requests-per-second setting.</b> The default sends 3
+  requests per second down each endpoint. If all your keys sit on one Alchemy account, the account
+  may have its own combined limit that the individual per-key limits do not tell you about — in
+  that case failed calls are retried automatically, but dropping the rate is the real fix.
+</div>
+
+<div class="flag">
   <b>Keep this file private.</b> The API keys inside are base64-encoded, which hides them from a
   casual look at the source — but base64 is encoding, not encryption, and anyone can decode it
   from the browser console. Run this locally or behind a login, and rotate the keys in Alchemy if
@@ -333,11 +352,17 @@ a{color:var(--violet)}
 "use strict";
 
 const ENC=[
-"aHR0cHM6Ly9yb2Jpbmhvb2QtbWFpbm5ldC5nLmFsY2hlbXkuY29tL3YyL2FsY2hfaDlLb2tobE04eEh3dlJPMWNmS1hX",
-"aHR0cHM6Ly9yb2Jpbmhvb2QtbWFpbm5ldC5nLmFsY2hlbXkuY29tL3YyL2FsY2hfSzRWYnlwb3kzTEdLMnpUM1RCYkth",
-"aHR0cHM6Ly9yb2Jpbmhvb2QtbWFpbm5ldC5nLmFsY2hlbXkuY29tL3YyL2FsY2hfdmFwejg3a1VycjRiTDM2WUxfQzRC",
-"aHR0cHM6Ly9yb2Jpbmhvb2QtbWFpbm5ldC5nLmFsY2hlbXkuY29tL3YyL2FsY2hfMlhHQ0hQQ2JEN1MyQi1aSTlBcGV4",
-"aHR0cHM6Ly9yb2Jpbmhvb2QtbWFpbm5ldC5nLmFsY2hlbXkuY29tL3YyL2FsY2hfcnh2eXRJbnlROUFrZHU5Nk52MGk1"
+"aHR0cHM6Ly9yb2Jpbmhvb2QtbWFpbm5ldC5nLmFsY2hlbXkuY29tL3YyL2FsY2hfTWNZdkpvam5sYTlsUlh0UWx5MDBZ",
+"aHR0cHM6Ly9yb2Jpbmhvb2QtbWFpbm5ldC5nLmFsY2hlbXkuY29tL3YyL2FsY2hfMzR5U2ZkMmNYbE9YSm0ydnlGd25j",
+"aHR0cHM6Ly9yb2Jpbmhvb2QtbWFpbm5ldC5nLmFsY2hlbXkuY29tL3YyL2FsY2hfZjlTcVp4VVJYU0hPTGQ0b00wNDRM",
+"aHR0cHM6Ly9yb2Jpbmhvb2QtbWFpbm5ldC5nLmFsY2hlbXkuY29tL3YyL2FsY2hfb0hZWWpieXVHRnRuaDlfd20tSC1l",
+"aHR0cHM6Ly9yb2Jpbmhvb2QtbWFpbm5ldC5nLmFsY2hlbXkuY29tL3YyL2FsY2hfb09DNHRVUi1VRHVXaHlKTFZNVmxk",
+"aHR0cHM6Ly9yb2Jpbmhvb2QtbWFpbm5ldC5nLmFsY2hlbXkuY29tL3YyL2FsY2hfZXJGN3hycnRJTnB4MU5WeWJTc0Rj",
+"aHR0cHM6Ly9yb2Jpbmhvb2QtbWFpbm5ldC5nLmFsY2hlbXkuY29tL3YyL2FsY2hfZkl1UlREUms4MkNyWW02OWhjaWNo",
+"aHR0cHM6Ly9yb2Jpbmhvb2QtbWFpbm5ldC5nLmFsY2hlbXkuY29tL3YyL2FsY2hfaWlZODRTWmdXOUVQM2tqUTVzeUQ5",
+"aHR0cHM6Ly9yb2Jpbmhvb2QtbWFpbm5ldC5nLmFsY2hlbXkuY29tL3YyL2FsY2hfVUk5aG1Fay02dnFNZTZvYUZOMzVH",
+"aHR0cHM6Ly9yb2Jpbmhvb2QtbWFpbm5ldC5nLmFsY2hlbXkuY29tL3YyL2FsY2hfbVpTVWhqcTFoTkJmclZoUGxXZnlq",
+"aHR0cHM6Ly9yb2Jpbmhvb2QtbWFpbm5ldC5nLmFsY2hlbXkuY29tL3YyL2FsY2hfYlhxcy1hUHJKYjhHM2EtWDk0Mkk1"
 ];
 const EPS=ENC.map(function(s){return atob(s);});
 document.getElementById('epn').textContent=EPS.length;
@@ -350,11 +375,15 @@ function fmtEth(n){return n===0?'0':(n<0.000001?n.toExponential(2):String(+n.toF
 function short(a){return a.slice(0,8)+'…'+a.slice(-6);}
 
 /* ---- rate-limited pool with automatic retries ---- */
-const GAP=3000;
+let RPS=3;                      // requests per second, per endpoint (Alchemy allows up to 10)
+function gap(){ return 1000/RPS; }
 const MAX_TRIES=5;
+let halted=false;               // set by the Stop button
+let pools=[];                   // live pools, so Stop can shut them down
 
 function Pool(urls){
   this.urls=urls; this.q=[]; this.alive=true; this.halt=false;
+  pools.push(this);
   const self=this;
   this.workers=urls.map(function(u,i){return self._run(u,i);});
 }
@@ -363,7 +392,7 @@ Pool.prototype.send=function(payload){
   return new Promise(function(res,rej){ self.q.push({payload:payload,res:res,rej:rej,tries:0}); });
 };
 Pool.prototype._run=async function(url,idx){
-  await sleep((GAP/this.urls.length)*idx);
+  await sleep((gap()/this.urls.length)*idx);
   while(!this.halt){
     const job=this.q.shift();
     if(!job){ if(!this.alive) return; await sleep(100); continue; }
@@ -379,7 +408,8 @@ Pool.prototype._run=async function(url,idx){
       else job.rej(e);
     }
     const spent=performance.now()-t0;
-    if(spent<GAP) await sleep(GAP-spent);
+    const G=gap();
+    if(spent<G) await sleep(G-spent);
   }
   this.q.forEach(function(j){ j.rej(new Error('stopped')); });
   this.q.length=0;
@@ -390,85 +420,183 @@ Pool.prototype.kill=function(){ this.halt=true; this.alive=false; };
 /* ---- visual rig ---- */
 function makeRig(cid){
   const cv=$(cid), ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
-  let rot=0.4, heat=0, sparks=[], glow=new Array(EPS.length).fill(0);
   const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let rot=-0.62, heat=0, t=0;
+
+  const HUES=['#ffb648','#4ee0a3','#8b7bf0','#54d3ff','#ff8fa3','#ffd166'];
+  const SC=1.34;
+
+  // isometric projection: rotate around Y, then flatten with a fixed tilt
   function P(x,y,z){
     const c=Math.cos(rot), s=Math.sin(rot);
-    const X=x*c-z*s, Z=x*s+z*c, d=500/(500+Z+200);
-    return [W/2+X*d, H/2+(y-30)*d-Z*0.16, d];
+    const X=x*c-z*s, Z=x*s+z*c;
+    return [W/2+X*SC, H/2+Z*SC*0.52-y*SC*0.92];
   }
-  function V(cx,cy,cz,w,h,dp){
-    const p=[];
-    for(const a of[-1,1])for(const b of[-1,1])for(const c of[-1,1])
-      p.push(P(cx+a*w/2,cy+b*h/2,cz+c*dp/2));
-    return p;
+  function poly(pts,close){
+    ctx.beginPath();
+    pts.forEach(function(p,i){ i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]); });
+    if(close!==false) ctx.closePath();
   }
-  const F=[[0,1,3,2],[4,6,7,5],[0,4,5,1],[2,3,7,6],[0,2,6,4],[1,5,7,3]];
-  const lanes=EPS.map(function(_,i){return {a:(i/EPS.length)*Math.PI*2+0.3,r0:290,r1:74,id:i};});
+  // flat slab: top face + two visible side faces
+  function slab(cx,cz,w,d,y0,h,top,side){
+    const hw=w/2, hd=d/2;
+    const T=[P(cx-hw,y0+h,cz-hd),P(cx+hw,y0+h,cz-hd),P(cx+hw,y0+h,cz+hd),P(cx-hw,y0+h,cz+hd)];
+    const B=[P(cx-hw,y0,cz-hd),P(cx+hw,y0,cz-hd),P(cx+hw,y0,cz+hd),P(cx-hw,y0,cz+hd)];
+    for(let i=0;i<4;i++){
+      const j=(i+1)%4;
+      const face=[T[i],T[j],B[j],B[i]];
+      const cy=(face[0][1]+face[2][1])/2;
+      if(cy>(T[0][1]+T[2][1])/2){ poly(face); ctx.fillStyle=side; ctx.fill(); }
+    }
+    poly(T); ctx.fillStyle=top; ctx.fill();
+    return T;
+  }
+
+  // ---- board layout: satellites ringed around a central die ----
+  const N=EPS.length;
+  const RING=118, DIE=54;
+  const nodes=[];
+  for(let i=0;i<N;i++){
+    const a=(i/N)*Math.PI*2-Math.PI/2;
+    const x=Math.cos(a)*RING, z=Math.sin(a)*RING;
+    // L-shaped trace from node into the die edge (proper PCB routing)
+    const ex=Math.abs(x)>Math.abs(z) ? Math.sign(x)*DIE*0.62 : x*0.34;
+    const ez=Math.abs(x)>Math.abs(z) ? z*0.34 : Math.sign(z)*DIE*0.62;
+    const path=[[x,z],[Math.abs(x)>Math.abs(z)?ex:x, Math.abs(x)>Math.abs(z)?z:ez],[ex,ez]];
+    // cumulative length for pulse interpolation
+    const seg=[]; let tot=0;
+    for(let k=0;k<path.length-1;k++){
+      const dx=path[k+1][0]-path[k][0], dz=path[k+1][1]-path[k][1];
+      const L=Math.hypot(dx,dz); seg.push(L); tot+=L;
+    }
+    nodes.push({x:x,z:z,path:path,seg:seg,tot:tot,glow:0,col:HUES[i%HUES.length],a:a});
+  }
+  function along(n,f){
+    let d=f*n.tot;
+    for(let k=0;k<n.seg.length;k++){
+      if(d<=n.seg[k]||k===n.seg.length-1){
+        const r=n.seg[k]?d/n.seg[k]:0;
+        return [n.path[k][0]+(n.path[k+1][0]-n.path[k][0])*r,
+                n.path[k][1]+(n.path[k+1][1]-n.path[k][1])*r];
+      }
+      d-=n.seg[k];
+    }
+    return n.path[n.path.length-1];
+  }
+  let sparks=[];
 
   (function loop(){
     ctx.clearRect(0,0,W,H);
-    if(!still) rot+=0.0018+heat*0.005;
+    t+=0.016;
+    if(!still) rot+=0.0016+heat*0.004;
 
-    ctx.strokeStyle='rgba(56,66,90,.30)'; ctx.lineWidth=1;
-    for(let g=-3;g<=3;g++){
-      let a=P(g*80,52,-280), b=P(g*80,52,280);
-      ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();
-      a=P(-280,52,g*80); b=P(280,52,g*80);
-      ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();
+    // ---------- substrate ----------
+    slab(0,0,330,330,-14,14,'#16202e','#0c131d');
+
+    // etched grid on the board
+    ctx.save(); ctx.globalAlpha=.5; ctx.lineWidth=1; ctx.strokeStyle='#233046';
+    for(let g=-2;g<=2;g++){
+      poly([P(g*62,0,-160),P(g*62,0,160)],false); ctx.stroke();
+      poly([P(-160,0,g*62),P(160,0,g*62)],false); ctx.stroke();
     }
+    ctx.restore();
 
-    lanes.forEach(function(L){
-      const pts=[];
-      for(let s=0;s<=24;s++){
-        const t=s/24, r=L.r0+(L.r1-L.r0)*t;
-        pts.push(P(Math.cos(L.a)*r,50-Math.sin(t*Math.PI)*14,Math.sin(L.a)*r));
+    // ---------- traces ----------
+    nodes.forEach(function(n){
+      const pts=n.path.map(function(p){return P(p[0],1,p[1]);});
+      // copper base
+      poly(pts,false); ctx.strokeStyle='#3a4b66'; ctx.lineWidth=3.4;
+      ctx.lineJoin='round'; ctx.lineCap='round'; ctx.stroke();
+      // lit overlay
+      if(n.glow>0.01){
+        ctx.save(); ctx.shadowColor=n.col; ctx.shadowBlur=13*n.glow;
+        poly(pts,false); ctx.strokeStyle=n.col;
+        ctx.globalAlpha=0.35+n.glow*0.65; ctx.lineWidth=2.2; ctx.stroke();
+        ctx.restore();
       }
-      ctx.beginPath();
-      pts.forEach(function(p,i){ i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]); });
-      const g=glow[L.id];
-      ctx.strokeStyle=g>0?'rgba(255,182,72,'+(0.3+g*0.6)+')':'rgba(56,66,90,.55)';
-      ctx.lineWidth=g>0?2.2:1.4; ctx.stroke();
-      const e=pts[0];
-      ctx.beginPath(); ctx.arc(e[0],e[1],3.5+g*3,0,7);
-      ctx.fillStyle=g>0?'rgba(255,182,72,'+(0.55+g*0.45)+')':'rgba(77,86,102,.7)'; ctx.fill();
-      if(g>0) glow[L.id]=Math.max(0,g-0.016);
+      n.glow*=0.955;
     });
 
-    sparks=sparks.filter(function(s){return s.t<1;});
+    // ---------- travelling pulses ----------
+    sparks=sparks.filter(function(s){return s.f<1;});
     sparks.forEach(function(s){
-      s.t+=0.017+heat*0.01;
-      const L=lanes[s.l], r=L.r0+(L.r1-L.r0)*s.t;
-      const q=P(Math.cos(L.a)*r,50-Math.sin(s.t*Math.PI)*14,Math.sin(L.a)*r);
-      const g=ctx.createRadialGradient(q[0],q[1],0,q[0],q[1],12);
-      g.addColorStop(0,'rgba(255,200,120,.95)'); g.addColorStop(1,'rgba(255,182,72,0)');
-      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(q[0],q[1],12,0,7); ctx.fill();
+      s.f+=0.019+heat*0.014;
+      const n=nodes[s.n], p=along(n,s.f), q=P(p[0],1,p[1]);
+      const g=ctx.createRadialGradient(q[0],q[1],0,q[0],q[1],11);
+      g.addColorStop(0,n.col); g.addColorStop(0.35,n.col+'aa'); g.addColorStop(1,n.col+'00');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(q[0],q[1],11,0,7); ctx.fill();
     });
 
-    const bx=V(0,16,0,142,40,142);
-    F.map(function(f){return {f:f,z:f.reduce(function(s,i){return s+bx[i][2];},0)/4};})
-     .sort(function(a,b){return a.z-b.z;})
-     .forEach(function(o,i){
-      ctx.beginPath();
-      o.f.forEach(function(k,j){ j?ctx.lineTo(bx[k][0],bx[k][1]):ctx.moveTo(bx[k][0],bx[k][1]); });
-      ctx.closePath();
-      ctx.fillStyle='rgba(23,27,38,'+(0.9+i*0.02)+')'; ctx.fill();
-      ctx.strokeStyle='rgba(255,182,72,'+(0.22+heat*0.45)+')'; ctx.lineWidth=1.2; ctx.stroke();
+    // ---------- satellite chips (one per endpoint) ----------
+    nodes.forEach(function(n){
+      const lift=n.glow*3;
+      const top=slab(n.x,n.z,30,30,1+lift,7,'#1d2738','#111a26');
+      // gold pads on two sides
+      ctx.fillStyle='#8c6b38';
+      for(let k=-1;k<=1;k++){
+        const a=P(n.x-17,1+lift,n.z+k*8), b=P(n.x-13,1+lift,n.z+k*8);
+        poly([a,b,[b[0],b[1]+3],[a[0],a[1]+3]]); ctx.fill();
+        const c2=P(n.x+13,1+lift,n.z+k*8), d2=P(n.x+17,1+lift,n.z+k*8);
+        poly([c2,d2,[d2[0],d2[1]+3],[c2[0],c2[1]+3]]); ctx.fill();
+      }
+      // status LED
+      const cx=(top[0][0]+top[2][0])/2, cy=(top[0][1]+top[2][1])/2;
+      const idle=0.28+Math.sin(t*1.6+n.a*3)*0.08;
+      const lvl=Math.max(idle,n.glow);
+      ctx.save(); ctx.shadowColor=n.col; ctx.shadowBlur=16*lvl;
+      ctx.fillStyle=n.col; ctx.globalAlpha=lvl;
+      ctx.beginPath(); ctx.arc(cx,cy,3.1,0,7); ctx.fill();
+      ctx.restore();
     });
 
-    const c=P(0,-6,0);
-    const cg=ctx.createRadialGradient(c[0],c[1],0,c[0],c[1],58);
-    cg.addColorStop(0,'rgba(255,182,72,'+(0.1+heat*0.42)+')');
-    cg.addColorStop(1,'rgba(255,182,72,0)');
-    ctx.fillStyle=cg; ctx.beginPath(); ctx.arc(c[0],c[1],58,0,7); ctx.fill();
-    ctx.beginPath(); ctx.arc(c[0],c[1],7+heat*4,0,7);
-    ctx.fillStyle='rgba(255,200,120,'+(0.4+heat*0.6)+')'; ctx.fill();
+    // ---------- central die ----------
+    const pin='#8c6b38';
+    ctx.fillStyle=pin;
+    for(let k=-3;k<=3;k++){
+      let a=P(-DIE*0.62,3,k*11), b=P(-DIE*0.62-9,3,k*11);
+      poly([a,b,[b[0],b[1]+3.4],[a[0],a[1]+3.4]]); ctx.fill();
+      a=P(DIE*0.62,3,k*11); b=P(DIE*0.62+9,3,k*11);
+      poly([a,b,[b[0],b[1]+3.4],[a[0],a[1]+3.4]]); ctx.fill();
+      a=P(k*11,3,-DIE*0.62); b=P(k*11,3,-DIE*0.62-9);
+      poly([a,b,[b[0],b[1]+3.4],[a[0],a[1]+3.4]]); ctx.fill();
+      a=P(k*11,3,DIE*0.62); b=P(k*11,3,DIE*0.62+9);
+      poly([a,b,[b[0],b[1]+3.4],[a[0],a[1]+3.4]]); ctx.fill();
+    }
+    // package + die stack
+    slab(0,0,DIE*1.42,DIE*1.42,0,11,'#212c3e','#131b28');
+    const dieTop=slab(0,0,DIE*0.92,DIE*0.92,11,5,'#2b3a52','#1a2333');
 
-    heat*=0.975;
+    // die surface glow, brightens with throughput
+    const dx=(dieTop[0][0]+dieTop[2][0])/2, dy=(dieTop[0][1]+dieTop[2][1])/2;
+    const dg=ctx.createRadialGradient(dx,dy,0,dx,dy,54);
+    dg.addColorStop(0,'rgba(120,220,255,'+(0.14+heat*0.5)+')');
+    dg.addColorStop(0.55,'rgba(139,123,240,'+(0.07+heat*0.24)+')');
+    dg.addColorStop(1,'rgba(139,123,240,0)');
+    ctx.fillStyle=dg; ctx.beginPath(); ctx.arc(dx,dy,54,0,7); ctx.fill();
+
+    // die core lattice
+    ctx.save(); ctx.globalAlpha=0.30+heat*0.62; ctx.strokeStyle='#7fe6ff'; ctx.lineWidth=1;
+    for(let g=-2;g<=2;g++){
+      poly([P(g*9,16,-22),P(g*9,16,22)],false); ctx.stroke();
+      poly([P(-22,16,g*9),P(22,16,g*9)],false); ctx.stroke();
+    }
+    ctx.restore();
+    ctx.save();
+    ctx.shadowColor='#8be9ff'; ctx.shadowBlur=10+heat*24;
+    ctx.fillStyle='rgba(190,245,255,'+(0.5+heat*0.5)+')';
+    ctx.beginPath(); ctx.arc(dx,dy,3.4+heat*2.6,0,7); ctx.fill();
+    ctx.restore();
+
+    heat*=0.977;
     requestAnimationFrame(loop);
   })();
 
-  return { hit:function(i){ heat=Math.min(1,heat+0.45); glow[i%EPS.length]=1; sparks.push({l:i%EPS.length,t:0}); } };
+  return { hit:function(i){
+    heat=Math.min(1,heat+0.4);
+    const n=i%nodes.length;
+    nodes[n].glow=1;
+    sparks.push({n:n,f:0});
+  }};
 }
 const rigA=makeRig('rigA'), rigB=makeRig('rigB');
 let live=rigA;
@@ -514,6 +642,7 @@ async function screen(addrs,opts,ui){
 
   let done=0;
   const jobs=groups.map(async function(grp){
+    if(halted) return;
     const body=[]; let id=1; const map={};
     grp.forEach(function(a){
       body.push({jsonrpc:'2.0',id:id,method:'eth_getBalance',params:[a,'latest']}); map[id++]=[a,'bal'];
@@ -548,8 +677,10 @@ async function screen(addrs,opts,ui){
         }
       });
     }catch(e){
-      grp.forEach(function(a){ out.set(a,{addr:a,eth:null,nft:null,state:'fail',why:'lookup failed after retries: '+e.message}); });
-      ui.say('A group failed after '+MAX_TRIES+' attempts: '+e.message,'e');
+      if(!halted){
+        grp.forEach(function(a){ out.set(a,{addr:a,eth:null,nft:null,state:'fail',why:'lookup failed after retries: '+e.message}); });
+        ui.say('A group failed after '+MAX_TRIES+' attempts: '+e.message,'e');
+      }
     }
     done++;
     ui.step(done/groups.length,done,groups.length);
@@ -579,9 +710,10 @@ function drawA(){
   if(A.f==='pass') rows=rows.filter(function(r){return r.state==='pass';});
   if(A.f==='fail') rows=rows.filter(function(r){return r.state==='fail';});
   if(A.f==='bad')  rows=rows.filter(function(r){return r.state==='bad';});
+  if(A.f==='skip') rows=rows.filter(function(r){return r.state==='skip';});
   tb.innerHTML=rows.length?rows.map(function(r){
-    const cls=r.state==='pass'?'p':(r.state==='bad'?'x':'r');
-    const txt=r.state==='pass'?'Accepted':(r.state==='bad'?'Invalid':'Rejected');
+    const cls=r.state==='pass'?'p':(r.state==='bad'||r.state==='skip'?'x':'r');
+    const txt=r.state==='pass'?'Accepted':(r.state==='bad'?'Invalid':(r.state==='skip'?'Not checked':'Rejected'));
     const cell=r.addr?short(r.addr):'<span class="tag x">'+((r.rawAddr||'empty').slice(0,24))+'</span>';
     return '<tr class="'+(r.state==='pass'?'p':'r')+'">'+
       '<td class="num">'+r.row+'</td>'+
@@ -647,7 +779,7 @@ $('run').onclick=async function(){
   const uniq=Array.from(new Set(rows.filter(function(r){return r.addr;}).map(function(r){return r.addr;})));
   if(!uniq.length){ uiA.say('No valid addresses in that column — try a different one.','e'); return; }
 
-  A.rows=[]; A.links=[];
+  A.rows=[]; A.links=[]; halted=false; pools=[];
   $('run').disabled=true; $('stop').disabled=false; $('linkBtn').disabled=true; $('linkOut').hidden=true;
   ['dlP','dlR','dlB','dlA','dlL','dlC'].forEach(function(i){$(i).disabled=true;});
   const badN=rows.length-rows.filter(function(r){return r.addr;}).length;
@@ -657,21 +789,31 @@ $('run').onclick=async function(){
     const m=await screen(uniq,{minEth:parseFloat($('minEth').value)||0,minNft:parseInt($('minNft').value)||0},uiA);
     A.rows=rows.map(function(r){
       if(!r.addr) return Object.assign({},r,{eth:null,nft:null,state:'bad',why:r.badWhy});
-      const g=m.get(r.addr)||{};
+      const g=m.get(r.addr);
+      if(!g) return Object.assign({},r,{eth:null,nft:null,state:'skip',why:'not checked — run was stopped'});
       return Object.assign({},r,{eth:g.eth===undefined?null:g.eth,nft:g.nft===undefined?null:g.nft,
         more:g.more,state:g.state==='pass'?'pass':'fail',why:g.why||'not checked'});
     });
     drawA(); tallyA();
     const p=A.rows.filter(function(r){return r.state==='pass';}).length;
-    uiA.say('Finished — '+p+' accepted, '+(A.rows.length-p)+' rejected.','g');
-    $('phA').textContent='Complete'; $('pcA').textContent='100%'; $('bfA').style.width='100%';
+    const rj=A.rows.filter(function(r){return r.state==='fail';}).length;
+    const sk=A.rows.filter(function(r){return r.state==='skip';}).length;
+    uiA.say((halted?'Stopped — ':'Finished — ')+p+' accepted, '+rj+' rejected'+(sk?', '+sk+' not checked':'')+'. Downloads ready.','g');
+    const pctDone=Math.round(((A.rows.length-sk)/A.rows.length)*100);
+    $('phA').textContent=halted?'Stopped':'Complete';
+    $('pcA').textContent=pctDone+'%'; $('bfA').style.width=pctDone+'%';
     ['dlP','dlR','dlA'].forEach(function(i){$(i).disabled=false;});
     $('dlB').disabled=!badN;
     $('linkBtn').disabled=false; $('linkOut').hidden=false;
   }catch(e){ uiA.say('Stopped: '+e.message,'e'); }
   $('run').disabled=false; $('stop').disabled=true;
 };
-$('stop').onclick=function(){ location.reload(); };
+$('stop').onclick=function(){
+  halted=true;
+  pools.forEach(function(p){ p.close(); p.kill(); });
+  uiA.say('Stopping — keeping everything checked so far.','w');
+  $('stop').disabled=true;
+};
 
 $('linkBtn').onclick=async function(){
   const all=Array.from(new Set(A.rows.filter(function(r){return r.addr;}).map(function(r){return r.addr;})));
@@ -737,7 +879,7 @@ $('linkBtn').onclick=async function(){
 
 const HA=['row','wallet','kept_column','eth_balance','nft_transfers','status','detail'];
 function RA(r){
-  const st=r.state==='pass'?'accepted':(r.state==='bad'?'invalid':'rejected');
+  const st=r.state==='pass'?'accepted':(r.state==='bad'?'invalid':(r.state==='skip'?'not_checked':'rejected'));
   return [r.row,r.addr||r.rawAddr,r.note||'',r.eth===null?'':r.eth,r.nft===null?'':r.nft,st,r.why];
 }
 $('dlP').onclick=function(){ save('accepted.csv',HA,A.rows.filter(function(r){return r.state==='pass';}).map(RA)); };
@@ -798,9 +940,10 @@ function drawB(){
   if(B.f==='pass') rows=rows.filter(function(r){return r.state==='pass';});
   if(B.f==='fail') rows=rows.filter(function(r){return r.state==='fail';});
   if(B.f==='bad')  rows=rows.filter(function(r){return r.state==='bad';});
+  if(B.f==='skip') rows=rows.filter(function(r){return r.state==='skip';});
   tb.innerHTML=rows.length?rows.map(function(r){
-    const tagCls=r.state==='pass'?'p':(r.state==='bad'?'x':'r');
-    const tagTxt=r.state==='pass'?'Accepted':(r.state==='bad'?'Invalid':'Rejected');
+    const tagCls=r.state==='pass'?'p':(r.state==='bad'||r.state==='skip'?'x':'r');
+    const tagTxt=r.state==='pass'?'Accepted':(r.state==='bad'?'Invalid':(r.state==='skip'?'Not checked':'Rejected'));
     const cell=r.addr?short(r.addr):'<span class="tag x">'+((r.rawAddr||'empty').slice(0,22))+'</span>';
     return '<tr class="'+(r.state==='pass'?'p':'r')+'">'+
       '<td class="num">'+r.row+'</td>'+
@@ -828,6 +971,7 @@ $('runB').onclick=async function(){
   });
   const uniq=Array.from(new Set(rows.filter(function(r){return r.addr;}).map(function(r){return r.addr;})));
   if(!uniq.length){ uiB.say('No valid wallet addresses in that column.','e'); return; }
+  halted=false; pools=[];
   $('runB').disabled=true; $('stopB').disabled=false;
   ['dlPB','dlRB','dlAB'].forEach(function(i){$(i).disabled=true;});
   const badCount=rows.length-rows.filter(function(r){return r.addr;}).length;
@@ -836,28 +980,46 @@ $('runB').onclick=async function(){
     const m=await screen(uniq,{minEth:parseFloat($('minEthB').value)||0,minNft:parseInt($('minNftB').value)||0},uiB);
     B.rows=rows.map(function(r){
       if(!r.addr) return Object.assign({},r,{eth:null,nft:null,state:'bad',why:'no valid wallet address in this row'});
-      const g=m.get(r.addr)||{};
+      const g=m.get(r.addr);
+      if(!g) return Object.assign({},r,{eth:null,nft:null,state:'skip',why:'not checked — run was stopped'});
       return Object.assign({},r,{eth:g.eth===undefined?null:g.eth,nft:g.nft===undefined?null:g.nft,more:g.more,state:g.state==='pass'?'pass':'fail',why:g.why||'not checked'});
     });
     drawB();
     const p=B.rows.filter(function(r){return r.state==='pass';}).length;
-    $('nPB').textContent=p; $('nRB').textContent=B.rows.length-p;
-    uiB.say('Finished — '+p+' accepted, '+(B.rows.length-p)+' rejected.','g');
-    $('phB').textContent='Complete'; $('pcB').textContent='100%'; $('bfB').style.width='100%';
+    const rj=B.rows.filter(function(r){return r.state==='fail';}).length;
+    const sk=B.rows.filter(function(r){return r.state==='skip';}).length;
+    $('nPB').textContent=p; $('nRB').textContent=rj;
+    uiB.say((halted?'Stopped — ':'Finished — ')+p+' accepted, '+rj+' rejected'+(sk?', '+sk+' not checked':'')+'. Downloads ready.','g');
+    const pd=Math.round(((B.rows.length-sk)/B.rows.length)*100);
+    $('phB').textContent=halted?'Stopped':'Complete';
+    $('pcB').textContent=pd+'%'; $('bfB').style.width=pd+'%';
     ['dlPB','dlRB','dlAB'].forEach(function(i){$(i).disabled=false;});
   }catch(e){ uiB.say('Stopped: '+e.message,'e'); }
   $('runB').disabled=false; $('stopB').disabled=true;
 };
-$('stopB').onclick=function(){ location.reload(); };
+$('stopB').onclick=function(){
+  halted=true;
+  pools.forEach(function(p){ p.close(); p.kill(); });
+  uiB.say('Stopping — keeping everything checked so far.','w');
+  $('stopB').disabled=true;
+};
 
 const HB=['row','x_post_link','wallet','eth_balance','nft_transfers','status','detail'];
 function RB(r){
-  const st=r.state==='pass'?'accepted':(r.state==='bad'?'invalid':'rejected');
+  const st=r.state==='pass'?'accepted':(r.state==='bad'?'invalid':(r.state==='skip'?'not_checked':'rejected'));
   return [r.row,r.post,r.addr||r.rawAddr,r.eth===null?'':r.eth,r.nft===null?'':r.nft,st,r.why];
 }
 $('dlPB').onclick=function(){ save('accepted-with-posts.csv',HB,B.rows.filter(function(r){return r.state==='pass';}).map(RB)); };
-$('dlRB').onclick=function(){ save('rejected-with-posts.csv',HB,B.rows.filter(function(r){return r.state!=='pass';}).map(RB)); };
+$('dlRB').onclick=function(){ save('rejected-with-posts.csv',HB,B.rows.filter(function(r){return r.state==='fail';}).map(RB)); };
 $('dlAB').onclick=function(){ save('all-with-posts.csv',HB,B.rows.map(RB)); };
+
+function syncRate(){
+  const v=parseFloat($('rps').value)||3;
+  RPS=Math.max(0.2,Math.min(10,v));
+  $('rpsOut').value=(RPS*EPS.length).toFixed(1)+' requests/sec across '+EPS.length+' endpoints';
+}
+$('rps').addEventListener('input',syncRate);
+syncRate();
 
 Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){
   t.onclick=function(){
