@@ -9,154 +9,89 @@
 <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#12202b;
-    --ink-soft:#48606f;
-    --paper:#eef1ec;
-    --panel:#ffffff;
-    --line:#ccd5cd;
-    --line-soft:#e2e7e1;
-    --hold:#1e6b57;
-    --hold-tint:#e3efe9;
-    --drop:#a4402f;
-    --drop-tint:#f7e7e3;
-    --wait:#8a6a1f;
-    --wait-tint:#f7efd9;
+    --ink:#12202b; --ink-soft:#48606f;
+    --paper:#eef1ec; --panel:#ffffff;
+    --line:#ccd5cd; --line-soft:#e2e7e1;
+    --hold:#1e6b57; --hold-tint:#e3efe9;
+    --drop:#a4402f; --drop-tint:#f7e7e3;
+    --wait:#8a6a1f; --wait-tint:#f7efd9;
     --radius:10px;
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
-  body{
-    background:var(--paper);
-    color:var(--ink);
-    font-family:"Hind Siliguri",system-ui,"Noto Sans Bengali",sans-serif;
-    font-size:16px;
-    line-height:1.65;
-  }
-  .wrap{max-width:1180px;margin:0 auto;padding:28px 20px 80px}
-  code,.mono,input,textarea,select,td.mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+  body{background:var(--paper);color:var(--ink);font-family:"Hind Siliguri",system-ui,"Noto Sans Bengali",sans-serif;font-size:16px;line-height:1.6}
+  .wrap{max-width:1240px;margin:0 auto;padding:24px 18px 80px}
+  code,.mono,input,textarea,select{font-family:"IBM Plex Mono",ui-monospace,monospace}
 
-  /* ---------- header ---------- */
-  header.top{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    padding:22px 24px;
-    display:grid;
-    grid-template-columns:1fr auto;
-    gap:20px;
-    align-items:center;
-  }
-  header.top h1{
-    margin:0 0 4px;
-    font-size:26px;
-    font-weight:700;
-    letter-spacing:-0.01em;
-  }
-  header.top p{margin:0;color:var(--ink-soft);font-size:15px}
-  .counter{
-    text-align:right;
-    border-left:1px solid var(--line-soft);
-    padding-left:20px;
-    min-width:150px;
-  }
-  .counter .num{
-    font-family:"IBM Plex Mono",monospace;
-    font-size:40px;
-    font-weight:600;
-    line-height:1;
-    color:var(--hold);
-  }
-  .counter .lab{font-size:13px;color:var(--ink-soft)}
+  header.top{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;display:grid;grid-template-columns:1fr auto auto;gap:18px;align-items:center}
+  header.top h1{margin:0 0 3px;font-size:25px;font-weight:700;letter-spacing:-.01em}
+  header.top p{margin:0;color:var(--ink-soft);font-size:14.5px}
+  .counter{text-align:right;border-left:1px solid var(--line-soft);padding-left:18px;min-width:112px}
+  .counter .num{font-family:"IBM Plex Mono",monospace;font-size:36px;font-weight:600;line-height:1;color:var(--hold)}
+  .counter .num.dim{color:var(--ink-soft)}
+  .counter .lab{font-size:12.5px;color:var(--ink-soft)}
 
-  /* ---------- layout ---------- */
-  .grid{display:grid;grid-template-columns:380px 1fr;gap:20px;margin-top:20px;align-items:start}
-  .card{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    padding:18px 20px;
-    margin-bottom:20px;
-  }
-  .card h2{
-    margin:0 0 14px;
-    font-size:17px;
-    font-weight:600;
-    padding-bottom:10px;
-    border-bottom:1px solid var(--line-soft);
-  }
-  label{display:block;font-size:13.5px;color:var(--ink-soft);margin:12px 0 5px}
-  input[type=text],input[type=number],input[type=datetime-local],textarea,select{
-    width:100%;
-    padding:9px 11px;
-    border:1px solid var(--line);
-    border-radius:7px;
-    background:#fbfcfa;
-    color:var(--ink);
-    font-size:13.5px;
-  }
-  textarea{min-height:76px;resize:vertical;line-height:1.5}
+  .grid{display:grid;grid-template-columns:355px 1fr;gap:18px;margin-top:18px;align-items:start}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin-bottom:18px}
+  .card h2{margin:0 0 12px;font-size:16.5px;font-weight:600;padding-bottom:9px;border-bottom:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .card h2 span.sub{font-size:12.5px;font-weight:400;color:var(--ink-soft)}
+  label{display:block;font-size:13px;color:var(--ink-soft);margin:11px 0 4px}
+  input[type=text],input[type=number],input[type=datetime-local],textarea,select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:#fbfcfa;color:var(--ink);font-size:13.5px}
+  select{font-family:"Hind Siliguri",sans-serif}
+  textarea{min-height:72px;resize:vertical;line-height:1.5}
   input:focus,textarea:focus,select:focus{outline:2px solid var(--hold);outline-offset:1px;border-color:var(--hold)}
-  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .check{display:flex;gap:9px;align-items:flex-start;margin-top:12px;font-size:14px;color:var(--ink)}
-  .check input{margin-top:5px;width:16px;height:16px;accent-color:var(--hold)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .check{display:flex;gap:8px;align-items:flex-start;margin-top:10px;font-size:13.5px}
+  .check input{margin-top:4px;width:16px;height:16px;accent-color:var(--hold);flex:none}
   .hint{font-size:12.5px;color:var(--ink-soft);margin-top:4px;line-height:1.5}
 
-  button{
-    font-family:inherit;font-size:15px;font-weight:600;
-    border-radius:8px;border:1px solid transparent;
-    padding:11px 16px;cursor:pointer;
-  }
+  button{font-family:inherit;font-size:15px;font-weight:600;border-radius:8px;border:1px solid transparent;padding:10px 15px;cursor:pointer}
   button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-  .btn-run{background:var(--hold);color:#fff;width:100%;margin-top:18px}
+  .btn-run{background:var(--hold);color:#fff;width:100%;margin-top:16px}
   .btn-run:disabled{background:#9db3aa;cursor:not-allowed}
-  .btn-stop{background:var(--drop-tint);color:var(--drop);border-color:#e2bdb4;width:100%;margin-top:10px}
-  .btn-ghost{background:#fff;border-color:var(--line);color:var(--ink);font-size:13.5px;padding:8px 13px}
+  .btn-stop{background:var(--drop-tint);color:var(--drop);border-color:#e2bdb4;width:100%;margin-top:9px}
+  .btn-ghost{background:#fff;border-color:var(--line);color:var(--ink);font-size:13px;padding:7px 12px}
   .btn-ghost:hover{background:var(--paper)}
-  .btn-row{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px}
+  .btn-ghost:disabled{color:#9aa8a2;cursor:not-allowed}
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 
-  /* ---------- progress ---------- */
-  .stage{font-size:14px;margin-bottom:8px;display:flex;justify-content:space-between;gap:10px}
-  .stage b{font-weight:600}
+  .stage{font-size:13.5px;margin-bottom:7px;display:flex;justify-content:space-between;gap:10px}
   .bar{height:7px;background:var(--line-soft);border-radius:4px;overflow:hidden}
   .bar i{display:block;height:100%;width:0;background:var(--hold);transition:width .25s ease}
-  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
-  .stat{background:#fbfcfa;border:1px solid var(--line-soft);border-radius:8px;padding:9px 11px}
-  .stat .v{font-family:"IBM Plex Mono",monospace;font-size:19px;font-weight:600}
-  .stat .k{font-size:12px;color:var(--ink-soft)}
+  .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-top:14px}
+  .stat{background:#fbfcfa;border:1px solid var(--line-soft);border-radius:8px;padding:8px 10px}
+  .stat .v{font-family:"IBM Plex Mono",monospace;font-size:17px;font-weight:600}
+  .stat .k{font-size:11.5px;color:var(--ink-soft)}
 
-  .log{
-    margin-top:16px;background:#101d26;color:#cfe0d8;border-radius:8px;
-    padding:12px 14px;height:190px;overflow:auto;
-    font-family:"IBM Plex Mono",monospace;font-size:12.5px;line-height:1.75;
-  }
+  .log{margin-top:14px;background:#101d26;color:#cfe0d8;border-radius:8px;padding:11px 13px;height:172px;overflow:auto;font-family:"IBM Plex Mono",monospace;font-size:12.5px;line-height:1.7}
   .log div{white-space:pre-wrap;word-break:break-word}
-  .log .e{color:#f0a898}
-  .log .w{color:#efd08a}
-  .log .s{color:#8fdcb9}
-  .log .t{color:#6f8a97}
+  .log .e{color:#f0a898}.log .w{color:#efd08a}.log .s{color:#8fdcb9}.log .t{color:#6f8a97}
 
-  /* ---------- table ---------- */
-  .tablewrap{overflow-x:auto;border:1px solid var(--line-soft);border-radius:8px}
-  table{border-collapse:collapse;width:100%;font-size:13.5px}
-  th{
-    text-align:left;font-weight:600;font-size:12.5px;color:var(--ink-soft);
-    background:#f6f8f5;padding:9px 11px;border-bottom:1px solid var(--line);position:sticky;top:0;
-  }
-  td{padding:9px 11px;border-bottom:1px solid var(--line-soft);vertical-align:top}
-  tr:last-child td{border-bottom:none}
-  td.mono{font-size:12.5px}
-  .rank{color:var(--ink-soft)}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .tab{background:#f6f8f5;border:1px solid var(--line-soft);color:var(--ink-soft);font-size:13px;padding:6px 13px;border-radius:20px;cursor:pointer;font-weight:500}
+  .tab.on{background:var(--hold);border-color:var(--hold);color:#fff}
+  .tablewrap{overflow:auto;border:1px solid var(--line-soft);border-radius:8px;max-height:560px}
+  table{border-collapse:collapse;width:100%;font-size:13px}
+  th{text-align:left;font-weight:600;font-size:12px;color:var(--ink-soft);background:#f6f8f5;padding:8px 10px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:1}
+  td{padding:8px 10px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  td.mono{font-family:"IBM Plex Mono",monospace;font-size:12px}
+  .rank{color:var(--ink-soft);font-family:"IBM Plex Mono",monospace}
   a{color:var(--hold);text-decoration:none;border-bottom:1px solid #b9d3c8}
   a:hover{border-bottom-color:var(--hold)}
   .txlist{margin:0;padding:0;list-style:none}
-  .txlist li{font-family:"IBM Plex Mono",monospace;font-size:12px;padding:1px 0}
-  .empty{padding:34px 20px;text-align:center;color:var(--ink-soft);font-size:14.5px}
-  .pill{display:inline-block;font-size:11.5px;padding:1px 8px;border-radius:20px;background:var(--hold-tint);color:var(--hold);font-weight:600}
-  .note{background:var(--wait-tint);border:1px solid #e8d7a6;border-radius:8px;padding:11px 13px;font-size:13.5px;margin-top:14px}
-  @media (max-width:920px){
+  .txlist li{font-family:"IBM Plex Mono",monospace;font-size:11.5px;padding:1px 0}
+  .empty{padding:30px 18px;text-align:center;color:var(--ink-soft);font-size:14px}
+  .pill{display:inline-block;font-size:11px;padding:1px 7px;border-radius:20px;font-weight:600}
+  .pill.ok{background:var(--hold-tint);color:var(--hold)}
+  .pill.no{background:var(--drop-tint);color:var(--drop)}
+  .pill.wait{background:var(--wait-tint);color:var(--wait)}
+  .note{background:var(--wait-tint);border:1px solid #e8d7a6;border-radius:8px;padding:10px 12px;font-size:13.5px;margin-top:12px}
+  .live{font-size:12.5px;color:var(--ink-soft);margin-bottom:8px}
+  @media (max-width:940px){
     .grid{grid-template-columns:1fr}
-    header.top{grid-template-columns:1fr}
-    .counter{border-left:none;border-top:1px solid var(--line-soft);padding:12px 0 0;text-align:left}
+    header.top{grid-template-columns:1fr 1fr}
+    header.top>div:first-child{grid-column:1/-1}
+    .counter{border-left:none;border-top:1px solid var(--line-soft);padding:10px 0 0;text-align:left}
     .stats{grid-template-columns:1fr 1fr}
   }
 </style>
@@ -167,132 +102,116 @@
   <header class="top">
     <div>
       <h1>$WIF হোল্ডার ফিল্টার</h1>
-      <p>Robinhood Chain (4663) — নির্দিষ্ট সময়ের পর কেনা, এখনো এক টোকেনও বিক্রি করেনি, এমন ওয়ালেট বের করে।</p>
+      <p>Robinhood Chain (4663) — নির্ধারিত সময়ের পর কেনা, এখনো এক টোকেনও ছাড়েনি, এমন ওয়ালেট।</p>
     </div>
     <div class="counter">
       <div class="num" id="cQual">0</div>
-      <div class="lab">যোগ্য ওয়ালেট <span id="cCap">/ 100</span></div>
+      <div class="lab">তালিকায় নেওয়া <span id="cCap">/ 100</span></div>
+    </div>
+    <div class="counter">
+      <div class="num dim" id="cCand">0</div>
+      <div class="lab">শর্ত পূরণকারী মোট</div>
     </div>
   </header>
 
   <div class="grid">
 
-    <!-- ======= বাম কলাম: সেটিংস ======= -->
+    <!-- ================= সেটিংস ================= -->
     <div>
       <div class="card">
         <h2>সেটিংস</h2>
 
-        <label for="token">টোকেন কন্ট্রাক্ট অ্যাড্রেস</label>
+        <label for="token">টোকেন কন্ট্রাক্ট</label>
         <input type="text" id="token" value="0xe49a1c3033ecc6b804bc423021d3f71f1a3e0f9b" />
 
         <label for="startTime">শুরুর সময় (বাংলাদেশ সময়, UTC+6)</label>
         <input type="datetime-local" id="startTime" value="2026-09-11T21:32" />
 
-        <label for="endTime">শেষ সময় (খালি রাখলে = এখন পর্যন্ত)</label>
+        <label for="endTime">শেষ সময় (খালি = এখন পর্যন্ত)</label>
         <input type="datetime-local" id="endTime" value="" />
 
         <div class="row2">
-          <div>
-            <label for="minAmt">সর্বনিম্ন কেনা</label>
-            <input type="number" id="minAmt" value="10000" min="0" step="any" />
-          </div>
-          <div>
-            <label for="maxW">সর্বোচ্চ ওয়ালেট</label>
-            <input type="number" id="maxW" value="100" min="1" step="1" />
-          </div>
+          <div><label for="minAmt">সর্বনিম্ন কেনা</label><input type="number" id="minAmt" value="10000" min="0" step="any" /></div>
+          <div><label for="maxW">সর্বোচ্চ ওয়ালেট</label><input type="number" id="maxW" value="100" min="1" step="1" /></div>
         </div>
-        <div class="hint">একাধিক লেনদেনে কেনা পরিমাণ যোগ হয়ে হিসাব হবে।</div>
+        <div class="hint">একাধিক লেনদেনের পরিমাণ যোগ হয়ে হিসাব হবে।</div>
 
-        <div class="check">
-          <input type="checkbox" id="optNoSell" checked />
-          <label for="optNoSell" style="margin:0;color:var(--ink)">একটিও টোকেন পাঠালে/বিক্রি করলে বাদ</label>
-        </div>
-        <div class="check">
-          <input type="checkbox" id="optBalance" checked />
-          <label for="optBalance" style="margin:0;color:var(--ink)">বর্তমান ব্যালেন্স মিলিয়ে যাচাই করবে</label>
-        </div>
-        <div class="check">
-          <input type="checkbox" id="optNoContract" checked />
-          <label for="optNoContract" style="margin:0;color:var(--ink)">কন্ট্রাক্ট অ্যাড্রেস (pool, router) বাদ</label>
-        </div>
-        <div class="check">
-          <input type="checkbox" id="optNoMint" />
-          <label for="optNoMint" style="margin:0;color:var(--ink)">মিন্ট (0x000…000 থেকে আসা) গণনা করবে না</label>
-        </div>
+        <div class="check"><input type="checkbox" id="optNoSell" checked /><label for="optNoSell" style="margin:0;color:var(--ink)">একটিও টোকেন পাঠালে/বিক্রি করলে বাদ</label></div>
+        <div class="check"><input type="checkbox" id="optBalance" checked /><label for="optBalance" style="margin:0;color:var(--ink)">বর্তমান ব্যালেন্স মিলিয়ে যাচাই</label></div>
+        <div class="check"><input type="checkbox" id="optNoContract" checked /><label for="optNoContract" style="margin:0;color:var(--ink)">কন্ট্রাক্ট অ্যাড্রেস (pool/router) বাদ</label></div>
+        <div class="check"><input type="checkbox" id="optNoMint" /><label for="optNoMint" style="margin:0;color:var(--ink)">মিন্ট (0x000…0 থেকে আসা) গণনা নয়</label></div>
 
         <label for="exclude">বাদ দেওয়ার অ্যাড্রেস (প্রতি লাইনে একটি)</label>
-        <textarea id="exclude" placeholder="0x... (LP pool, deployer, CEX ইত্যাদি)"></textarea>
+        <textarea id="exclude" placeholder="0x… (LP pool, deployer, CEX)"></textarea>
 
         <button class="btn-run" id="btnRun">ফিল্টার চালু করো</button>
-        <button class="btn-stop" id="btnStop" style="display:none">থামাও</button>
+        <button class="btn-stop" id="btnStop" style="display:none">থামাও ও ফল দেখাও</button>
       </div>
 
       <div class="card">
-        <h2>RPC এন্ডপয়েন্ট</h2>
+        <h2>ডেটা আনার পদ্ধতি</h2>
+        <label for="mode">পদ্ধতি</label>
+        <select id="mode">
+          <option value="auto" selected>স্বয়ংক্রিয় — আগে Transfers API, দরকারে getLogs</option>
+          <option value="fast">শুধু Transfers API (দ্রুত)</option>
+          <option value="logs">শুধু eth_getLogs (ক্লাসিক)</option>
+        </select>
+        <div class="hint">Transfers API একবারে ১০০০টি ট্রান্সফার সময়সহ এনে দেয়, তাই ব্লক ধরে ধরে খোঁজার দরকার পড়ে না — কল সংখ্যা কয়েকশ গুণ কমে যায়।</div>
+
         <label for="rpcs">Alchemy URL (প্রতি লাইনে একটি)</label>
-        <textarea id="rpcs" style="min-height:118px">https://robinhood-mainnet.g.alchemy.com/v2/alch_qFnuH2TmZkATZ01KqCJtk
+        <textarea id="rpcs" style="min-height:112px">https://robinhood-mainnet.g.alchemy.com/v2/alch_qFnuH2TmZkATZ01KqCJtk
 https://robinhood-mainnet.g.alchemy.com/v2/alch_pfhjNswqC0CYDfRIeeqlG
 https://robinhood-mainnet.g.alchemy.com/v2/alch_PHe9jUA26O_HTLqRyS8M0
 https://robinhood-mainnet.g.alchemy.com/v2/alch_1BvQPuBTdj3aQAFwgSO0m</textarea>
         <div class="hint">একটি কী ব্যর্থ হলে বা লিমিটে পড়লে সঙ্গে সঙ্গে পরেরটিতে চলে যাবে।</div>
 
         <div class="row2">
-          <div>
-            <label for="rps">রিকোয়েস্ট / সেকেন্ড</label>
-            <input type="number" id="rps" value="15" min="1" max="60" />
-          </div>
-          <div>
-            <label for="chunk">ব্লক চাঙ্ক সাইজ</label>
-            <input type="number" id="chunk" value="10000" min="100" step="100" />
-          </div>
+          <div><label for="rps">রিকোয়েস্ট / সেকেন্ড</label><input type="number" id="rps" value="15" min="1" max="60" /></div>
+          <div><label for="chunk">getLogs চাঙ্ক (০ = পুরোটা)</label><input type="number" id="chunk" value="0" min="0" step="1000" /></div>
         </div>
+        <div class="hint">০ দিলে পুরো রেঞ্জ একবারে চাওয়া হয়; নোড আপত্তি করলে নিজে থেকে অর্ধেক করে নেয়।</div>
 
-        <label for="explorer">এক্সপ্লোরার লিংক বেস</label>
+        <label for="explorer">এক্সপ্লোরার বেস</label>
         <input type="text" id="explorer" value="https://robinhoodchain.blockscout.com" />
 
-        <button class="btn-ghost" id="btnTest" style="width:100%;margin-top:16px">কানেকশন পরীক্ষা করো</button>
+        <button class="btn-ghost" id="btnTest" style="width:100%;margin-top:14px">কানেকশন পরীক্ষা করো</button>
       </div>
     </div>
 
-    <!-- ======= ডান কলাম: অগ্রগতি + ফলাফল ======= -->
+    <!-- ================= অগ্রগতি + ফলাফল ================= -->
     <div>
       <div class="card">
-        <h2>অগ্রগতি</h2>
+        <h2>অগ্রগতি <span class="sub" id="modeTag"></span></h2>
         <div class="stage"><span id="stageText">শুরু করার জন্য প্রস্তুত।</span><b id="stagePct">0%</b></div>
         <div class="bar"><i id="bar"></i></div>
-
         <div class="stats">
-          <div class="stat"><div class="v" id="sBlocks">0</div><div class="k">স্ক্যান করা ব্লক</div></div>
-          <div class="stat"><div class="v" id="sLogs">0</div><div class="k">ট্রান্সফার লগ</div></div>
+          <div class="stat"><div class="v" id="sLogs">0</div><div class="k">ট্রান্সফার</div></div>
           <div class="stat"><div class="v" id="sWallets">0</div><div class="k">ক্রেতা ওয়ালেট</div></div>
+          <div class="stat"><div class="v" id="sReach">0</div><div class="k">১০ হাজার+ ছুঁয়েছে</div></div>
+          <div class="stat"><div class="v" id="sSold">0</div><div class="k">বিক্রি করেছে</div></div>
           <div class="stat"><div class="v" id="sReq">0</div><div class="k">RPC কল</div></div>
         </div>
-
         <div class="log" id="log"><div class="t">লগ এখানে দেখা যাবে।</div></div>
       </div>
 
       <div class="card">
-        <h2>ফলাফল</h2>
+        <h2>ওয়ালেট <span class="sub" id="phaseTag">অপেক্ষায়</span></h2>
+        <div class="tabs">
+          <button class="tab on" data-view="picked" id="tabPicked">তালিকাভুক্ত (0)</button>
+          <button class="tab" data-view="all" id="tabAll">সব শর্তপূরণকারী (0)</button>
+          <button class="tab" data-view="out" id="tabOut">বাদ পড়া (0)</button>
+        </div>
+        <div class="live" id="liveNote"></div>
         <div class="btn-row">
-          <button class="btn-ghost" id="btnCsvTx" disabled>CSV ডাউনলোড (প্রতি ট্রানজেকশন)</button>
-          <button class="btn-ghost" id="btnCsvW" disabled>CSV ডাউনলোড (প্রতি ওয়ালেট)</button>
+          <button class="btn-ghost" id="btnCsvTx" disabled>CSV — প্রতি ট্রানজেকশন</button>
+          <button class="btn-ghost" id="btnCsvW" disabled>CSV — প্রতি ওয়ালেট</button>
+          <button class="btn-ghost" id="btnCsvOut" disabled>CSV — বাদ পড়া</button>
           <button class="btn-ghost" id="btnCopy" disabled>অ্যাড্রেস কপি</button>
         </div>
         <div class="tablewrap">
-          <table id="tbl">
-            <thead>
-              <tr>
-                <th style="width:44px">#</th>
-                <th>ওয়ালেট</th>
-                <th style="width:120px">মোট কেনা</th>
-                <th style="width:132px">যোগ্য হওয়ার সময় (BDT)</th>
-                <th>ট্রানজেকশন</th>
-              </tr>
-            </thead>
-            <tbody id="tbody">
-              <tr><td colspan="5"><div class="empty">এখনো কোনো ফলাফল নেই।</div></td></tr>
-            </tbody>
-          </table>
+          <table id="tbl"><thead id="thead"></thead><tbody id="tbody">
+            <tr><td><div class="empty">এখনো কিছু নেই — “ফিল্টার চালু করো” চাপুন। চলার সময়েই ওয়ালেট এখানে যোগ হতে থাকবে।</div></td></tr>
+          </tbody></table>
         </div>
         <div class="note" id="summary" style="display:none"></div>
       </div>
@@ -303,27 +222,26 @@ https://robinhood-mainnet.g.alchemy.com/v2/alch_1BvQPuBTdj3aQAFwgSO0m</textarea>
 <script>
 "use strict";
 
-/* ============================================================
-   ছোট হেল্পার
-   ============================================================ */
+/* ---------------- helpers ---------------- */
 const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const ZERO = "0x0000000000000000000000000000000000000000";
 const TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
-const BDT_OFFSET_MIN = 6 * 60; // UTC+6
+const BDT = 6 * 60;
 
-let STOP = false;
-let RESULT = null;   // {wallets:[], token:{}, window:{}}
+let STOP = false;          // স্ক্যান থামানোর অনুরোধ (ফল তৈরি হবেই)
+let VIEW = "picked";
+let STATE = null;          // চলমান ও শেষ — সব তথ্য এখানে
 
 function logLine(msg, cls){
   const box = $("log");
   if (box.dataset.clean !== "1"){ box.innerHTML = ""; box.dataset.clean = "1"; }
   const d = document.createElement("div");
-  const t = new Date();
-  const hh = String(t.getHours()).padStart(2,"0"), mm = String(t.getMinutes()).padStart(2,"0"), ss = String(t.getSeconds()).padStart(2,"0");
-  d.innerHTML = '<span class="t">' + hh+":"+mm+":"+ss + '</span>  ' + msg;
+  const t = new Date(), p = n => String(n).padStart(2,"0");
+  d.innerHTML = '<span class="t">' + p(t.getHours())+":"+p(t.getMinutes())+":"+p(t.getSeconds()) + '</span>  ' + msg;
   if (cls) d.className = cls;
   box.appendChild(d);
+  while (box.childNodes.length > 400) box.removeChild(box.firstChild);
   box.scrollTop = box.scrollHeight;
 }
 function setStage(text, pct){
@@ -334,42 +252,28 @@ function setStage(text, pct){
     $("stagePct").textContent = p.toFixed(0) + "%";
   }
 }
-function fmtInt(n){ return Number(n).toLocaleString("en-US"); }
+const fmtInt = n => Number(n).toLocaleString("en-US");
+const short = a => a.slice(0,8) + "…" + a.slice(-6);
 
-/* BDT হিসাবে সময় দেখানো */
-function toBdtString(unixSec){
-  const d = new Date((unixSec + BDT_OFFSET_MIN*60) * 1000);
-  const p = n => String(n).padStart(2,"0");
-  return d.getUTCFullYear()+"-"+p(d.getUTCMonth()+1)+"-"+p(d.getUTCDate())+" "+p(d.getUTCHours())+":"+p(d.getUTCMinutes())+":"+p(d.getUTCSeconds());
-}
-function toUtcString(unixSec){
-  const d = new Date(unixSec*1000);
-  const p = n => String(n).padStart(2,"0");
-  return d.getUTCFullYear()+"-"+p(d.getUTCMonth()+1)+"-"+p(d.getUTCDate())+" "+p(d.getUTCHours())+":"+p(d.getUTCMinutes())+":"+p(d.getUTCSeconds());
-}
-/* datetime-local (BDT হিসেবে পড়া) → unix seconds */
-function bdtLocalToUnix(str){
-  if (!str) return null;
-  const m = str.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+function toBdt(u){ if(!u) return "—"; const d=new Date((u+BDT*60)*1000),p=n=>String(n).padStart(2,"0");
+  return d.getUTCFullYear()+"-"+p(d.getUTCMonth()+1)+"-"+p(d.getUTCDate())+" "+p(d.getUTCHours())+":"+p(d.getUTCMinutes())+":"+p(d.getUTCSeconds()); }
+function toUtc(u){ if(!u) return "—"; const d=new Date(u*1000),p=n=>String(n).padStart(2,"0");
+  return d.getUTCFullYear()+"-"+p(d.getUTCMonth()+1)+"-"+p(d.getUTCDate())+" "+p(d.getUTCHours())+":"+p(d.getUTCMinutes())+":"+p(d.getUTCSeconds()); }
+function bdtLocalToUnix(s){
+  if (!s) return null;
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
   if (!m) return null;
-  const ms = Date.UTC(+m[1], +m[2]-1, +m[3], +m[4], +m[5], 0);
-  return Math.floor(ms/1000) - BDT_OFFSET_MIN*60;
+  return Math.floor(Date.UTC(+m[1], +m[2]-1, +m[3], +m[4], +m[5], 0)/1000) - BDT*60;
 }
-
-/* BigInt ফরম্যাট */
 function formatUnits(v, dec){
-  const neg = v < 0n; if (neg) v = -v;
-  const base = 10n ** BigInt(dec);
-  const i = v / base, f = v % base;
-  let fs = f.toString().padStart(dec, "0").replace(/0+$/, "");
-  const is = i.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return (neg?"-":"") + is + (fs ? "." + fs.slice(0,6) : "");
+  const base = 10n ** BigInt(dec), i = v/base, f = v%base;
+  const fs = f.toString().padStart(dec,"0").replace(/0+$/,"");
+  return i.toString().replace(/\B(?=(\d{3})+(?!\d))/g,",") + (fs ? "."+fs.slice(0,4) : "");
 }
-function formatUnitsRaw(v, dec){ // কমা ছাড়া, CSV-র জন্য
-  const base = 10n ** BigInt(dec);
-  const i = v / base, f = v % base;
-  let fs = f.toString().padStart(dec, "0").replace(/0+$/, "");
-  return i.toString() + (fs ? "." + fs : "");
+function formatRaw(v, dec){
+  const base = 10n ** BigInt(dec), i = v/base, f = v%base;
+  const fs = f.toString().padStart(dec,"0").replace(/0+$/,"");
+  return i.toString() + (fs ? "."+fs : "");
 }
 function parseUnits(str, dec){
   const s = String(str).trim();
@@ -381,72 +285,53 @@ const topicToAddr = t => "0x" + t.slice(26).toLowerCase();
 const hexToBig = h => BigInt(h && h !== "0x" ? h : "0x0");
 const padAddr = a => a.toLowerCase().replace(/^0x/,"").padStart(64,"0");
 
-/* ============================================================
-   রেট লিমিটার — সেকেন্ডে সর্বোচ্চ N রিকোয়েস্ট
-   ============================================================ */
+/* ---------------- rate limiter ---------------- */
 class Limiter {
   constructor(rps){ this.rps = rps; this.tokens = rps; this.last = Date.now(); }
-  refill(){
-    const now = Date.now();
-    this.tokens = Math.min(this.rps, this.tokens + (now - this.last)/1000 * this.rps);
-    this.last = now;
-  }
   async take(n = 1){
     n = Math.min(n, this.rps);
     for(;;){
-      this.refill();
+      const now = Date.now();
+      this.tokens = Math.min(this.rps, this.tokens + (now-this.last)/1000*this.rps);
+      this.last = now;
       if (this.tokens >= n){ this.tokens -= n; return; }
-      await sleep(1000 * (n - this.tokens) / this.rps + 15);
+      await sleep(1000*(n-this.tokens)/this.rps + 15);
     }
   }
 }
 
-/* ============================================================
-   RPC পুল — চারটি কী, একটি ব্যর্থ হলে পরেরটি
-   ============================================================ */
-class RpcError extends Error {
-  constructor(msg, code){ super(msg); this.code = code; }
-}
+/* ---------------- RPC pool (৪টি কী, স্বয়ংক্রিয় ফেইলওভার) ---------------- */
+class RpcError extends Error { constructor(m, c){ super(m); this.code = c; } }
 class RpcPool {
   constructor(urls, rps){
-    this.keys = urls.map((u,i) => ({ url:u, idx:i+1, coolUntil:0, fails:0, ok:0 }));
-    this.lim = new Limiter(rps);
-    this.cursor = 0;
-    this.calls = 0;
+    this.keys = urls.map((u,i) => ({ url:u, idx:i+1, coolUntil:0, ok:0, fail:0 }));
+    this.lim = new Limiter(rps); this.cursor = 0; this.calls = 0;
   }
   pick(){
     const now = Date.now();
-    for (let i = 0; i < this.keys.length; i++){
-      const k = this.keys[(this.cursor + i) % this.keys.length];
-      if (k.coolUntil <= now){ this.cursor = (this.cursor + i + 1) % this.keys.length; return k; }
+    for (let i=0;i<this.keys.length;i++){
+      const k = this.keys[(this.cursor+i) % this.keys.length];
+      if (k.coolUntil <= now){ this.cursor = (this.cursor+i+1) % this.keys.length; return k; }
     }
-    return this.keys[this.cursor++ % this.keys.length]; // সবাই কুলডাউনে — তবু চেষ্টা
+    return this.keys[this.cursor++ % this.keys.length];
   }
   async send(payload, weight){
     const isBatch = Array.isArray(payload);
     let lastErr = null;
-    for (let attempt = 0; attempt < 6; attempt++){
-      if (STOP) throw new Error("ব্যবহারকারী থামিয়েছেন");
+    for (let attempt=0; attempt<6; attempt++){
       const k = this.pick();
       const wait = k.coolUntil - Date.now();
       if (wait > 0) await sleep(Math.min(wait, 3000));
       await this.lim.take(weight);
-      this.calls += weight;
-      $("sReq").textContent = fmtInt(this.calls);
-      try {
-        const res = await fetch(k.url, {
-          method:"POST",
-          headers:{ "Content-Type":"application/json" },
-          body: JSON.stringify(payload)
-        });
-        if (res.status === 429 || res.status === 401 || res.status === 403 || res.status >= 500){
-          k.fails++; k.coolUntil = Date.now() + (res.status === 429 ? 4000 : 12000);
-          logLine("কী #" + k.idx + " সাড়া দিচ্ছে না (HTTP " + res.status + ") → পরের কী ব্যবহার হচ্ছে", "w");
-          lastErr = new Error("HTTP " + res.status);
-          continue;
+      this.calls += weight; $("sReq").textContent = fmtInt(this.calls);
+      try{
+        const res = await fetch(k.url, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload) });
+        if (res.status===429 || res.status===401 || res.status===403 || res.status>=500){
+          k.fail++; k.coolUntil = Date.now() + (res.status===429 ? 4000 : 12000);
+          logLine("কী #"+k.idx+" সাড়া দিচ্ছে না (HTTP "+res.status+") → পরের কী", "w");
+          lastErr = new Error("HTTP "+res.status); continue;
         }
-        const data = await res.json();
-        k.ok++;
+        const data = await res.json(); k.ok++;
         if (isBatch){
           const arr = Array.isArray(data) ? data : [data];
           const byId = new Map(arr.map(r => [r.id, r]));
@@ -459,146 +344,246 @@ class RpcPool {
         }
         if (data.error) throw new RpcError(data.error.message || "RPC error", data.error.code);
         return data.result;
-      } catch (err){
-        if (err instanceof RpcError) throw err;       // লজিক্যাল ত্রুটি — কলার সামলাবে
-        if (String(err.message).includes("থামিয়েছেন")) throw err;
-        k.fails++; k.coolUntil = Date.now() + 5000;
-        lastErr = err;
-        logLine("কী #" + k.idx + " নেটওয়ার্ক সমস্যা → পরের কী ব্যবহার হচ্ছে", "w");
-        await sleep(300 * (attempt + 1));
+      } catch(err){
+        if (err instanceof RpcError) throw err;
+        k.fail++; k.coolUntil = Date.now() + 5000; lastErr = err;
+        logLine("কী #"+k.idx+" নেটওয়ার্ক সমস্যা → পরের কী", "w");
+        await sleep(300*(attempt+1));
       }
     }
-    throw lastErr || new Error("সব RPC কী ব্যর্থ হয়েছে");
+    throw lastErr || new Error("সব RPC কী ব্যর্থ");
   }
-  async call(method, params){
-    return this.send({ jsonrpc:"2.0", id: Math.floor(Math.random()*1e9), method, params }, 1);
-  }
-  async batch(items){   // items: [{method, params}]
-    const out = [];
-    const GROUP = 20;
-    for (let i = 0; i < items.length; i += GROUP){
-      const slice = items.slice(i, i + GROUP);
-      const payload = slice.map((it, j) => ({ jsonrpc:"2.0", id: i + j + 1, method: it.method, params: it.params }));
-      const res = await this.send(payload, slice.length);
-      out.push(...res);
+  call(method, params){ return this.send({jsonrpc:"2.0", id: Math.floor(Math.random()*1e9), method, params}, 1); }
+  async batch(items){
+    const out = [], G = 20;
+    for (let i=0;i<items.length;i+=G){
+      const s = items.slice(i,i+G);
+      out.push(...await this.send(s.map((it,j)=>({jsonrpc:"2.0",id:i+j+1,method:it.method,params:it.params})), s.length));
     }
     return out;
   }
 }
 
-/* ============================================================
-   চেইন হেল্পার
-   ============================================================ */
-async function ethCall(pool, to, data){
-  return pool.call("eth_call", [{ to, data }, "latest"]);
-}
+/* ---------------- chain helpers ---------------- */
+const ethCall = (pool,to,data) => pool.call("eth_call",[{to,data},"latest"]);
 function decodeString(hex){
   try{
     const b = hex.replace(/^0x/,"");
-    if (b.length === 64){ // bytes32 স্টাইল
-      const s = b.replace(/(00)+$/,"");
-      return decodeURIComponent(s.replace(/(..)/g, "%$1")).replace(/\0/g,"");
-    }
-    const len = parseInt(b.slice(64,128), 16);
-    const body = b.slice(128, 128 + len*2);
-    return decodeURIComponent(body.replace(/(..)/g, "%$1"));
-  } catch(e){ return ""; }
+    if (b.length === 64){ const s = b.replace(/(00)+$/,""); return decodeURIComponent(s.replace(/(..)/g,"%$1")).replace(/\0/g,""); }
+    const len = parseInt(b.slice(64,128),16);
+    return decodeURIComponent(b.slice(128,128+len*2).replace(/(..)/g,"%$1"));
+  }catch(e){ return ""; }
 }
 async function getTokenInfo(pool, token){
-  const [decHex, symHex] = await Promise.all([
-    ethCall(pool, token, "0x313ce567").catch(()=> "0x12"),
-    ethCall(pool, token, "0x95d89b41").catch(()=> "0x")
-  ]);
-  const decimals = Number(hexToBig(decHex)) || 18;
-  const symbol = decodeString(symHex) || "TOKEN";
-  return { decimals, symbol };
+  const [d,s] = await Promise.all([ ethCall(pool,token,"0x313ce567").catch(()=>"0x12"), ethCall(pool,token,"0x95d89b41").catch(()=>"0x") ]);
+  return { decimals: Number(hexToBig(d)) || 18, symbol: decodeString(s) || "TOKEN" };
 }
-async function getBlockTs(pool, num){
-  const b = await pool.call("eth_getBlockByNumber", ["0x" + num.toString(16), false]);
-  if (!b) throw new Error("ব্লক " + num + " পাওয়া যায়নি");
+const getBlockTs = async (pool,n) => {
+  const b = await pool.call("eth_getBlockByNumber",["0x"+n.toString(16),false]);
+  if (!b) throw new Error("ব্লক "+n+" পাওয়া যায়নি");
   return Number(hexToBig(b.timestamp));
-}
-/* টাইমস্ট্যাম্প → ব্লক নম্বর (বাইনারি সার্চ) */
-async function findBlockByTime(pool, targetTs, latest){
-  let lo = 1, hi = latest, ans = latest;
-  const loTs = await getBlockTs(pool, lo);
-  if (targetTs <= loTs) return lo;
-  const hiTs = await getBlockTs(pool, hi);
-  if (targetTs > hiTs) return latest + 1;
-  let steps = 0;
+};
+async function findBlockByTime(pool, target, latest){
+  let lo = 1, hi = latest, ans = latest, steps = 0;
+  if (target <= await getBlockTs(pool, lo)) return lo;
+  if (target >  await getBlockTs(pool, hi)) return latest + 1;
   while (lo <= hi){
-    if (STOP) throw new Error("ব্যবহারকারী থামিয়েছেন");
-    const mid = Math.floor((lo + hi) / 2);
-    const ts = await getBlockTs(pool, mid);
-    steps++;
-    if (ts >= targetTs){ ans = mid; hi = mid - 1; } else { lo = mid + 1; }
-    if (steps % 4 === 0) setStage("সময় অনুযায়ী ব্লক খোঁজা হচ্ছে… (" + steps + ")", 3 + steps);
+    const mid = Math.floor((lo+hi)/2);
+    const ts = await getBlockTs(pool, mid); steps++;
+    if (ts >= target){ ans = mid; hi = mid-1; } else lo = mid+1;
+    if (steps % 5 === 0) setStage("শুরুর ব্লক খোঁজা হচ্ছে… (ধাপ "+steps+")", 2 + steps);
   }
+  logLine("সময় → ব্লক: "+steps+" টি কলেই বেরিয়ে এসেছে", "t");
   return ans;
 }
 
 /* ============================================================
-   লগ স্ক্যান — সমান্তরাল চাঙ্ক + ভুল হলে চাঙ্ক ছোট
+   ইনজেস্ট — ট্রান্সফার আসামাত্র হিসাবের খাতায় তোলা হয়
    ============================================================ */
-async function scanLogs(pool, token, fromBlock, toBlock, chunkStart, onLogs, onProgress){
-  const total = toBlock - fromBlock + 1;
-  const CONC = 4;
-  let chunk = chunkStart;
-  let done = 0;
-  let cursor = fromBlock;
-  const retryQueue = [];   // ভাগ হয়ে যাওয়া রেঞ্জ এখানে ফেরত আসে — কোনো ব্লক বাদ পড়ে না
-
-  function nextRange(){
-    if (retryQueue.length) return retryQueue.pop();
-    if (cursor > toBlock) return null;
-    const start = cursor;
-    const end = Math.min(start + chunk - 1, toBlock);
-    cursor = end + 1;
-    return [start, end];
+function newState(cfg){
+  return Object.assign({
+    acc: new Map(),      // addr → {addr,inQty,outQty,outCount,txs[],cross}
+    reached: new Set(),  // যারা সর্বনিম্ন পরিমাণ ছুঁয়েছে
+    sold: new Set(),     // যারা ছোঁয়ার পর/আগে টোকেন ছেড়েছে
+    announced: new Set(),
+    seq: 0, logs: 0,
+    picked: [], cands: [], dropped: [],
+    phase: "scan"
+  }, cfg);
+}
+function ingest(S, t){
+  // t: {from,to,value(BigInt),block,li,hash,ts?}
+  if (t.value === 0n || t.from === t.to) return;
+  S.logs++;
+  if (t.to !== ZERO && !(S.optNoMint && t.from === ZERO)){
+    let r = S.acc.get(t.to);
+    if (!r){ r = {addr:t.to, inQty:0n, outQty:0n, outCount:0, txs:[], cross:null}; S.acc.set(t.to, r); }
+    r.inQty += t.value;
+    r.txs.push({hash:t.hash, block:t.block, li:t.li, value:t.value, from:t.from, ts:t.ts||0});
+    if (r.inQty >= S.minAmt && !S.reached.has(t.to)){
+      S.reached.add(t.to);
+      if (!S.sold.has(t.to) && !S.excludeSet.has(t.to) && !S.announced.has(t.to)){
+        S.announced.add(t.to);
+        logLine("✓ পাওয়া গেল "+short(t.to)+" — "+formatUnits(r.inQty,S.decimals)+" "+S.symbol, "s");
+      }
+    }
   }
+  if (t.from !== ZERO){
+    let r = S.acc.get(t.from);
+    if (!r){ r = {addr:t.from, inQty:0n, outQty:0n, outCount:0, txs:[], cross:null}; S.acc.set(t.from, r); }
+    r.outQty += t.value; r.outCount++;
+    if (!S.sold.has(t.from)){
+      S.sold.add(t.from);
+      if (S.reached.has(t.from) && S.announced.has(t.from)){
+        logLine("✗ বাদ "+short(t.from)+" — টোকেন বিক্রি/পাঠিয়েছে", "e");
+        S.announced.delete(t.from);
+      }
+    }
+  }
+}
+/* চলমান অবস্থায় প্রার্থী তালিকা — সস্তা, কারণ শুধু 'reached' ওয়ালেটগুলো দেখা হয় */
+function computeCandidates(S){
+  const out = [];
+  for (const a of S.reached){
+    if (S.excludeSet.has(a)) continue;
+    const r = S.acc.get(a);
+    if (!r || r.inQty < S.minAmt) continue;
+    if (S.optNoSell && r.outCount > 0) continue;
+    r.txs.sort((x,y) => x.block-y.block || x.li-y.li);
+    let run = 0n, cross = null;
+    for (const t of r.txs){ run += t.value; if (run >= S.minAmt){ cross = t; break; } }
+    if (!cross) continue;
+    r.cross = cross;
+    out.push(r);
+  }
+  out.sort((a,b) => a.cross.block-b.cross.block || a.cross.li-b.cross.li);
+  return out;
+}
+function refreshLive(S, force){
+  const now = Date.now();
+  if (!force && now - (S._lastRefresh||0) < 1200) return;
+  S._lastRefresh = now;
+  S.cands = computeCandidates(S);
+  S.picked = S.cands.slice(0, S.maxW);
+  $("sLogs").textContent   = fmtInt(S.logs);
+  $("sWallets").textContent= fmtInt(S.acc.size);
+  $("sReach").textContent  = fmtInt(S.reached.size);
+  $("sSold").textContent   = fmtInt(S.sold.size);
+  $("cQual").textContent   = S.picked.length;
+  $("cCand").textContent   = fmtInt(S.cands.length);
+  renderAll(S);
+}
 
+/* ============================================================
+   স্ক্যানার ১ — Alchemy Transfers API (দ্রুত, সময়সহ)
+   ============================================================ */
+async function scanFast(S, pool, token, fromBlock, toBlock){
+  let pageKey = null, pages = 0, lastBlock = fromBlock;
+  const span = Math.max(1, toBlock - fromBlock);
+  for(;;){
+    if (STOP) return true;
+    const p = {
+      fromBlock: "0x"+fromBlock.toString(16),
+      toBlock: "0x"+toBlock.toString(16),
+      contractAddresses: [token],
+      category: ["erc20"],
+      withMetadata: true,
+      excludeZeroValue: false,
+      order: "asc",
+      maxCount: "0x3e8"
+    };
+    if (pageKey) p.pageKey = pageKey;
+    const res = await pool.call("alchemy_getAssetTransfers", [p]);
+    const list = (res && res.transfers) || [];
+    for (const tr of list){
+      const block = Number(hexToBig(tr.blockNum));
+      const raw = tr.rawContract && tr.rawContract.value;
+      if (!raw) continue;
+      lastBlock = block;
+      ingest(S, {
+        from: (tr.from||ZERO).toLowerCase(),
+        to: (tr.to||ZERO).toLowerCase(),
+        value: hexToBig(raw),
+        block, li: S.seq++,
+        hash: tr.hash,
+        ts: tr.metadata && tr.metadata.blockTimestamp ? Math.floor(Date.parse(tr.metadata.blockTimestamp)/1000) : 0
+      });
+    }
+    pages++;
+    refreshLive(S);
+    const pct = 8 + 68 * Math.min(1, (lastBlock - fromBlock)/span);
+    setStage("ট্রান্সফার আনা হচ্ছে… পাতা "+pages+" · "+fmtInt(S.logs)+" টি", pct);
+    pageKey = res && res.pageKey;
+    if (!pageKey) break;
+  }
+  logLine("Transfers API: "+pages+" টি পাতা, "+fmtInt(S.logs)+" টি ট্রান্সফার — মোট "+pages+" টি কল", "s");
+  return false;
+}
+
+/* ============================================================
+   স্ক্যানার ২ — eth_getLogs (ফলব্যাক); নোড যত বড় রেঞ্জ দেয় ততই নেয়
+   ============================================================ */
+function suggestedRange(msg){
+  const m = String(msg).match(/\[?(0x[0-9a-fA-F]+)[^0-9a-fA-Fx]+(0x[0-9a-fA-F]+)\]?/);
+  if (!m) return null;
+  const a = Number(BigInt(m[1])), b = Number(BigInt(m[2]));
+  return (b > a && b - a < 5e7) ? (b - a + 1) : null;
+}
+async function scanLogs(S, pool, token, fromBlock, toBlock, chunkStart){
+  const total = toBlock - fromBlock + 1;
+  let chunk = chunkStart > 0 ? chunkStart : total;  // ০ = একবারে পুরোটা চাওয়া
+  let cursor = fromBlock, done = 0;
+  const queue = [];
+  const CONC = 4;
+  const nextRange = () => {
+    if (queue.length) return queue.pop();
+    if (cursor > toBlock) return null;
+    const s = cursor, e = Math.min(s + chunk - 1, toBlock);
+    cursor = e + 1; return [s, e];
+  };
   async function worker(){
     for(;;){
       if (STOP) return;
-      const range = nextRange();
-      if (!range) return;
-      const [start, end] = range;
-      let tries = 0;
+      const r = nextRange(); if (!r) return;
+      let [start, end] = r, tries = 0;
       for(;;){
         if (STOP) return;
         try{
           const logs = await pool.call("eth_getLogs", [{
-            address: token,
-            fromBlock: "0x" + start.toString(16),
-            toBlock: "0x" + end.toString(16),
-            topics: [TRANSFER_TOPIC]
+            address: token, fromBlock:"0x"+start.toString(16), toBlock:"0x"+end.toString(16), topics:[TRANSFER_TOPIC]
           }]);
-          onLogs(logs || []);
-          done += (end - start + 1);
-          onProgress(done, total);
+          for (const lg of (logs||[])) ingest(S, {
+            from: topicToAddr(lg.topics[1]), to: topicToAddr(lg.topics[2]),
+            value: hexToBig(lg.data), block: Number(hexToBig(lg.blockNumber)),
+            li: Number(hexToBig(lg.logIndex)), hash: lg.transactionHash
+          });
+          done += end - start + 1;
+          refreshLive(S);
+          setStage("লগ স্ক্যান… "+fmtInt(done)+"/"+fmtInt(total)+" ব্লক · "+fmtInt(S.logs)+" ট্রান্সফার", 8 + 62*done/total);
           break;
         } catch(err){
-          const m = (err.message || "").toLowerCase();
-          const tooBig = m.includes("range") || m.includes("limit") || m.includes("too many")
-                      || m.includes("exceed") || m.includes("large") || m.includes("timeout")
-                      || err.code === -32602 || err.code === -32005;
+          const m = (err.message||"").toLowerCase();
+          const tooBig = m.includes("range")||m.includes("limit")||m.includes("too many")||m.includes("exceed")
+                       ||m.includes("large")||m.includes("timeout")||err.code===-32602||err.code===-32005;
           tries++;
           if (tooBig && end > start){
-            const mid = start + Math.floor((end - start) / 2);
-            retryQueue.push([mid + 1, end], [start, mid]);   // দুই অর্ধেকই কিউতে ফেরত
-            chunk = Math.max(200, Math.floor(chunk / 2));
-            logLine("চাঙ্ক বড় — ছোট করা হলো (" + fmtInt(chunk) + " ব্লক)", "w");
-            break;                                           // কিউ থেকে পরের রেঞ্জ নেবে
+            const sug = suggestedRange(err.message);
+            const width = sug && sug < (end-start+1) ? sug : Math.max(200, Math.floor((end-start+1)/2));
+            chunk = Math.min(chunk, width);
+            const cut = start + width - 1;
+            if (cut < end) queue.push([cut+1, end]);
+            queue.push([start, Math.min(cut, end)]);
+            logLine("নোড ছোট রেঞ্জ চায় → "+fmtInt(width)+" ব্লক করে নেওয়া হচ্ছে", "w");
+            break;
           }
-          if (tries < 4){ await sleep(600 * tries); continue; }
+          if (tries < 4){ await sleep(600*tries); continue; }
           throw err;
         }
       }
     }
   }
-
-  await Promise.all(Array.from({length: CONC}, worker));
-  if (!STOP && done < total) throw new Error("কিছু ব্লক স্ক্যান হয়নি — আবার চালান");
+  await Promise.all(Array.from({length:CONC}, worker));
+  return STOP;
 }
 
 /* ============================================================
@@ -606,313 +591,293 @@ async function scanLogs(pool, token, fromBlock, toBlock, chunkStart, onLogs, onP
    ============================================================ */
 async function run(){
   STOP = false;
-  RESULT = null;
   $("log").innerHTML = ""; $("log").dataset.clean = "1";
   $("btnRun").disabled = true; $("btnStop").style.display = "block";
-  ["btnCsvTx","btnCsvW","btnCopy"].forEach(id => $(id).disabled = true);
-  $("tbody").innerHTML = '<tr><td colspan="5"><div class="empty">চলছে…</div></td></tr>';
+  ["btnCsvTx","btnCsvW","btnCsvOut","btnCopy"].forEach(i => $(i).disabled = true);
   $("summary").style.display = "none";
-  $("cQual").textContent = "0";
+  ["sLogs","sWallets","sReach","sSold","sReq"].forEach(i => $(i).textContent = "0");
+  $("cQual").textContent = "0"; $("cCand").textContent = "0";
+  $("phaseTag").textContent = "চলছে — লাইভ";
 
   try{
     const token = $("token").value.trim().toLowerCase();
     if (!/^0x[0-9a-f]{40}$/.test(token)) throw new Error("কন্ট্রাক্ট অ্যাড্রেস ঠিক নয়।");
-    const urls = $("rpcs").value.split("\n").map(s => s.trim()).filter(Boolean);
+    const urls = $("rpcs").value.split("\n").map(s=>s.trim()).filter(Boolean);
     if (!urls.length) throw new Error("অন্তত একটি RPC URL দিন।");
-    const rps = Math.max(1, Number($("rps").value) || 15);
-    const chunk = Math.max(200, Number($("chunk").value) || 10000);
-    const maxW = Math.max(1, Number($("maxW").value) || 100);
+    const rps = Math.max(1, Number($("rps").value)||15);
+    const chunkCfg = Math.max(0, Number($("chunk").value)||0);
+    const maxW = Math.max(1, Number($("maxW").value)||100);
     const startTs = bdtLocalToUnix($("startTime").value);
     if (!startTs) throw new Error("শুরুর সময় দিন।");
-    const endTsInput = bdtLocalToUnix($("endTime").value);
-    const excludeSet = new Set($("exclude").value.split(/[\s,]+/).map(s => s.trim().toLowerCase()).filter(s => /^0x[0-9a-f]{40}$/.test(s)));
+    const endTsIn = bdtLocalToUnix($("endTime").value);
+    const excludeSet = new Set($("exclude").value.split(/[\s,]+/).map(s=>s.trim().toLowerCase()).filter(s=>/^0x[0-9a-f]{40}$/.test(s)));
     excludeSet.add(ZERO); excludeSet.add(token);
-    const optNoSell = $("optNoSell").checked;
-    const optBalance = $("optBalance").checked;
-    const optNoContract = $("optNoContract").checked;
-    const optNoMint = $("optNoMint").checked;
+    const mode = $("mode").value;
     const explorer = $("explorer").value.trim().replace(/\/+$/,"");
     $("cCap").textContent = "/ " + maxW;
 
     const pool = new RpcPool(urls, rps);
 
-    /* ---- ধাপ ১: টোকেন তথ্য ---- */
     setStage("টোকেনের তথ্য নেওয়া হচ্ছে…", 1);
     const info = await getTokenInfo(pool, token);
-    const minAmt = parseUnits($("minAmt").value || "0", info.decimals);
-    logLine("টোকেন: " + info.symbol + " · decimals " + info.decimals, "s");
-    logLine("শর্ত: " + $("minAmt").value + " " + info.symbol + " বা বেশি, " + toBdtString(startTs) + " (BDT) থেকে");
+    const minAmt = parseUnits($("minAmt").value||"0", info.decimals);
+    logLine("টোকেন "+info.symbol+" · decimals "+info.decimals, "s");
+    logLine("শর্ত: "+$("minAmt").value+" "+info.symbol+"+ , "+toBdt(startTs)+" (BDT) থেকে, এখনো হোল্ড", "t");
 
-    /* ---- ধাপ ২: ব্লক রেঞ্জ ---- */
-    const latest = Number(hexToBig(await pool.call("eth_blockNumber", [])));
-    setStage("সময় অনুযায়ী শুরুর ব্লক খোঁজা হচ্ছে…", 3);
+    const latest = Number(hexToBig(await pool.call("eth_blockNumber",[])));
+    setStage("শুরুর ব্লক খোঁজা হচ্ছে…", 2);
     const fromBlock = await findBlockByTime(pool, startTs, latest);
     let toBlock = latest;
-    if (endTsInput){
-      const b = await findBlockByTime(pool, endTsInput, latest);
-      toBlock = Math.max(fromBlock, Math.min(latest, b - 1));
-    }
+    if (endTsIn){ const b = await findBlockByTime(pool, endTsIn, latest); toBlock = Math.max(fromBlock, Math.min(latest, b-1)); }
     if (fromBlock > toBlock) throw new Error("এই সময়সীমায় কোনো ব্লক নেই।");
-    logLine("ব্লক রেঞ্জ: " + fmtInt(fromBlock) + " → " + fmtInt(toBlock) + "  (" + fmtInt(toBlock-fromBlock+1) + " ব্লক)", "s");
+    logLine("ব্লক "+fmtInt(fromBlock)+" → "+fmtInt(toBlock)+" ("+fmtInt(toBlock-fromBlock+1)+" ব্লক)", "s");
 
-    /* ---- ধাপ ৩: ট্রান্সফার লগ স্ক্যান ---- */
-    setStage("ট্রান্সফার লগ স্ক্যান হচ্ছে…", 8);
-    const all = [];
-    let logCount = 0, blockDone = 0;
-    await scanLogs(pool, token, fromBlock, toBlock, chunk, (logs) => {
-      for (const lg of logs){
-        all.push({
-          from: topicToAddr(lg.topics[1]),
-          to: topicToAddr(lg.topics[2]),
-          value: hexToBig(lg.data),
-          block: Number(hexToBig(lg.blockNumber)),
-          li: Number(hexToBig(lg.logIndex)),
-          hash: lg.transactionHash
-        });
-      }
-      logCount += logs.length;
-      $("sLogs").textContent = fmtInt(logCount);
-    }, (done, total) => {
-      blockDone = done;
-      $("sBlocks").textContent = fmtInt(done);
-      setStage("ট্রান্সফার লগ স্ক্যান হচ্ছে… " + fmtInt(done) + " / " + fmtInt(total) + " ব্লক", 8 + 62 * done / total);
+    const S = newState({
+      minAmt, maxW, excludeSet, explorer,
+      decimals: info.decimals, symbol: info.symbol, token,
+      optNoSell: $("optNoSell").checked, optBalance: $("optBalance").checked,
+      optNoContract: $("optNoContract").checked, optNoMint: $("optNoMint").checked,
+      window:{startTs, endTs:endTsIn, fromBlock, toBlock}, hasTs: false
     });
-    if (STOP) throw new Error("ব্যবহারকারী থামিয়েছেন");
-    logLine("মোট " + fmtInt(all.length) + " টি ট্রান্সফার পাওয়া গেছে", "s");
+    STATE = S;
 
-    /* ---- ধাপ ৪: ওয়ালেট হিসাব ---- */
-    setStage("ওয়ালেট অনুযায়ী হিসাব করা হচ্ছে…", 72);
-    all.sort((a,b) => a.block - b.block || a.li - b.li);
-    const acc = new Map(); // addr → রেকর্ড
-    const rec = a => {
-      let r = acc.get(a);
-      if (!r){ r = { addr:a, inQty:0n, outQty:0n, outCount:0, txs:[], cross:null }; acc.set(a, r); }
-      return r;
-    };
-    for (const t of all){
-      if (t.value === 0n) continue;
-      if (t.to !== ZERO && t.to !== t.from){
-        if (!(optNoMint && t.from === ZERO)){
-          const r = rec(t.to);
-          r.inQty += t.value;
-          r.txs.push({ hash:t.hash, block:t.block, li:t.li, value:t.value, from:t.from });
-          if (!r.cross && r.inQty >= minAmt) r.cross = { block:t.block, li:t.li, hash:t.hash };
-        }
-      }
-      if (t.from !== ZERO && t.to !== t.from){
-        const r = rec(t.from);
-        r.outQty += t.value;
-        r.outCount++;
+    /* ---- স্ক্যান ---- */
+    let usedFast = false;
+    if (mode === "fast" || mode === "auto"){
+      try{
+        $("modeTag").textContent = "Transfers API";
+        setStage("ট্রান্সফার আনা হচ্ছে…", 8);
+        await scanFast(S, pool, token, fromBlock, toBlock);
+        usedFast = true; S.hasTs = true;
+      } catch(err){
+        if (mode === "fast") throw err;
+        logLine("Transfers API চলল না ("+(err.message||err)+") → eth_getLogs দিয়ে চেষ্টা", "w");
+        S.acc.clear(); S.reached.clear(); S.sold.clear(); S.announced.clear(); S.logs = 0;
       }
     }
-    $("sWallets").textContent = fmtInt(acc.size);
-    logLine(fmtInt(acc.size) + " টি ওয়ালেট এই সময়ে টোকেন পেয়েছে");
-
-    /* ---- ধাপ ৫: প্রার্থী বাছাই ---- */
-    let cands = [];
-    for (const r of acc.values()){
-      if (excludeSet.has(r.addr)) continue;
-      if (r.inQty < minAmt) continue;
-      if (optNoSell && r.outCount > 0) continue;
-      if (!r.cross) continue;
-      cands.push(r);
+    if (!usedFast){
+      $("modeTag").textContent = "eth_getLogs";
+      setStage("লগ স্ক্যান শুরু…", 8);
+      await scanLogs(S, pool, token, fromBlock, toBlock, chunkCfg);
     }
-    cands.sort((a,b) => a.cross.block - b.cross.block || a.cross.li - b.cross.li);
-    logLine(fmtInt(cands.length) + " টি ওয়ালেট শর্ত পূরণ করেছে (সময় অনুযায়ী সাজানো)", "s");
+    if (STOP) logLine("স্ক্যান থামানো হলো — এ পর্যন্ত পাওয়া তথ্য দিয়েই ফল তৈরি হচ্ছে", "w");
 
-    /* ---- ধাপ ৬: ব্যালেন্স + কন্ট্রাক্ট যাচাই, প্রথম N নেওয়া ---- */
-    setStage("ব্যালেন্স ও অ্যাড্রেস যাচাই হচ্ছে…", 78);
-    const picked = [];
-    let dropBal = 0, dropCode = 0, cursor = 0;
-    const GROUP = 20;
-    while (cursor < cands.length && picked.length < maxW){
-      if (STOP) throw new Error("ব্যবহারকারী থামিয়েছেন");
-      const slice = cands.slice(cursor, cursor + GROUP);
-      cursor += slice.length;
+    refreshLive(S, true);
+    S.phase = "verify"; $("phaseTag").textContent = "যাচাই চলছে";
+    logLine(fmtInt(S.cands.length)+" টি ওয়ালেট শর্ত পূরণ করেছে — এবার ব্যালেন্স ও ধরন যাচাই", "s");
+
+    /* ---- যাচাই: ব্যালেন্স + কন্ট্রাক্ট, সময় অনুযায়ী ক্রমে ---- */
+    setStage("ব্যালেন্স ও অ্যাড্রেস যাচাই…", 80);
+    const picked = [], dropped = [];
+    let cur = 0, G = 20;
+    while (cur < S.cands.length && picked.length < maxW){
+      const slice = S.cands.slice(cur, cur+G); cur += slice.length;
       let bals = null, codes = null;
-      if (optBalance){
-        bals = await pool.batch(slice.map(r => ({
-          method:"eth_call",
-          params:[{ to: token, data: "0x70a08231" + padAddr(r.addr) }, "latest"]
-        })));
-      }
-      if (optNoContract){
-        codes = await pool.batch(slice.map(r => ({ method:"eth_getCode", params:[r.addr, "latest"] })));
-      }
-      for (let i = 0; i < slice.length && picked.length < maxW; i++){
+      if (S.optBalance) bals = await pool.batch(slice.map(r => ({method:"eth_call", params:[{to:token, data:"0x70a08231"+padAddr(r.addr)}, "latest"]})));
+      if (S.optNoContract) codes = await pool.batch(slice.map(r => ({method:"eth_getCode", params:[r.addr,"latest"]})));
+      for (let i=0;i<slice.length && picked.length<maxW;i++){
         const r = slice[i];
-        if (codes){
-          const c = codes[i];
-          if (c && c !== "0x" && c !== "0x0"){ dropCode++; continue; }
+        if (codes && codes[i] && codes[i] !== "0x" && codes[i] !== "0x0"){
+          r.reason = "কন্ট্রাক্ট অ্যাড্রেস"; dropped.push(r);
+          logLine("✗ বাদ "+short(r.addr)+" — কন্ট্রাক্ট (pool/router)", "e"); continue;
         }
         if (bals){
           r.balance = hexToBig(bals[i]);
-          if (r.balance < minAmt || r.balance < r.inQty){ dropBal++; continue; }
+          if (r.balance < minAmt || r.balance < r.inQty){
+            r.reason = "এখন ব্যালেন্স কম ("+formatUnits(r.balance,info.decimals)+")"; dropped.push(r);
+            logLine("✗ বাদ "+short(r.addr)+" — ব্যালেন্স এখন "+formatUnits(r.balance,info.decimals), "e"); continue;
+          }
         }
         picked.push(r);
         $("cQual").textContent = picked.length;
+        logLine("#"+picked.length+"  "+r.addr+"  "+formatUnits(r.inQty,info.decimals)+" "+info.symbol, "s");
       }
-      setStage("ব্যালেন্স ও অ্যাড্রেস যাচাই হচ্ছে… " + picked.length + "/" + maxW, 78 + 14 * Math.min(1, cursor/Math.max(1,cands.length)));
+      S.picked = picked; S.dropped = dropped;
+      renderAll(S);
+      setStage("যাচাই… "+picked.length+"/"+maxW, 80 + 14*Math.min(1, cur/Math.max(1,S.cands.length)));
     }
-    if (dropCode) logLine(dropCode + " টি কন্ট্রাক্ট অ্যাড্রেস বাদ দেওয়া হয়েছে", "w");
-    if (dropBal) logLine(dropBal + " টি ওয়ালেটে এখন পর্যাপ্ত ব্যালেন্স নেই — বাদ", "w");
-
-    /* ---- ধাপ ৭: সময় আনা ---- */
-    setStage("ট্রানজেকশনের সময় আনা হচ্ছে…", 94);
-    const blocks = new Set();
-    picked.forEach(r => r.txs.forEach(t => blocks.add(t.block)));
-    const bl = [...blocks];
-    const tsMap = new Map();
-    for (let i = 0; i < bl.length; i += 20){
-      if (STOP) throw new Error("ব্যবহারকারী থামিয়েছেন");
-      const slice = bl.slice(i, i + 20);
-      const res = await pool.batch(slice.map(n => ({ method:"eth_getBlockByNumber", params:["0x" + n.toString(16), false] })));
-      res.forEach((b, j) => { if (b) tsMap.set(slice[j], Number(hexToBig(b.timestamp))); });
+    // বিক্রি করে দেওয়া ওয়ালেটগুলোও "বাদ পড়া" তালিকায় থাকবে
+    for (const a of S.reached){
+      if (S.excludeSet.has(a)) continue;
+      const r = S.acc.get(a);
+      if (r && r.outCount > 0){ r.reason = "টোকেন বিক্রি/ট্রান্সফার করেছে"; dropped.push(r); }
     }
-    picked.forEach(r => {
-      r.txs.forEach(t => t.ts = tsMap.get(t.block) || 0);
-      r.crossTs = tsMap.get(r.cross.block) || 0;
-      r.firstTs = r.txs.length ? r.txs[0].ts : 0;
-    });
+    S.picked = picked; S.dropped = dropped;
 
-    RESULT = { wallets: picked, token: { addr: token, ...info }, explorer,
-               window: { startTs, endTs: endTsInput, fromBlock, toBlock },
-               totalCandidates: cands.length, minAmt };
-    render(RESULT);
-    setStage("সম্পন্ন — " + picked.length + " টি ওয়ালেট পাওয়া গেছে।", 100);
-    logLine("সম্পন্ন। " + picked.length + " টি ওয়ালেট তালিকায় এসেছে।", "s");
+    /* ---- সময় (getLogs মোডে দরকার হয়) ---- */
+    if (!S.hasTs && picked.length){
+      setStage("ট্রানজেকশনের সময় আনা হচ্ছে…", 95);
+      const blocks = new Set(); picked.forEach(r => r.txs.forEach(t => blocks.add(t.block)));
+      const bl = [...blocks], tsMap = new Map();
+      for (let i=0;i<bl.length;i+=20){
+        const s = bl.slice(i,i+20);
+        const res = await pool.batch(s.map(n => ({method:"eth_getBlockByNumber", params:["0x"+n.toString(16), false]})));
+        res.forEach((b,j) => { if (b) tsMap.set(s[j], Number(hexToBig(b.timestamp))); });
+      }
+      picked.forEach(r => r.txs.forEach(t => t.ts = tsMap.get(t.block) || 0));
+    }
+    picked.forEach(r => { r.crossTs = r.cross.ts || 0; r.firstTs = r.txs.length ? r.txs[0].ts : 0; });
+
+    S.phase = "done"; $("phaseTag").textContent = "সম্পন্ন";
+    renderAll(S); showSummary(S);
+    ["btnCsvTx","btnCsvW","btnCsvOut","btnCopy"].forEach(i => $(i).disabled = false);
+    setStage("সম্পন্ন — "+picked.length+" টি ওয়ালেট।", 100);
+    logLine("শেষ। তালিকাভুক্ত "+picked.length+" · শর্তপূরণকারী মোট "+S.cands.length, "s");
 
   } catch(err){
-    logLine("থেমে গেছে: " + (err.message || err), "e");
-    setStage("থেমে গেছে — " + (err.message || err));
+    logLine("থেমে গেছে: "+(err.message||err), "e");
+    setStage("থেমে গেছে — "+(err.message||err));
+    $("phaseTag").textContent = "ত্রুটি";
+    if (STATE && STATE.picked && STATE.picked.length) ["btnCsvTx","btnCsvW","btnCopy"].forEach(i => $(i).disabled = false);
   } finally {
-    $("btnRun").disabled = false;
-    $("btnStop").style.display = "none";
+    $("btnRun").disabled = false; $("btnStop").style.display = "none";
   }
 }
 
 /* ============================================================
-   ফলাফল দেখানো
+   টেবিল — তিনটি ভিউ: তালিকাভুক্ত / সব শর্তপূরণকারী / বাদ পড়া
    ============================================================ */
-function render(R){
-  const tb = $("tbody");
-  tb.innerHTML = "";
-  if (!R.wallets.length){
-    tb.innerHTML = '<tr><td colspan="5"><div class="empty">শর্ত পূরণ করে এমন কোনো ওয়ালেট পাওয়া যায়নি।</div></td></tr>';
-    return;
-  }
-  const dec = R.token.decimals;
-  R.wallets.forEach((r, i) => {
-    const tr = document.createElement("tr");
-    const txs = r.txs.map(t =>
-      '<li><a href="' + R.explorer + '/tx/' + t.hash + '" target="_blank" rel="noopener">' +
-      t.hash.slice(0,12) + "…" + t.hash.slice(-8) + '</a> · ' + formatUnits(t.value, dec) +
-      ' · ' + toBdtString(t.ts) + '</li>').join("");
-    tr.innerHTML =
-      '<td class="rank">' + (i+1) + '</td>' +
-      '<td class="mono"><a href="' + R.explorer + '/address/' + r.addr + '" target="_blank" rel="noopener">' + r.addr + '</a>' +
-        (r.balance !== undefined ? '<br><span class="pill">ব্যালেন্স ' + formatUnits(r.balance, dec) + '</span>' : '') + '</td>' +
-      '<td class="mono">' + formatUnits(r.inQty, dec) + '</td>' +
-      '<td class="mono">' + toBdtString(r.crossTs) + '</td>' +
-      '<td><ul class="txlist">' + txs + '</ul></td>';
-    tb.appendChild(tr);
-  });
-  $("cQual").textContent = R.wallets.length;
-  const s = $("summary");
-  s.style.display = "block";
-  s.innerHTML = "শর্ত পূরণকারী মোট ওয়ালেট: <b>" + fmtInt(R.totalCandidates) + "</b> · তালিকায় নেওয়া হয়েছে প্রথম <b>" +
-    R.wallets.length + "</b> জন (যোগ্য হওয়ার সময় অনুযায়ী)। সময়সীমা: " + toBdtString(R.window.startTs) + " BDT থেকে " +
-    (R.window.endTs ? toBdtString(R.window.endTs) + " BDT" : "এখন") + "।";
-  ["btnCsvTx","btnCsvW","btnCopy"].forEach(id => $(id).disabled = false);
+function txCell(S, r, limit){
+  const list = r.txs.slice(0, limit || 6).map(t =>
+    '<li><a href="'+S.explorer+'/tx/'+t.hash+'" target="_blank" rel="noopener">'+t.hash.slice(0,10)+"…"+t.hash.slice(-6)+'</a> · '
+    + formatUnits(t.value,S.decimals) + (t.ts ? ' · '+toBdt(t.ts) : ' · ব্লক '+fmtInt(t.block)) + '</li>').join("");
+  const more = r.txs.length > (limit||6) ? '<li>+ আরও '+(r.txs.length-(limit||6))+' টি</li>' : '';
+  return '<ul class="txlist">'+list+more+'</ul>';
 }
+function renderAll(S){
+  $("tabPicked").textContent = "তালিকাভুক্ত ("+(S.picked?S.picked.length:0)+")";
+  $("tabAll").textContent    = "সব শর্তপূরণকারী ("+(S.cands?S.cands.length:0)+")";
+  $("tabOut").textContent    = "বাদ পড়া ("+(S.dropped?S.dropped.length:0)+")";
+  const th = $("thead"), tb = $("tbody");
+  let rows = [], head = "";
+
+  if (VIEW === "out"){
+    head = '<tr><th style="width:40px">#</th><th>ওয়ালেট</th><th style="width:120px">কেনা</th><th style="width:150px">বাদ পড়ার কারণ</th><th style="width:90px">পাঠিয়েছে</th></tr>';
+    rows = (S.dropped||[]).map((r,i) =>
+      '<tr><td class="rank">'+(i+1)+'</td>'+
+      '<td class="mono"><a href="'+S.explorer+'/address/'+r.addr+'" target="_blank" rel="noopener">'+r.addr+'</a></td>'+
+      '<td class="mono">'+formatUnits(r.inQty,S.decimals)+'</td>'+
+      '<td><span class="pill no">'+(r.reason||"—")+'</span></td>'+
+      '<td class="mono">'+(r.outCount?formatUnits(r.outQty,S.decimals):"—")+'</td></tr>');
+  } else {
+    const list = VIEW === "all" ? (S.cands||[]) : (S.picked||[]);
+    head = '<tr><th style="width:40px">#</th><th>ওয়ালেট</th><th style="width:118px">মোট কেনা</th><th style="width:88px">লেনদেন</th><th style="width:150px">যোগ্য হওয়ার সময় (BDT)</th><th>ট্রানজেকশন</th></tr>';
+    rows = list.slice(0, 600).map((r,i) => {
+      const inPicked = VIEW==="all" && i < S.maxW;
+      const ts = r.cross ? (r.cross.ts||r.crossTs||0) : 0;
+      return '<tr><td class="rank">'+(i+1)+'</td>'+
+        '<td class="mono"><a href="'+S.explorer+'/address/'+r.addr+'" target="_blank" rel="noopener">'+r.addr+'</a>'+
+          (r.balance!==undefined ? ' <span class="pill ok">ব্যালেন্স '+formatUnits(r.balance,S.decimals)+'</span>' : '')+
+          (VIEW==="all" ? (inPicked?' <span class="pill ok">তালিকায়</span>':' <span class="pill wait">১০০-র বাইরে</span>') : '')+
+        '</td>'+
+        '<td class="mono">'+formatUnits(r.inQty,S.decimals)+'</td>'+
+        '<td class="mono">'+r.txs.length+'</td>'+
+        '<td class="mono">'+(ts?toBdt(ts):'ব্লক '+fmtInt(r.cross?r.cross.block:0))+'</td>'+
+        '<td>'+txCell(S,r)+'</td></tr>';
+    });
+  }
+  th.innerHTML = head;
+  tb.innerHTML = rows.length ? rows.join("") :
+    '<tr><td colspan="6"><div class="empty">'+(S.phase==="scan"?"খোঁজা চলছে… পাওয়ামাত্র এখানে দেখা যাবে।":"এই তালিকায় কিছু নেই।")+'</div></td></tr>';
+  $("liveNote").textContent = S.phase === "scan"
+    ? "লাইভ — স্ক্যান চলাকালে তালিকা বদলাতে পারে; শেষে ব্যালেন্স যাচাই করে চূড়ান্ত হবে।"
+    : (S.phase === "verify" ? "ব্যালেন্স ও কন্ট্রাক্ট যাচাই চলছে…" : "");
+}
+function showSummary(S){
+  const s = $("summary"); s.style.display = "block";
+  s.innerHTML = "সময়সীমা <b>"+toBdt(S.window.startTs)+"</b> থেকে <b>"+(S.window.endTs?toBdt(S.window.endTs):"এখন")+"</b> (BDT) · ব্লক "
+    + fmtInt(S.window.fromBlock)+"–"+fmtInt(S.window.toBlock)+" · মোট ট্রান্সফার "+fmtInt(S.logs)
+    + " · শর্ত পূরণ করেছে <b>"+fmtInt(S.cands.length)+"</b> টি ওয়ালেট, সময় অনুযায়ী প্রথম <b>"+S.picked.length+"</b> জন তালিকাভুক্ত।";
+}
+document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("on"));
+  b.classList.add("on"); VIEW = b.dataset.view;
+  if (STATE) renderAll(STATE);
+}));
 
 /* ============================================================
    CSV
    ============================================================ */
-function csvCell(v){
-  const s = String(v ?? "");
-  return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
-}
+const csvCell = v => { const s = String(v ?? ""); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; };
 function download(name, rows){
-  const csv = rows.map(r => r.map(csvCell).join(",")).join("\r\n");
-  const blob = new Blob(["\uFEFF" + csv], { type:"text/csv;charset=utf-8;" });
+  const blob = new Blob(["\uFEFF" + rows.map(r => r.map(csvCell).join(",")).join("\r\n")], {type:"text/csv;charset=utf-8;"});
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = name;
+  a.href = URL.createObjectURL(blob); a.download = name;
   document.body.appendChild(a); a.click();
-  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
 }
-function stamp(){
-  const d = new Date();
-  const p = n => String(n).padStart(2,"0");
-  return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"-"+p(d.getHours())+p(d.getMinutes());
-}
+function stamp(){ const d=new Date(),p=n=>String(n).padStart(2,"0"); return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"-"+p(d.getHours())+p(d.getMinutes()); }
 function csvTx(){
-  const R = RESULT; if (!R) return;
-  const dec = R.token.decimals;
-  const rows = [["rank","wallet_address","tx_hash","amount_" + R.token.symbol,"time_bdt","time_utc","block","from_address","tx_link"]];
-  R.wallets.forEach((r,i) => r.txs.forEach(t => rows.push([
-    i+1, r.addr, t.hash, formatUnitsRaw(t.value, dec), toBdtString(t.ts), toUtcString(t.ts), t.block, t.from,
-    R.explorer + "/tx/" + t.hash
+  const S = STATE; if (!S) return;
+  const rows = [["rank","wallet_address","tx_hash","amount_"+S.symbol,"time_bdt","time_utc","block","from_address","tx_link"]];
+  S.picked.forEach((r,i) => r.txs.forEach(t => rows.push([
+    i+1, r.addr, t.hash, formatRaw(t.value,S.decimals), toBdt(t.ts), toUtc(t.ts), t.block, t.from, S.explorer+"/tx/"+t.hash
   ])));
-  download(R.token.symbol.toLowerCase() + "-holders-transactions-" + stamp() + ".csv", rows);
+  download(S.symbol.toLowerCase()+"-holders-transactions-"+stamp()+".csv", rows);
 }
 function csvWallet(){
-  const R = RESULT; if (!R) return;
-  const dec = R.token.decimals;
-  const rows = [["rank","wallet_address","total_bought_" + R.token.symbol,"current_balance","tx_count","first_buy_time_bdt","qualified_time_bdt","tx_hashes","tx_links","wallet_link"]];
-  R.wallets.forEach((r,i) => rows.push([
-    i+1, r.addr, formatUnitsRaw(r.inQty, dec),
-    r.balance !== undefined ? formatUnitsRaw(r.balance, dec) : "",
-    r.txs.length, toBdtString(r.firstTs), toBdtString(r.crossTs),
-    r.txs.map(t => t.hash).join(" | "),
-    r.txs.map(t => R.explorer + "/tx/" + t.hash).join(" | "),
-    R.explorer + "/address/" + r.addr
+  const S = STATE; if (!S) return;
+  const rows = [["rank","wallet_address","total_bought_"+S.symbol,"current_balance","tx_count","first_buy_time_bdt","qualified_time_bdt","tx_hashes","tx_links","wallet_link"]];
+  S.picked.forEach((r,i) => rows.push([
+    i+1, r.addr, formatRaw(r.inQty,S.decimals),
+    r.balance!==undefined ? formatRaw(r.balance,S.decimals) : "",
+    r.txs.length, toBdt(r.firstTs||(r.txs[0]&&r.txs[0].ts)), toBdt(r.crossTs||(r.cross&&r.cross.ts)),
+    r.txs.map(t=>t.hash).join(" | "), r.txs.map(t=>S.explorer+"/tx/"+t.hash).join(" | "),
+    S.explorer+"/address/"+r.addr
   ]));
-  download(R.token.symbol.toLowerCase() + "-holders-wallets-" + stamp() + ".csv", rows);
+  download(S.symbol.toLowerCase()+"-holders-wallets-"+stamp()+".csv", rows);
+}
+function csvDropped(){
+  const S = STATE; if (!S) return;
+  const rows = [["wallet_address","total_bought_"+S.symbol,"sent_out","tx_count","drop_reason","wallet_link"]];
+  (S.dropped||[]).forEach(r => rows.push([
+    r.addr, formatRaw(r.inQty,S.decimals), formatRaw(r.outQty,S.decimals), r.txs.length, r.reason||"", S.explorer+"/address/"+r.addr
+  ]));
+  download(S.symbol.toLowerCase()+"-dropped-"+stamp()+".csv", rows);
 }
 async function copyAddrs(){
-  if (!RESULT) return;
-  const text = RESULT.wallets.map(r => r.addr).join("\n");
-  try { await navigator.clipboard.writeText(text); logLine("অ্যাড্রেস কপি হয়েছে (" + RESULT.wallets.length + " টি)", "s"); }
+  if (!STATE) return;
+  const list = (VIEW==="all" ? STATE.cands : VIEW==="out" ? STATE.dropped : STATE.picked).map(r=>r.addr).join("\n");
+  try{ await navigator.clipboard.writeText(list); logLine("অ্যাড্রেস কপি হয়েছে", "s"); }
   catch(e){ logLine("কপি করা যায়নি — টেবিল থেকে নিন", "e"); }
 }
 
 /* ============================================================
-   কানেকশন টেস্ট
+   কানেকশন পরীক্ষা
    ============================================================ */
 async function testConn(){
   $("log").innerHTML = ""; $("log").dataset.clean = "1";
-  const urls = $("rpcs").value.split("\n").map(s => s.trim()).filter(Boolean);
+  const urls = $("rpcs").value.split("\n").map(s=>s.trim()).filter(Boolean);
   const token = $("token").value.trim().toLowerCase();
-  STOP = false;
-  for (let i = 0; i < urls.length; i++){
-    const p = new RpcPool([urls[i]], Number($("rps").value) || 15);
+  const rps = Number($("rps").value)||15;
+  for (let i=0;i<urls.length;i++){
     try{
-      const bn = Number(hexToBig(await p.call("eth_blockNumber", [])));
-      const cid = Number(hexToBig(await p.call("eth_chainId", [])));
-      logLine("কী #" + (i+1) + " ঠিক আছে · chain " + cid + " · ব্লক " + fmtInt(bn), "s");
-    } catch(e){
-      logLine("কী #" + (i+1) + " কাজ করছে না: " + (e.message || e), "e");
-    }
+      const p = new RpcPool([urls[i]], rps);
+      const bn = Number(hexToBig(await p.call("eth_blockNumber",[])));
+      const cid = Number(hexToBig(await p.call("eth_chainId",[])));
+      logLine("কী #"+(i+1)+" ঠিক আছে · chain "+cid+" · ব্লক "+fmtInt(bn), "s");
+    }catch(e){ logLine("কী #"+(i+1)+" কাজ করছে না: "+(e.message||e), "e"); }
   }
+  const p = new RpcPool(urls, rps);
   try{
-    const p = new RpcPool(urls, Number($("rps").value) || 15);
     const info = await getTokenInfo(p, token);
-    logLine("টোকেন পাওয়া গেছে: " + info.symbol + " · decimals " + info.decimals, "s");
-  } catch(e){
-    logLine("টোকেন পড়া যায়নি: " + (e.message || e), "e");
-  }
+    logLine("টোকেন: "+info.symbol+" · decimals "+info.decimals, "s");
+  }catch(e){ logLine("টোকেন পড়া যায়নি: "+(e.message||e), "e"); }
+  try{
+    const bn = Number(hexToBig(await p.call("eth_blockNumber",[])));
+    await p.call("alchemy_getAssetTransfers",[{fromBlock:"0x"+Math.max(0,bn-500).toString(16), toBlock:"0x"+bn.toString(16),
+      contractAddresses:[token], category:["erc20"], withMetadata:true, maxCount:"0x5", order:"desc"}]);
+    logLine("Transfers API সমর্থিত — দ্রুত মোড ব্যবহার করা যাবে", "s");
+  }catch(e){ logLine("Transfers API নেই ("+(e.message||e)+") — eth_getLogs মোড চলবে", "w"); }
 }
 
-/* ============================================================
-   ইভেন্ট
-   ============================================================ */
+/* ---------------- events ---------------- */
 $("btnRun").addEventListener("click", run);
-$("btnStop").addEventListener("click", () => { STOP = true; logLine("থামানোর অনুরোধ পাঠানো হয়েছে…", "w"); });
+$("btnStop").addEventListener("click", () => { STOP = true; logLine("থামানোর অনুরোধ — এ পর্যন্ত পাওয়া ওয়ালেট নিয়েই ফল তৈরি হবে", "w"); });
 $("btnTest").addEventListener("click", testConn);
 $("btnCsvTx").addEventListener("click", csvTx);
 $("btnCsvW").addEventListener("click", csvWallet);
+$("btnCsvOut").addEventListener("click", csvDropped);
 $("btnCopy").addEventListener("click", copyAddrs);
 </script>
 </body>
