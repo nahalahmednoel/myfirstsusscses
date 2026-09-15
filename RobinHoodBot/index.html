@@ -3,26 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HoodLust — Auto Mint OS</title>
+<title>HoodLust Auto Mint OS</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 <style>
   /* ============================================================
      HoodLust — Windows 1990s pixel theme
-     Private Key Build: Automates transactions for multi-wallet
-     without needing manual wallet confirmations.
+     Private Key Multi-Wallet Auto-Mint Engine
      ============================================================ */
   :root{
-    --gray:#c0c0c0;          
-    --gray-dark:#808080;     
-    --gray-darker:#404040;   
-    --white:#ffffff;         
-    --navy:#000080;          
-    --navy2:#1084d0;         
-    --teal:#008080;          
+    --gray:#c0c0c0;          /* classic win95 face */
+    --gray-dark:#808080;     /* shadow */
+    --gray-darker:#404040;   /* deep shadow */
+    --white:#ffffff;         /* highlight */
+    --navy:#000080;          /* title bar */
+    --navy2:#1084d0;         /* title bar gradient */
+    --teal:#008080;          /* desktop */
     --black:#000000;
-    --acid:#00ff66;          
-    --lust:#ff2fb0;          
+    --acid:#00ff66;          /* pixel-green accent for the mint glow */
+    --lust:#ff2fb0;          /* HoodLust hot-pink accent */
     --amber:#ffb000;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -43,6 +42,7 @@
   }
   .pix{font-family:'Press Start 2P',monospace;}
 
+  /* ---- Bevels ---- */
   .bevel-out{border:2px solid;border-color:var(--white) var(--gray-darker) var(--gray-darker) var(--white);
     box-shadow:inset 1px 1px 0 var(--gray),inset -1px -1px 0 var(--gray-dark);}
   .bevel-in{border:2px solid;border-color:var(--gray-darker) var(--white) var(--white) var(--gray-darker);
@@ -62,15 +62,17 @@
   label{display:block;font-size:17px;margin-bottom:3px;color:#000;}
   a{color:var(--navy);}
 
+  /* ---- Desktop icons ---- */
   #desktop{position:absolute;inset:0;padding:14px;}
   #circuit{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none;image-rendering:auto;}
   .desk-icons{position:relative;z-index:1;display:flex;flex-direction:column;flex-wrap:wrap;gap:6px;height:calc(100% - 46px);align-content:flex-start;}
   .desk-icon{width:92px;text-align:center;color:#fff;cursor:pointer;padding:6px 4px;user-select:none;
     text-shadow:1px 1px 0 #000;}
   .desk-icon:hover .glyph,.desk-icon.sel .glyph{outline:1px dotted #fff;background:rgba(0,0,128,.4);}
-  .desk-icon .glyph{font-size:30px;line-height:44px;display:block;margin:0 auto 4px;width:46px;height:46px;}
+  .desk-icon .glyph{display:flex;align-items:center;justify-content:center;margin:0 auto 4px;width:46px;height:46px;}
   .desk-icon span{font-size:16px;}
 
+  /* ---- Windows ---- */
   .window{position:absolute;background:var(--gray);min-width:280px;
     border:2px solid;border-color:var(--white) var(--gray-darker) var(--gray-darker) var(--white);
     box-shadow:inset 1px 1px 0 var(--gray),2px 2px 0 rgba(0,0,0,.4);display:none;flex-direction:column;z-index:10;}
@@ -85,6 +87,7 @@
   .menubar{display:flex;gap:14px;padding:2px 8px;border-bottom:1px solid var(--gray-dark);font-size:17px;background:var(--gray);}
   .menubar span{cursor:default;}.menubar u{text-decoration:underline;}
 
+  /* ---- Taskbar ---- */
   #taskbar{position:absolute;left:0;right:0;bottom:0;height:38px;background:var(--gray);
     border-top:2px solid var(--white);display:flex;align-items:center;gap:6px;padding:4px 6px;z-index:9000;}
   #startbtn{font-family:'Press Start 2P';font-size:11px;display:flex;align-items:center;gap:6px;height:28px;}
@@ -96,6 +99,10 @@
     box-shadow:inset 1px 1px 0 var(--gray-dark);background:#b0b0b0;}
   #clock{height:28px;display:flex;align-items:center;padding:0 10px;font-size:16px;}
 
+  #wallet-pill{height:28px;display:flex;align-items:center;gap:6px;padding:0 10px;font-size:15px;cursor:pointer;}
+  #wallet-pill .dot{width:9px;height:9px;background:var(--acid);border-radius:0;image-rendering:pixelated;box-shadow:0 0 5px var(--acid);}
+
+  /* ---- Form helpers ---- */
   .row{display:flex;gap:12px;}
   .row>div{flex:1;}
   .fg{margin-bottom:12px;}
@@ -106,19 +113,23 @@
   fieldset{border:2px solid;border-color:var(--gray-dark) var(--white) var(--white) var(--gray-dark);padding:12px;margin-bottom:12px;}
   legend{font-size:16px;padding:0 6px;}
 
+  /* ---- Terminal / logs ---- */
   .terminal{background:#000;color:var(--acid);font-family:'VT323',monospace;font-size:16px;padding:8px;
     height:150px;overflow:auto;line-height:1.35;
     border:2px solid;border-color:var(--gray-darker) var(--white) var(--white) var(--gray-darker);}
   .terminal .ok{color:var(--acid);}.terminal .err{color:#ff5b5b;}.terminal .warn{color:var(--amber);}.terminal .dim{color:#7fb;}
 
+  /* ---- Countdown ---- */
   #cd-box{display:none;text-align:center;background:#000;color:var(--acid);padding:10px;margin-bottom:12px;
     border:2px solid;border-color:var(--gray-darker) var(--white) var(--white) var(--gray-darker);}
   #cd-box .t{font-family:'Press Start 2P';font-size:20px;margin-top:6px;text-shadow:0 0 6px var(--acid);}
 
+  /* ---- Preview screen ---- */
   .preview{background:#000;height:180px;display:flex;align-items:center;justify-content:center;flex-direction:column;
     border:2px solid;border-color:var(--gray-darker) var(--white) var(--white) var(--gray-darker);color:#556;overflow:hidden;position:relative;}
   .preview img{max-width:100%;max-height:100%;image-rendering:auto;}
 
+  /* ---- NFT result cards ---- */
   .nft-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:10px;}
   .nft-card{background:#fff;padding:6px;cursor:pointer;text-align:center;font-size:15px;
     border:2px solid;border-color:var(--gray-darker) var(--white) var(--white) var(--gray-darker);}
@@ -126,6 +137,7 @@
   .nft-card .thumb{width:100%;height:100px;background:#001;display:flex;align-items:center;justify-content:center;color:var(--acid);overflow:hidden;margin-bottom:5px;}
   .nft-card .thumb img{width:100%;height:100%;object-fit:cover;}
 
+  /* ---- Lock overlay ---- */
   #lock{position:absolute;inset:0;z-index:99998;background:var(--teal);display:none;align-items:center;justify-content:center;}
 
   .hint{font-size:15px;color:#303030;margin-top:4px;}
@@ -133,14 +145,45 @@
   ::-webkit-scrollbar{width:16px;height:16px;}
   ::-webkit-scrollbar-track{background:var(--gray);}
   ::-webkit-scrollbar-thumb{background:var(--gray);border:2px solid;border-color:var(--white) var(--gray-darker) var(--gray-darker) var(--white);}
+
+  /* ---- Pixel icons ---- */
+  .glyph{display:flex;align-items:center;justify-content:center;height:46px;margin-bottom:4px;}
+  .glyph svg,.ic svg,.task-item svg{image-rendering:pixelated;display:block;}
+  .ic svg{width:15px;height:15px;flex:0 0 auto;}
+  .task-item svg{width:16px;height:16px;flex:0 0 auto;}
+
+  .window.maxed{left:8px!important;top:8px!important;width:calc(100vw - 16px)!important;height:calc(100vh - 54px)!important;}
+  .window.maxed .win-body{flex:1;}
+  .window{max-width:calc(100vw - 8px);}
+
+  @media (max-width:680px){
+    body{font-size:20px;}
+    .desk-icons{flex-direction:row;flex-wrap:wrap;height:auto;max-height:calc(100% - 46px);gap:8px;align-content:flex-start;}
+    .desk-icon{width:78px;}
+    .window{left:5px!important;right:5px!important;top:5px!important;width:auto!important;
+      height:calc(100vh - 52px)!important;height:calc(100dvh - 52px)!important;min-width:0;}
+    .window .win-body{flex:1;}
+    .titlebar{padding:6px 6px 6px 8px;}
+    .titlebar .tt{font-size:9px;}
+    .titlebar .tb-btns button{width:26px;height:24px;font-size:11px;}
+    .row{flex-direction:column;gap:0;}
+    footer{display:none;}
+    .task-item{min-width:0;max-width:44px;padding:0 6px;justify-content:center;}
+    .task-item .label{display:none;}
+    #startbtn{font-size:10px;padding:4px 8px;}
+    #wallet-pill{padding:0 8px;font-size:14px;}
+    #clock{padding:0 6px;font-size:14px;}
+    button{padding:7px 14px;}
+    input,select,textarea{font-size:17px;padding:8px;}
+  }
 </style>
 </head>
 <body>
 
-<!-- ============ SIMPLE LOCAL LOCK ============ -->
+<!-- LOCAL LOCK -->
 <div id="lock">
   <div class="card bevel-out" style="max-width:340px;">
-    <div class="titlebar"><span class="tt"><span class="ic">🔒</span> Locked</span></div>
+    <div class="titlebar"><span class="tt"><span class="ic" data-icon="lock"></span> Locked</span></div>
     <div class="win-body" style="padding:22px;text-align:center;">
       <p style="margin-bottom:12px;">Enter local password</p>
       <input type="password" id="lock-pwd" style="text-align:center;margin-bottom:12px;" onkeydown="if(event.key==='Enter')tryUnlock()">
@@ -150,31 +193,31 @@
   </div>
 </div>
 
-<!-- ============ DESKTOP ============ -->
+<!-- DESKTOP -->
 <div id="desktop">
   <canvas id="circuit"></canvas>
   <div class="desk-icons">
-    <div class="desk-icon" data-win="mint"><span class="glyph">⚡</span><span>Flash Mint</span></div>
-    <div class="desk-icon" data-win="gen"><span class="glyph">🔑</span><span>Wallet Maker</span></div>
-    <div class="desk-icon" data-win="fee"><span class="glyph">💸</span><span>Send ETH</span></div>
-    <div class="desk-icon" data-win="nft"><span class="glyph">🖼</span><span>NFT Move</span></div>
-    <div class="desk-icon" data-win="help"><span class="glyph">❔</span><span>How it works</span></div>
-    <div class="desk-icon" data-win="settings"><span class="glyph">⚙</span><span>Settings</span></div>
+    <div class="desk-icon" data-win="mint"><span class="glyph"></span><span>Flash Mint</span></div>
+    <div class="desk-icon" data-win="gen"><span class="glyph"></span><span>Wallet Maker</span></div>
+    <div class="desk-icon" data-win="fee"><span class="glyph"></span><span>Send ETH</span></div>
+    <div class="desk-icon" data-win="nft"><span class="glyph"></span><span>NFT Move</span></div>
+    <div class="desk-icon" data-win="help"><span class="glyph"></span><span>How it works</span></div>
+    <div class="desk-icon" data-win="settings"><span class="glyph"></span><span>Settings</span></div>
   </div>
 </div>
 
-<!-- ============ WINDOW: FLASH MINT ============ -->
+<!-- WINDOW: FLASH MINT -->
 <div class="window" id="win-mint" style="width:640px;top:40px;left:70px;">
-  <div class="titlebar"><span class="tt"><span class="ic">⚡</span> Flash Mint Engine</span>
-    <span class="tb-btns"><button data-min>_</button><button data-close>×</button></span></div>
+  <div class="titlebar"><span class="tt"><span class="ic" data-icon="mint"></span> Flash Mint Engine</span>
+    <span class="tb-btns"><button data-min title="Minimize">_</button><button data-max title="Maximize">□</button><button data-close title="Close">×</button></span></div>
   <div class="menubar"><span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>H</u>elp</span></div>
   <div class="win-body">
     <div id="cd-box"><div>Armed — waiting for exact time…</div><div class="t" id="cd-val">00:00:00:00</div></div>
 
     <fieldset><legend>1 · Collection</legend>
       <div class="fg"><label>OpenSea Mint Page link (for preview)</label>
-        <input id="m-oslink" placeholder="https://opensea.io/collection/..." onblur="loadPreview()"></div>
-      <div class="preview" id="m-preview"><span class="pix" style="font-size:12px;">PREVIEW</span><span style="margin-top:8px;font-size:15px;">paste a link above</span></div>
+        <input id="m-oslink" placeholder="https://opensea.io/collection/..." onblur="loadPreview()" onpaste="setTimeout(loadPreview,60)"></div>
+      <div class="preview" id="m-preview"><span style="font-size:16px;color:#9ab;text-align:center;padding:0 12px;">Paste a mint link — the collection card loads here</span></div>
       <div class="fg" style="margin-top:12px;"><label>NFT Contract Address (drives the mint)</label>
         <input id="m-nft" placeholder="0x..."></div>
     </fieldset>
@@ -195,39 +238,30 @@
             <option value="free">Free (0 ETH)</option><option value="custom">Custom (ETH)</option></select>
           <input type="number" id="m-price" step="0.0001" placeholder="0.00" style="display:none;margin-top:6px;"></div>
         <div class="fg"><label>Gas speed</label>
-          <div class="seg" id="m-gas"><button class="on" data-v="NORMAL">Normal</button><button data-v="HIGH">High</button></div></div>
+          <div class="seg" id="m-gas"><button class="on" data-v="NORMAL">Normal</button><button data-v="HIGH">High Speed</button></div></div>
       </div>
     </fieldset>
 
-    <fieldset><legend>3 · Wallets (Private Keys)</legend>
-      <div class="fg">
-        <label>Paste Private Keys (One key per line) - Automates without confirmation</label>
-        <textarea id="m-pk-list" rows="4" placeholder="0x123...&#10;0x456..."></textarea>
-      </div>
+    <fieldset><legend>3 · Private Keys (Multi-Wallet)</legend>
+      <div class="fg"><label>Private Keys (Paste one key per line)</label>
+        <textarea id="m-pk-list" rows="4" placeholder="0x123...&#10;0x456..."></textarea></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button onclick="checkBalances()">↻ Check Balances</button>
-        <button class="cta" onclick="armMint()">🚀 Arm &amp; Mint</button>
+        <button onclick="checkBalances()">🔍 Check Balances</button>
+        <button class="cta" onclick="armMint()">🚀 Arm &amp; Mint All</button>
         <button onclick="disarmMint()">■ Stop</button>
       </div>
     </fieldset>
 
-    <div class="terminal" id="m-log">&gt;&gt; Ready. Enter Private Keys and RPC in Settings to begin.</div>
-
-    <fieldset style="margin-top:12px;"><legend>Your minted NFTs</legend>
-      <div class="hint">Enter a Private Key below to scan its NFTs.</div>
-      <div class="fg"><input type="password" id="m-scan-pk" placeholder="Private Key to Scan"></div>
-      <div style="margin-top:8px;"><button onclick="loadOwnedNFTs('m-owned', 'm-scan-pk')">↻ Load NFTs</button></div>
-      <div class="nft-grid" id="m-owned"></div>
-    </fieldset>
+    <div class="terminal" id="m-log">&gt;&gt; Ready. Paste private keys to begin.</div>
   </div>
 </div>
 
-<!-- ============ WINDOW: WALLET GENERATOR ============ -->
+<!-- WINDOW: WALLET GENERATOR -->
 <div class="window" id="win-gen" style="width:560px;top:80px;left:130px;">
-  <div class="titlebar"><span class="tt"><span class="ic">🔑</span> Wallet Maker</span>
-    <span class="tb-btns"><button data-min>_</button><button data-close>×</button></span></div>
+  <div class="titlebar"><span class="tt"><span class="ic" data-icon="gen"></span> Wallet Maker</span>
+    <span class="tb-btns"><button data-min title="Minimize">_</button><button data-max title="Maximize">□</button><button data-close title="Close">×</button></span></div>
   <div class="win-body">
-    <div class="warnbar">Fresh wallets are created <b>in your browser</b> and never sent anywhere. Save the CSV somewhere safe — if you lose a private key, the wallet is gone forever.</div>
+    <div class="warnbar">Fresh wallets are created <b>in your browser</b>. Save the CSV somewhere safe.</div>
     <div class="row" style="align-items:flex-end;">
       <div class="fg"><label>How many wallets?</label><input type="number" id="g-count" value="10" min="1" max="500"></div>
       <div class="fg" style="flex:0 0 auto;"><button class="cta" onclick="genWallets()">Generate</button></div>
@@ -243,75 +277,86 @@
   </div>
 </div>
 
-<!-- ============ WINDOW: SEND ETH ============ -->
+<!-- WINDOW: SEND ETH -->
 <div class="window" id="win-fee" style="width:600px;top:100px;left:180px;">
-  <div class="titlebar"><span class="tt"><span class="ic">💸</span> Send ETH</span>
-    <span class="tb-btns"><button data-min>_</button><button data-close>×</button></span></div>
+  <div class="titlebar"><span class="tt"><span class="ic" data-icon="fee"></span> Send ETH</span>
+    <span class="tb-btns"><button data-min title="Minimize">_</button><button data-max title="Maximize">□</button><button data-close title="Close">×</button></span></div>
   <div class="win-body">
-    <div class="warnbar">Sends ETH from a single Main Wallet to many addresses automatically.</div>
-    <div class="fg"><label>Main Sender Private Key</label><input type="password" id="fee-pk" placeholder="0x..."></div>
-    <div class="fg"><label>Amount per address (ETH)</label><input type="number" id="fee-amt" step="0.0001" value="0.01"></div>
-    <div class="fg"><label>Receiver addresses (one per line)</label>
-      <textarea id="fee-targets" rows="5" placeholder="0xabc...&#10;0xdef..."></textarea></div>
-    <button class="cta" onclick="sendEthMany()">📤 Send to all</button>
+    <div class="fg"><label>Operation Mode</label>
+      <select id="fee-mode" onchange="toggleFeeMode()">
+        <option value="disperse">Mode 1: Send from Main to Many</option>
+        <option value="consolidate">Mode 2: Collect from Many to Main</option>
+      </select>
+    </div>
+
+    <div id="fee-panel-disperse">
+      <div class="fg"><label>Main Sender Private Key</label><input type="password" id="fee-root-pk" placeholder="0x..."></div>
+      <div class="fg"><label>Amount per address (ETH)</label><input type="number" id="fee-amt" step="0.0001" value="0.01"></div>
+      <div class="fg"><label>Receiver addresses (one per line)</label>
+        <textarea id="fee-targets" rows="4" placeholder="0xabc...&#10;0xdef..."></textarea></div>
+      <button class="cta" onclick="sendEthDisperse()">📤 Send ETH Now</button>
+    </div>
+
+    <div id="fee-panel-consolidate" style="display:none;">
+      <div class="fg"><label>Receiver Main Address</label><input id="fee-main-dest" placeholder="0x..."></div>
+      <div class="fg"><label>Sender Private Keys (one per line)</label>
+        <textarea id="fee-pk-list" rows="4" placeholder="0x123...&#10;0x456..."></textarea></div>
+      <button class="cta" onclick="consolidateEth()">🧲 Collect All ETH</button>
+    </div>
+
     <div class="terminal" id="fee-log" style="margin-top:12px;">&gt;&gt; Waiting…</div>
   </div>
 </div>
 
-<!-- ============ WINDOW: NFT MOVE ============ -->
+<!-- WINDOW: NFT MOVE -->
 <div class="window" id="win-nft" style="width:620px;top:120px;left:220px;">
-  <div class="titlebar"><span class="tt"><span class="ic">🖼</span> NFT Move</span>
-    <span class="tb-btns"><button data-min>_</button><button data-close>×</button></span></div>
+  <div class="titlebar"><span class="tt"><span class="ic" data-icon="nft"></span> NFT Move</span>
+    <span class="tb-btns"><button data-min title="Minimize">_</button><button data-max title="Maximize">□</button><button data-close title="Close">×</button></span></div>
   <div class="win-body">
-    <div class="warnbar">Moves NFTs automatically. Paste the private key of the wallet holding the NFTs.</div>
-    <div class="fg"><label>Sender Private Key (Wallet to scan)</label><input type="password" id="nft-pk" placeholder="0x..."></div>
-    <div class="row">
-      <div class="fg"><label>NFT contract (optional filter)</label><input id="nft-contract" placeholder="0x... (blank = all)"></div>
-      <div class="fg"><label>Send to address</label><input id="nft-dest" placeholder="0x..."></div>
-    </div>
-    <button onclick="loadOwnedNFTs('nft-list', 'nft-pk')">🔍 Scan my NFTs</button>
-    <button class="cta" onclick="moveSelectedNFTs()">🚚 Move selected</button>
-    <div class="nft-grid" id="nft-list"></div>
+    <div class="fg"><label>NFT Contract Address</label><input id="nft-contract" placeholder="0x..."></div>
+    <div class="fg"><label>Receiver Main Wallet Address</label><input id="nft-dest" placeholder="0x..."></div>
+    <div class="fg"><label>Sender Private Keys (one per line)</label>
+      <textarea id="nft-pk-list" rows="3" placeholder="0x..."></textarea></div>
+    <div class="fg"><label>Token IDs to Transfer (e.g. 1-50 or 1,2,3)</label><input id="nft-token-ids" placeholder="1-50"></div>
+    <button class="cta" onclick="moveNFTsWithPK()">🚚 Move Selected NFTs</button>
     <div class="terminal" id="nft-log" style="margin-top:12px;">&gt;&gt; Waiting…</div>
   </div>
 </div>
 
-<!-- ============ WINDOW: HELP ============ -->
+<!-- WINDOW: HELP -->
 <div class="window" id="win-help" style="width:520px;top:90px;left:260px;">
-  <div class="titlebar"><span class="tt"><span class="ic">❔</span> How it works</span>
-    <span class="tb-btns"><button data-min>_</button><button data-close>×</button></span></div>
+  <div class="titlebar"><span class="tt"><span class="ic" data-icon="help"></span> How it works</span>
+    <span class="tb-btns"><button data-min title="Minimize">_</button><button data-max title="Maximize">□</button><button data-close title="Close">×</button></span></div>
   <div class="win-body" style="font-size:18px;line-height:1.5;">
-    <p><b>HoodLust</b> auto-mints on RobinHood Mainnet using the SeaDrop system.</p>
-    <p style="margin-top:10px;"><b>Private Key Mode:</b> Paste multiple private keys to automate minting across all your wallets simultaneously at the exact scheduled time without needing manual confirmation.</p>
-    <p style="margin-top:10px;"><b>RPC Required:</b> Make sure to enter your Alchemy RPC URL in Settings so the engine can broadcast transactions to the network.</p>
-    <p style="margin-top:10px;"><b>Auto timing:</b> The schedule is saved on this device. If a mint time is still in the future when you reopen, HoodLust re-arms it automatically.</p>
+    <p><b>HoodLust</b> auto-mints on RobinHood Mainnet using the SeaDrop system via Private Keys.</p>
+    <p style="margin-top:10px;"><b>Multi-Wallet Auto Mint:</b> Paste multiple Private Keys in the Flash Mint window. When the timer hits 00:00:00, all wallets sign and mint automatically without needing individual manual approvals.</p>
+    <p style="margin-top:10px;"><b>Auto timing:</b> The schedule and keys persist locally. Keep the tab open near mint time for maximum speed.</p>
   </div>
 </div>
 
-<!-- ============ WINDOW: SETTINGS ============ -->
+<!-- WINDOW: SETTINGS -->
 <div class="window" id="win-settings" style="width:520px;top:110px;left:300px;">
-  <div class="titlebar"><span class="tt"><span class="ic">⚙</span> Settings</span>
-    <span class="tb-btns"><button data-min>_</button><button data-close>×</button></span></div>
+  <div class="titlebar"><span class="tt"><span class="ic" data-icon="settings"></span> Settings</span>
+    <span class="tb-btns"><button data-min title="Minimize">_</button><button data-max title="Maximize">□</button><button data-close title="Close">×</button></span></div>
   <div class="win-body" style="font-size:17px;">
-    <fieldset><legend>Network RPC Configuration</legend>
-      <div class="warnbar">Required to broadcast transactions via Private Keys.</div>
-      <div class="fg"><label>Alchemy RobinHood RPC URL</label>
-        <input id="set-rpc" placeholder="https://robinhood-mainnet.g.alchemy.com/v2/YOUR_KEY"></div>
+    <fieldset><legend>RobinHood Network RPC</legend>
+      <div class="fg"><label>RPC Endpoint URL</label>
+        <input id="set-rpc" placeholder="https://robinhood-mainnet.g.alchemy.com/v2/..."></div>
     </fieldset>
     <fieldset><legend>Local lock (optional)</legend>
       <div class="fg"><label>Set a local password (blank = off)</label><input type="password" id="set-lock"></div>
-      <p class="hint">Client-side only. This is a privacy lock for this device.</p>
     </fieldset>
     <button class="cta" onclick="saveSettings()">Save settings</button>
     <span id="set-saved" style="margin-left:10px;color:var(--navy);display:none;">✔ Saved</span>
   </div>
 </div>
 
-<!-- ============ TASKBAR ============ -->
+<!-- TASKBAR -->
 <div id="taskbar">
   <button id="startbtn"><span class="flag pix">▚</span> Start</button>
   <div class="task-items bevel-in" style="border:none;box-shadow:none;" id="task-items"></div>
-  <div id="clock" class="bevel-in" style="margin-left:auto;"></div>
+  <div id="wallet-pill" class="bevel-out" onclick="openWin('settings')"><span class="dot"></span><span id="pill-text">RPC Ready</span></div>
+  <div id="clock" class="bevel-in"></div>
 </div>
 
 <footer style="position:absolute;bottom:44px;right:8px;font-size:14px;color:#fff;text-shadow:1px 1px 0 #000;z-index:5;">
@@ -320,25 +365,18 @@
 
 <script>
 /* ============================================================
-   PRESERVED MINT SYSTEM
+   PRESERVED MINT CONSTANTS (SeaDrop)
    ============================================================ */
 const SEADROP_CONTRACT   = "0x00005EA00Ac477B1030CE78506496e8C2dE24bf5";
 const OPENSEA_FEE_RECIP   = "0x0000a26b00c1F0DF003000390027140000fAa719";
-const MINT_ABI = ["function mintPublic(address nft, address feeRecipient, address minterIfNotPayer, uint256 quantity) external payable"];
+const DEFAULT_RPC        = "https://robinhood-mainnet.g.alchemy.com/v2/alch_XGR8Zjn-7NP5t5hPvx-2g";
+const MINT_ABI           = ["function mintPublic(address nft, address feeRecipient, address minterIfNotPayer, uint256 quantity) external payable"];
 
-/* ---- Config ---- */
 function cfg(){ try{ return JSON.parse(localStorage.getItem('hl_cfg')||'{}'); }catch(e){ return {}; } }
 function setCfg(o){ localStorage.setItem('hl_cfg', JSON.stringify(o)); }
+function getProvider(){ const c = cfg(); return new ethers.providers.JsonRpcProvider(c.rpc || DEFAULT_RPC); }
 
-/* ---- RPC Provider (Private Key System Engine) ---- */
-function getProvider() {
-  const c = cfg();
-  if(!c.rpc) { alert('Set Alchemy RPC URL in Settings first.'); return null; }
-  return new ethers.providers.JsonRpcProvider(c.rpc);
-}
-function short(a){return a?a.slice(0,6)+'…'+a.slice(-4):'';}
-
-/* ---- UI: window manager ---- */
+/* UI Window Manager */
 let ztop=10;
 function openWin(id){
   const w=document.getElementById('win-'+id); if(!w) return;
@@ -362,11 +400,20 @@ document.querySelectorAll('.window').forEach(w=>{
   w.addEventListener('mousedown',()=>focusWin(id));
   w.querySelector('[data-close]')?.addEventListener('click',e=>{e.stopPropagation();closeWin(id);});
   w.querySelector('[data-min]')?.addEventListener('click',e=>{e.stopPropagation();minWin(id);});
+  w.querySelector('[data-max]')?.addEventListener('click',e=>{e.stopPropagation();toggleMax(id);});
+  w.querySelector('.titlebar')?.addEventListener('dblclick',()=>toggleMax(id));
   makeDraggable(w, w.querySelector('.titlebar'));
 });
+function toggleMax(id){
+  if(isMobile()) return;
+  document.getElementById('win-'+id).classList.toggle('maxed');
+}
+function isMobile(){return window.matchMedia('(max-width:680px)').matches;}
 function makeDraggable(win, handle){
   let ox=0,oy=0,drag=false;
-  const down=(e)=>{const p=e.touches?e.touches[0]:e;drag=true;ox=p.clientX-win.offsetLeft;oy=p.clientY-win.offsetTop;};
+  const down=(e)=>{
+    if(e.target.closest('button')) return;
+    if(win.classList.contains('maxed')||isMobile()) return; drag=true; const p=e.touches?e.touches[0]:e; ox=p.clientX-win.offsetLeft; oy=p.clientY-win.offsetTop;};
   const move=(e)=>{if(!drag)return;const p=e.touches?e.touches[0]:e;
     win.style.left=Math.max(0,Math.min(window.innerWidth-60,p.clientX-ox))+'px';
     win.style.top=Math.max(0,Math.min(window.innerHeight-80,p.clientY-oy))+'px';};
@@ -376,11 +423,12 @@ function makeDraggable(win, handle){
   window.addEventListener('mouseup',up);window.addEventListener('touchend',up);
 }
 
-/* ---- Taskbar ---- */
+/* Taskbar */
 function addTask(id){
   if(document.getElementById('task-'+id)){focusWin(id);return;}
-  const names={mint:'⚡ Flash Mint',gen:'🔑 Wallet Maker',fee:'💸 Send ETH',nft:'🖼 NFT Move',help:'❔ Help',settings:'⚙ Settings'};
-  const b=document.createElement('button');b.className='task-item bevel-out';b.id='task-'+id;b.textContent=names[id]||id;
+  const names={mint:'Flash Mint',gen:'Wallet Maker',fee:'Send ETH',nft:'NFT Move',help:'Help',settings:'Settings'};
+  const b=document.createElement('button');b.className='task-item bevel-out';b.id='task-'+id;
+  b.innerHTML=svgIcon(id,16)+'<span class="label">'+(names[id]||id)+'</span>';
   b.onclick=()=>{const w=document.getElementById('win-'+id);if(w.style.display==='none'){w.style.display='flex';}focusWin(id);};
   document.getElementById('task-items').appendChild(b);setActiveTask(id);
 }
@@ -388,144 +436,182 @@ function removeTask(id){document.getElementById('task-'+id)?.remove();}
 function setActiveTask(id){document.querySelectorAll('.task-item').forEach(t=>t.classList.toggle('active',t.id==='task-'+id));}
 document.getElementById('startbtn').onclick=()=>openWin('help');
 
-/* ---- Clock ---- */
+/* Pixel Icons */
+const PAL={K:'#000',W:'#fff',Y:'#ffcf00',G:'#00ff66',P:'#ff2fb0',C:'#00c8ff',S:'#d4d4d4',D:'#556'};
+const ICONS={
+  mint:["............",".....KKK....","....KYYK....","...KYYK.....","..KYYYKK....",".KYYYYYK....","..KKYYYK....","....KYYK....","...KYYK.....","..KYK.......","..KK........","............"],
+  gen:["............","....KKKK....","...KWWWWK...","...KW..WK...","...KWWWWK...","....KKKK....",".....KK.....",".....KK.....",".....KKK....",".....KK.....",".....KKK....","............"],
+  fee:[".....K.....","....KWK....","...KWCWK...","..KWCCCWK..",".KWCCCCCWK.","..KKKKKKK..","..KWCCCWK..","...KWCWK...","....KWK....",".....K.....","..........."],
+  nft:["KKKKKKKKKK","KCCCCCCCCK","KCCYCCCCCK","KCCCCCCCCK","KCCCCCCGCK","KCCCCCGGGK","KCGGGGGGGK","KGGGGGGGGK","KKKKKKKKKK"],
+  help:["............","...KKKKK....","..KPPPPPK...","..KP...PK...","......PK....",".....PK.....","....PK......","....PP......","............","....PP......","....PP......","............"],
+  settings:[".....SS.....","..S..SS..S..","..SSSSSSSS..",".SSSSSSSSSS.","SS.SSSSSS.SS","SS.SKKKKS.SS","SS.SKKKKS.SS","SS.SSSSSS.SS",".SSSSSSSSSS.","..SSSSSSSS..","..S..SS..S..",".....SS....."],
+  lock:["...KKKK...","..K....K..","..K....K..",".KKKKKKKK.",".KYYYYYYK.",".KYYKKYYK.",".KYYKKYYK.",".KYYYYYYK.",".KKKKKKKK.","..........",]
+};
+function svgIcon(id,px){
+  const g=ICONS[id]; if(!g) return '';
+  const h=g.length,w=g[0].length; let r='';
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const ch=g[y][x];if(ch==='.'||ch===' ')continue;
+    r+=`<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${PAL[ch]||'#000'}"/>`;}
+  return `<svg width="${px}" height="${px}" viewBox="0 0 ${w} ${h}" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">${r}</svg>`;
+}
+function injectIcons(){
+  document.querySelectorAll('.desk-icon').forEach(ic=>{const g=ic.querySelector('.glyph');if(g)g.innerHTML=svgIcon(ic.dataset.win,42);});
+  document.querySelectorAll('.ic[data-icon]').forEach(el=>{el.innerHTML=svgIcon(el.dataset.icon,15);});
+}
+
 setInterval(()=>{const d=new Date();document.getElementById('clock').textContent=
   d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});},1000);
 
-/* ---- Logs ---- */
 function log(id,msg,cls=''){const el=document.getElementById(id);
   el.innerHTML+=`<div class="${cls}">[${new Date().toLocaleTimeString()}] ${msg}</div>`;el.scrollTop=el.scrollHeight;}
 
-/* ---- Segmented controls ---- */
 const seg={phase:'GTD',gas:'NORMAL'};
 document.querySelectorAll('#m-phase button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('#m-phase button').forEach(x=>x.classList.remove('on'));b.classList.add('on');seg.phase=b.dataset.v;});
 document.querySelectorAll('#m-gas button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('#m-gas button').forEach(x=>x.classList.remove('on'));b.classList.add('on');seg.gas=b.dataset.v;});
 
-/* ============================================================
-   PRIVATE KEY SYSTEM (MULTI-WALLET MINT)
-   ============================================================ */
-async function checkBalances(){
-  const keys = document.getElementById('m-pk-list').value.split('\n').map(k => k.trim()).filter(k => k.length > 0);
-  if(keys.length === 0) return log('m-log', 'Please paste private keys first.', 'warn');
-  const provider = getProvider();
-  if(!provider) return log('m-log','Missing RPC URL. Set it in Settings.','err');
-
-  log('m-log', '--- Checking Balances ---', 'warn');
-  for (let i = 0; i < keys.length; i++) {
-    let pk = keys[i];
-    if(!pk.startsWith('0x')) pk = '0x' + pk;
-    try {
-      const wallet = new ethers.Wallet(pk, provider);
-      const bal = await provider.getBalance(wallet.address);
-      log('m-log', `Wallet #${i+1} (${short(wallet.address)}): ${ethers.utils.formatEther(bal)} ETH`, bal.gt(0)?'ok':'err');
-    } catch(e) {
-      log('m-log', `Wallet #${i+1}: Invalid Key`, 'err');
-    }
-  }
+function short(a){return a?a.slice(0,6)+'…'+a.slice(-4):'';}
+function getPksFromInput(id){
+  const val = document.getElementById(id)?.value || '';
+  return val.split('\n').map(k => k.trim()).filter(k => k.length > 0);
 }
 
+/* ============================================================
+   PRIVATE KEY FLASH MINT SYSTEM
+   ============================================================ */
 function quickTime(min){
   const t=new Date(Date.now()+min*60000),p=n=>String(n).padStart(2,'0');
   document.getElementById('m-time').value=`${t.getFullYear()}-${p(t.getMonth()+1)}-${p(t.getDate())}T${p(t.getHours())}:${p(t.getMinutes())}:${p(t.getSeconds())}`;
 }
+
+async function checkBalances(){
+  const keys = getPksFromInput('m-pk-list');
+  if(!keys.length) return log('m-log', 'Paste Private Keys first.', 'warn');
+  const provider = getProvider();
+  log('m-log', '--- Checking Balances ---', 'warn');
+  for(let i=0; i<keys.length; i++){
+    try{
+      const pk = keys[i].startsWith('0x') ? keys[i] : '0x' + keys[i];
+      const w = new ethers.Wallet(pk, provider);
+      const b = await provider.getBalance(w.address);
+      log('m-log', `Wallet #${i+1} (${short(w.address)}): ${ethers.utils.formatEther(b)} ETH`, b.gt(0)?'ok':'err');
+    }catch(e){
+      log('m-log', `Wallet #${i+1} Invalid Private Key`, 'err');
+    }
+  }
+}
+
 async function loadPreview(){
-  const link=document.getElementById('m-oslink').value.trim();
-  const box=document.getElementById('m-preview'); if(!link){return;}
+  const inp=document.getElementById('m-oslink');
+  const link=inp.value.trim();
+  const box=document.getElementById('m-preview');
+  if(!link) return;
   box.innerHTML=`<span class="pix" style="font-size:11px;color:var(--acid)">LOADING…</span>`;
-  const img=new Image();
-  img.onload=()=>{box.innerHTML='';box.appendChild(img);};
-  img.onerror=()=>{box.innerHTML=`<span class="pix" style="font-size:11px;color:var(--acid)">LINK SET</span><span style="margin-top:8px;font-size:14px;color:#9ab;">${link.replace(/^https?:\/\//,'').slice(0,42)}</span>`;};
-  try{const slug=(link.match(/collection\/([^/?#]+)/)||[])[1];
-    img.src=slug?`https://opensea.io/__og-image__/collection/${slug}`:link;}catch(e){img.onerror();}
+  try{
+    const r=await fetch('https://api.microlink.io/?url='+encodeURIComponent(link));
+    const j=await r.json();
+    if(j.status==='success'&&j.data){
+      box.innerHTML=`<div style="position:absolute;inset:0;background:linear-gradient(transparent,rgba(0,0,0,.88));display:flex;align-items:flex-end;padding:10px;"><b style="color:#fff;">${j.data.title||'Collection'}</b></div>`;
+      if(j.data.image) box.style.backgroundImage=`url(${j.data.image.url})`;
+    }
+  }catch(e){ box.innerHTML=`<span style="color:#9ab;">Preview unavailable</span>`; }
 }
 
 let mintTimer=null;
 function armMint(){
   const nft=document.getElementById('m-nft').value.trim();
   const timeStr=document.getElementById('m-time').value;
-  const pks = document.getElementById('m-pk-list').value.split('\n').map(k=>k.trim()).filter(k=>k);
+  const keys = getPksFromInput('m-pk-list');
 
-  if(!pks.length){log('m-log','Enter at least one Private Key to mint.','warn');return;}
-  if(!ethers.utils.isAddress(nft)){log('m-log','Invalid NFT contract address.','err');return;}
+  if(!keys.length){ log('m-log', 'Please paste at least one Private Key.', 'err'); return; }
+  if(!ethers.utils.isAddress(nft)){ log('m-log', 'Invalid NFT contract address.', 'err'); return; }
 
-  const plan={nft,time:timeStr,qty:+document.getElementById('m-qty').value||1,
-    ptype:document.getElementById('m-ptype').value,price:document.getElementById('m-price').value||'0',
-    gas:seg.gas,phase:seg.phase, pks:pks};
-  localStorage.setItem('hl_plan',JSON.stringify(plan));
-  log('m-log',`Armed · ${plan.phase} · ${pks.length} Wallet(s) · qty ${plan.qty} · ${plan.gas} gas`,'warn');
+  const plan={nft, time:timeStr, qty:+document.getElementById('m-qty').value||1,
+    ptype:document.getElementById('m-ptype').value, price:document.getElementById('m-price').value||'0',
+    gas:seg.gas, phase:seg.phase};
+  
+  localStorage.setItem('hl_plan', JSON.stringify(plan));
+  log('m-log', `Armed ${keys.length} wallet(s) · ${plan.phase} · qty ${plan.qty}`, 'warn');
 
-  if(!timeStr){log('m-log','No time set — minting now.','warn');return fireMint(plan);}
-  startCountdown(new Date(timeStr).getTime(),plan);
+  if(!timeStr){ log('m-log', 'No time set — executing mint NOW!', 'warn'); return fireMintAll(keys, plan); }
+  startCountdown(new Date(timeStr).getTime(), keys, plan);
 }
 
-function startCountdown(target,plan){
+function startCountdown(target, keys, plan){
   document.getElementById('cd-box').style.display='block';
   if(mintTimer)clearInterval(mintTimer);
   mintTimer=setInterval(()=>{
     const diff=target-Date.now();
-    if(diff<=0){clearInterval(mintTimer);document.getElementById('cd-box').style.display='none';fireMint(plan);return;}
-    const p=n=>String(n).padStart(2,'0');
-    const d=Math.floor(diff/864e5),h=Math.floor(diff%864e5/36e5),m=Math.floor(diff%36e5/6e4),s=Math.floor(diff%6e4/1e3);
-    document.getElementById('cd-val').textContent=`${p(d)}:${p(h)}:${p(m)}:${p(s)}`;
+    if(diff<=0){ clearInterval(mintTimer); document.getElementById('cd-box').style.display='none'; fireMintAll(keys, plan); }
+    else{
+      const p=n=>String(n).padStart(2,'0');
+      const d=Math.floor(diff/864e5),h=Math.floor(diff%864e5/36e5),m=Math.floor(diff%36e5/6e4),s=Math.floor(diff%6e4/1e3);
+      document.getElementById('cd-val').textContent=`${p(d)}:${p(h)}:${p(m)}:${p(s)}`;
+    }
   },200);
 }
 
-function disarmMint(){
-  if(mintTimer)clearInterval(mintTimer);
-  document.getElementById('cd-box').style.display='none';
+function disarmMint(){ if(mintTimer)clearInterval(mintTimer); document.getElementById('cd-box').style.display='none';
+  localStorage.removeItem('hl_plan'); log('m-log', 'Disarmed.', 'warn'); }
+
+async function fireMintAll(keys, plan){
   localStorage.removeItem('hl_plan');
-  log('m-log','Disarmed.','warn');
+  log('m-log', `⚡ EXECUTING MINT ACROSS ${keys.length} WALLET(S)...`, 'warn');
+  const provider = getProvider();
+  const qty = plan.qty;
+  const ethVal = plan.ptype === 'free' ? '0' : (plan.price || '0');
+  const totalWei = ethers.utils.parseEther(ethVal).mul(qty);
+
+  let overrides = { gasLimit: 800000 };
+  if(plan.gas === 'HIGH'){
+    overrides.maxPriorityFeePerGas = ethers.utils.parseUnits('0.05', 'gwei');
+    overrides.maxFeePerGas = ethers.utils.parseUnits('0.5', 'gwei');
+  } else {
+    overrides.maxPriorityFeePerGas = ethers.utils.parseUnits('0.01', 'gwei');
+    overrides.maxFeePerGas = ethers.utils.parseUnits('0.1', 'gwei');
+  }
+
+  const iface = new ethers.utils.Interface(MINT_ABI);
+  const payload = iface.encodeFunctionData('mintPublic', [plan.nft, OPENSEA_FEE_RECIP, ethers.constants.AddressZero, qty]);
+
+  keys.forEach((pk, idx) => fireWalletMint(pk, idx + 1, payload, totalWei, overrides, provider));
 }
 
-async function fireMint(plan){
-  localStorage.removeItem('hl_plan');
-  const provider = getProvider();
-  if(!provider) return log('m-log','Missing RPC URL. Cannot mint.','err');
-  
-  log('m-log','⚡ Executing Auto-Mint across all wallets…','warn');
-  
-  for (let i = 0; i < plan.pks.length; i++) {
-    let pk = plan.pks[i];
-    if(!pk.startsWith('0x')) pk = '0x' + pk;
+async function fireWalletMint(pk, id, payload, valueWei, overrides, provider){
+  try {
+    const formattedKey = pk.startsWith('0x') ? pk : '0x' + pk;
+    const wallet = new ethers.Wallet(formattedKey, provider);
+    const bal = await provider.getBalance(wallet.address);
+    const gasCost = ethers.BigNumber.from(overrides.gasLimit).mul(overrides.maxFeePerGas);
+    const required = valueWei.add(gasCost);
 
-    try{
-      const wallet = new ethers.Wallet(pk, provider);
-      const qty = plan.qty;
-      const ethVal = plan.ptype==='free'?'0':(plan.price||'0');
-      const value = ethers.utils.parseEther(ethVal).mul(qty);
-
-      let ov={gasLimit:800000};
-      if(plan.gas==='HIGH'){ov.maxPriorityFeePerGas=ethers.utils.parseUnits('0.05','gwei');ov.maxFeePerGas=ethers.utils.parseUnits('0.5','gwei');}
-      else{ov.maxPriorityFeePerGas=ethers.utils.parseUnits('0.01','gwei');ov.maxFeePerGas=ethers.utils.parseUnits('0.1','gwei');}
-
-      const iface=new ethers.utils.Interface(MINT_ABI);
-      const data=iface.encodeFunctionData('mintPublic',[plan.nft,OPENSEA_FEE_RECIP,ethers.constants.AddressZero,qty]);
-
-      log('m-log',`[Wallet ${i+1}] Sending transaction...`);
-      const tx = await wallet.sendTransaction({to:SEADROP_CONTRACT,data,value,...ov});
-      log('m-log',`[Wallet ${i+1}] Sent! Hash ${tx.hash.slice(0,20)}…`,'ok');
-      const r = await tx.wait();
-      log('m-log',`✅ [Wallet ${i+1}] Minted! Block ${r.blockNumber}.`,'ok');
-    }catch(e){
-      const msg=(e.data&&e.data.message)||e.reason||e.message||String(e);
-      log('m-log',`❌ [Wallet ${i+1}] Mint failed: `+msg.slice(0,90),'err');
+    if (bal.lt(required)) {
+      return log('m-log', `Wallet #${id} (${short(wallet.address)}) Error: Insufficient ETH for Mint + Gas.`, 'err');
     }
+
+    log('m-log', `Wallet #${id} (${short(wallet.address)}) Sending Transaction...`, 'warn');
+    const tx = await wallet.sendTransaction({ to: SEADROP_CONTRACT, data: payload, value: valueWei, ...overrides });
+    log('m-log', `Wallet #${id} Sent! Hash: ${tx.hash.slice(0, 18)}...`, 'ok');
+    const r = await tx.wait();
+    log('m-log', `✅ Wallet #${id} Minted! Block ${r.blockNumber}`, 'ok');
+  } catch(e) {
+    const msg = (e.data && e.data.message) || e.reason || e.message || String(e);
+    log('m-log', `❌ Wallet #${id} Failed: ` + msg.slice(0, 80), 'err');
   }
 }
 
-/* ============================================================
-   WALLET GENERATOR
-   ============================================================ */
+/* WALLET GENERATOR */
 let genMem=[];
 function genWallets(){
   const n=Math.min(500,Math.max(1,+document.getElementById('g-count').value||10));
   genMem=[];const tb=document.getElementById('g-tbody');tb.innerHTML='';
-  for(let i=0;i<n;i++){const w=ethers.Wallet.createRandom();genMem.push({i:i+1,a:w.address,k:w.privateKey});
+  for(let i=0;i<n;i++){
+    const w=ethers.Wallet.createRandom(); genMem.push({i:i+1,a:w.address,k:w.privateKey});
     tb.innerHTML+=`<tr><td style="padding:4px;color:var(--navy);">${i+1}</td>
       <td style="padding:4px;font-size:13px;">${w.address}</td>
-      <td style="padding:4px;font-size:12px;color:#555;">${w.privateKey}</td></tr>`;}
+      <td style="padding:4px;font-size:12px;color:#555;">${w.privateKey}</td></tr>`;
+  }
 }
 function exportWalletsCSV(){
   if(!genMem.length)return alert('Generate wallets first.');
@@ -534,139 +620,157 @@ function exportWalletsCSV(){
   document.body.appendChild(a);a.click();a.remove();
 }
 
-/* ============================================================
-   SEND ETH — via Private Key
-   ============================================================ */
-async function sendEthMany(){
-  const pkRaw = document.getElementById('fee-pk').value.trim();
-  if(!pkRaw) return log('fee-log','Paste a sender private key.','warn');
-  let pk = pkRaw.startsWith('0x') ? pkRaw : '0x' + pkRaw;
-  
-  const provider = getProvider();
-  if(!provider) return;
-
-  const amt=document.getElementById('fee-amt').value||'0';
-  const targets=document.getElementById('fee-targets').value.split('\n').map(x=>x.trim()).filter(x=>ethers.utils.isAddress(x));
-  if(!targets.length)return log('fee-log','No valid addresses.','err');
-  const val=ethers.utils.parseEther(amt);
-  
-  try{
-    const wallet = new ethers.Wallet(pk, provider);
-    log('fee-log',`Sending ${amt} ETH to ${targets.length} address(es) from ${short(wallet.address)}…`,'warn');
-    for(let i=0;i<targets.length;i++){
-      try{
-        const tx=await wallet.sendTransaction({to:targets[i],value:val});
-        await tx.wait();log('fee-log',`✔ sent to ${targets[i].slice(0,10)}…`,'ok');
-      }catch(e){log('fee-log',`✘ failed ${targets[i].slice(0,10)}…: ${(e.reason||e.message||'').slice(0,40)}`,'err');}
-    }
-    log('fee-log','Done.','ok');
-  }catch(e){
-    log('fee-log','Invalid Private Key','err');
-  }
+/* SEND ETH (DISPERSE & CONSOLIDATE) */
+function toggleFeeMode(){
+  const m = document.getElementById('fee-mode').value;
+  document.getElementById('fee-panel-disperse').style.display = m === 'disperse' ? 'block' : 'none';
+  document.getElementById('fee-panel-consolidate').style.display = m === 'consolidate' ? 'block' : 'none';
 }
 
-/* ============================================================
-   NFT MOVE — scan & move via Private Key
-   ============================================================ */
-const ERC721_ABI=["function safeTransferFrom(address from,address to,uint256 tokenId)"];
-let scanned=[];
-async function loadOwnedNFTs(targetGrid, pkInputId){
-  const pkRaw = document.getElementById(pkInputId).value.trim();
-  if(!pkRaw) return alert('Enter private key first.');
-  let pk = pkRaw.startsWith('0x') ? pkRaw : '0x' + pkRaw;
-  let account;
-  try{ account = new ethers.Wallet(pk).address; }catch(e){ return alert('Invalid Private Key'); }
+async function sendEthDisperse(){
+  const rootPk = document.getElementById('fee-root-pk').value.trim();
+  const amt = document.getElementById('fee-amt').value || '0';
+  const targets = getPksFromInput('fee-targets').filter(x => ethers.utils.isAddress(x));
 
-  const c=cfg();
-  const grid=document.getElementById(targetGrid);grid.innerHTML='<div style="grid-column:1/-1;">Scanning…</div>';
-  if(!c.rpc){grid.innerHTML='<div style="grid-column:1/-1;color:#a00;">Add your Alchemy RPC URL in Settings to scan NFTs.</div>';return;}
-  try{
-    const base=c.rpc.replace('/v2/','/nft/v3/')+'/getNFTsForOwner';
-    const filter=(targetGrid==='nft-list')?document.getElementById('nft-contract').value.trim():'';
-    let url=`${base}?owner=${account}&withMetadata=true&pageSize=100`;
-    if(ethers.utils.isAddress(filter))url+=`&contractAddresses[]=${filter}`;
-    const res=await fetch(url);const j=await res.json();
-    scanned=(j.ownedNfts||[]).map(n=>({contract:n.contract?.address||n.contractAddress,
-      tokenId:(n.tokenId||n.id?.tokenId||'').toString(),
-      name:n.name||n.title||('#'+(n.tokenId||'')),
-      img:(n.image&&(n.image.cachedUrl||n.image.originalUrl))||(n.media&&n.media[0]?.gateway)||''}));
-    if(!scanned.length){grid.innerHTML='<div style="grid-column:1/-1;">No NFTs found for this wallet.</div>';return;}
-    grid.innerHTML='';
-    scanned.forEach((n,i)=>{
-      const tid=n.tokenId;
-      const card=document.createElement('div');card.className='nft-card';card.dataset.i=i;
-      card.innerHTML=`<div class="thumb">${n.img?`<img src="${n.img}" onerror="this.style.display='none'">`:'IMG'}</div>
-        <div style="font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${n.name}</div>
-        <div style="font-size:12px;color:#555;">#${tid}</div>`;
-      card.onclick=()=>{card.classList.toggle('sel');if(targetGrid==='m-owned'){
-        document.getElementById('nft-pk').value = pkRaw; openWin('nft');
-      }};
-      grid.appendChild(card);
-    });
-  }catch(e){grid.innerHTML='<div style="grid-column:1/-1;color:#a00;">Scan failed: '+e.message+'</div>';}
-}
+  if(!rootPk) return log('fee-log', 'Sender Private Key is required.', 'err');
+  if(!targets.length) return log('fee-log', 'No valid target addresses.', 'err');
 
-async function moveSelectedNFTs(){
-  const pkRaw = document.getElementById('nft-pk').value.trim();
-  if(!pkRaw) return log('nft-log','Paste the sender private key.','warn');
-  let pk = pkRaw.startsWith('0x') ? pkRaw : '0x' + pkRaw;
   const provider = getProvider();
-  if(!provider) return;
+  try {
+    const senderWallet = new ethers.Wallet(rootPk.startsWith('0x') ? rootPk : '0x' + rootPk, provider);
+    const val = ethers.utils.parseEther(amt);
+    log('fee-log', `Sending ${amt} ETH to ${targets.length} address(es)...`, 'warn');
 
-  const dest=document.getElementById('nft-dest').value.trim();
-  if(!ethers.utils.isAddress(dest))return log('nft-log','Invalid destination address.','err');
-  const sel=[...document.querySelectorAll('#nft-list .nft-card.sel')].map(c=>scanned[+c.dataset.i]);
-  if(!sel.length)return log('nft-log','Select at least one NFT.','warn');
-  
-  try{
-    const wallet = new ethers.Wallet(pk, provider);
-    log('nft-log',`Moving ${sel.length} NFT(s) from ${short(wallet.address)}…`,'warn');
-    for(let i=0;i<sel.length;i++){
-      const n=sel[i];const tid=ethers.BigNumber.from(n.tokenId);
-      try{
-        const ct=new ethers.Contract(n.contract,ERC721_ABI,wallet);
-        const tx=await ct.safeTransferFrom(wallet.address,dest,tid);
+    for(let i = 0; i < targets.length; i++) {
+      try {
+        log('fee-log', `(${i+1}/${targets.length}) Sending to ${short(targets[i])}...`);
+        const tx = await senderWallet.sendTransaction({ to: targets[i], value: val });
         await tx.wait();
-        log('nft-log',`✔ moved #${tid.toString()}`,'ok');
-      }catch(e){log('nft-log',`✘ #${tid.toString()} failed: ${(e.reason||e.message||'').slice(0,40)}`,'err');}
+        log('fee-log', `✔ Sent to ${short(targets[i])}`, 'ok');
+      } catch(e) {
+        log('fee-log', `✘ Failed ${short(targets[i])}: ${(e.reason||e.message||'').slice(0,40)}`, 'err');
+      }
     }
-    log('nft-log','Done.','ok');
-  }catch(e){
-    log('nft-log','Invalid Private Key','err');
-  }
+    log('fee-log', 'All transactions completed.', 'ok');
+  } catch(e) { log('fee-log', 'Sender wallet error: ' + e.message, 'err'); }
 }
 
-/* ============================================================
-   SETTINGS + LOCAL LOCK
-   ============================================================ */
+async function consolidateEth(){
+  const dest = document.getElementById('fee-main-dest').value.trim();
+  const keys = getPksFromInput('fee-pk-list');
+
+  if(!ethers.utils.isAddress(dest)) return log('fee-log', 'Invalid Main Receiver Address.', 'err');
+  if(!keys.length) return log('fee-log', 'No Sender Private Keys provided.', 'err');
+
+  const provider = getProvider();
+  log('fee-log', `Collecting max ETH from ${keys.length} wallet(s)...`, 'warn');
+
+  for(let i = 0; i < keys.length; i++) {
+    try {
+      const pk = keys[i].startsWith('0x') ? keys[i] : '0x' + keys[i];
+      const w = new ethers.Wallet(pk, provider);
+      const bal = await provider.getBalance(w.address);
+      
+      const gasPrice = await provider.getGasPrice();
+      const gasLimit = 21000;
+      const fee = gasPrice.mul(gasLimit);
+
+      if(bal.lte(fee)){
+        log('fee-log', `Wallet #${i+1} (${short(w.address)}) balance too low for gas. Skipping.`, 'err');
+        continue;
+      }
+
+      const sendAmount = bal.sub(fee);
+      log('fee-log', `(${i+1}/${keys.length}) Sweeping ${ethers.utils.formatEther(sendAmount)} ETH...`);
+      const tx = await w.sendTransaction({ to: dest, value: sendAmount, gasLimit, gasPrice });
+      await tx.wait();
+      log('fee-log', `✔ Swept from ${short(w.address)}`, 'ok');
+    } catch(e) {
+      log('fee-log', `✘ Wallet #${i+1} failed: ${(e.reason||e.message||'').slice(0,40)}`, 'err');
+    }
+  }
+  log('fee-log', 'Consolidation complete.', 'ok');
+}
+
+/* NFT MOVE WITH PRIVATE KEYS */
+async function moveNFTsWithPK(){
+  const keys = getPksFromInput('nft-pk-list');
+  const dest = document.getElementById('nft-dest').value.trim();
+  const nftContract = document.getElementById('nft-contract').value.trim();
+  const tokenIdsStr = document.getElementById('nft-token-ids').value.trim();
+
+  if(!keys.length) return log('nft-log', 'Provide Sender Private Keys.', 'err');
+  if(!ethers.utils.isAddress(dest)) return log('nft-log', 'Provide valid destination address.', 'err');
+  if(!ethers.utils.isAddress(nftContract)) return log('nft-log', 'Provide valid NFT contract address.', 'err');
+
+  const provider = getProvider();
+  const ERC721_ABI = ["function safeTransferFrom(address from, address to, uint256 tokenId)", "function ownerOf(uint256 tokenId) view returns (address)"];
+
+  let tokenIds = [];
+  if(tokenIdsStr.includes('-')){
+    const parts = tokenIdsStr.split('-').map(x => parseInt(x.trim()));
+    if(parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])){
+      for(let id = parts[0]; id <= parts[1]; id++) tokenIds.push(id);
+    }
+  } else if(tokenIdsStr.length > 0){
+    tokenIds = tokenIdsStr.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+  }
+
+  if(!tokenIds.length) return log('nft-log', 'Specify valid Token IDs (e.g. 1-50).', 'err');
+
+  log('nft-log', `Checking ${tokenIds.length} NFT(s) across ${keys.length} wallet(s)...`, 'warn');
+
+  for(let k = 0; k < keys.length; k++){
+    try {
+      const pk = keys[k].startsWith('0x') ? keys[k] : '0x' + keys[k];
+      const wallet = new ethers.Wallet(pk, provider);
+      const ct = new ethers.Contract(nftContract, ERC721_ABI, wallet);
+
+      for(let tid of tokenIds){
+        try {
+          const owner = await ct.ownerOf(tid);
+          if(owner.toLowerCase() === wallet.address.toLowerCase()){
+            log('nft-log', `Wallet ${short(wallet.address)} owns #${tid}. Transferring...`);
+            const tx = await ct.safeTransferFrom(wallet.address, dest, tid);
+            await tx.wait();
+            log('nft-log', `✔ Moved Token #${tid} to ${short(dest)}`, 'ok');
+          }
+        } catch(err){}
+      }
+    } catch(e) { log('nft-log', `Wallet #${k+1} error: ${e.message}`, 'err'); }
+  }
+  log('nft-log', 'NFT Transfer completed.', 'ok');
+}
+
+/* SETTINGS & LOCK */
 function saveSettings(){
   const rpc=document.getElementById('set-rpc').value.trim();
   const lock=document.getElementById('set-lock').value;
-  const c=cfg();c.rpc=rpc;setCfg(c);
-  if(lock!=='')localStorage.setItem('hl_lock',btoa(lock)); 
-  const s=document.getElementById('set-saved');s.style.display='inline';setTimeout(()=>s.style.display='none',1500);
+  const c=cfg(); c.rpc=rpc; setCfg(c);
+  if(lock!=='') localStorage.setItem('hl_lock',btoa(lock));
+  const s=document.getElementById('set-saved'); s.style.display='inline'; setTimeout(()=>s.style.display='none',1500);
 }
-function loadSettingsIntoForm(){const c=cfg();document.getElementById('set-rpc').value=c.rpc||'';}
+function loadSettingsIntoForm(){ const c=cfg(); document.getElementById('set-rpc').value=c.rpc||''; }
 function tryUnlock(){
   const v=document.getElementById('lock-pwd').value;
-  if(btoa(v)===localStorage.getItem('hl_lock')){document.getElementById('lock').style.display='none';}
-  else{document.getElementById('lock-err').style.display='block';}
+  if(btoa(v)===localStorage.getItem('hl_lock')){ document.getElementById('lock').style.display='none'; }
+  else{ document.getElementById('lock-err').style.display='block'; }
 }
 
-/* ============================================================
-   STARTUP & CIRCUIT BACKGROUND
-   ============================================================ */
+/* STARTUP */
 (function start(){
   loadSettingsIntoForm();
-  if(localStorage.getItem('hl_lock')){document.getElementById('lock').style.display='flex';document.getElementById('lock-pwd').focus();}
-  restorePlan();
+  injectIcons();
+  if(localStorage.getItem('hl_lock')){ document.getElementById('lock').style.display='flex'; document.getElementById('lock-pwd').focus(); }
   startCircuit();
 })();
 
+/* ============================================================
+   PROCESSOR CIRCUIT BACKGROUND
+   ============================================================ */
 function startCircuit(){
   const cv=document.getElementById('circuit');if(!cv)return;
   const ctx=cv.getContext('2d');
-  const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let W,H,cx,cy,chip,wires=[],charge=0;
   const COL={acid:'#00ff66',lust:'#ff2fb0',cyan:'#00c8ff',amber:'#ffb000'};
   const palette=[COL.acid,COL.lust,COL.cyan,COL.amber];
@@ -682,10 +786,10 @@ function startCircuit(){
     const perSide=Math.max(5,Math.floor(Math.min(W,H)/70));
     const pins=[];
     for(let i=0;i<perSide;i++){const t=(i+1)/(perSide+1);
-      pins.push({x:chip.x+chip.s*t,y:chip.y,dir:'N'});           
-      pins.push({x:chip.x+chip.s*t,y:chip.y+chip.s,dir:'S'});     
-      pins.push({x:chip.x,y:chip.y+chip.s*t,dir:'W'});           
-      pins.push({x:chip.x+chip.s,y:chip.y+chip.s*t,dir:'E'});     
+      pins.push({x:chip.x+chip.s*t,y:chip.y,dir:'N'});
+      pins.push({x:chip.x+chip.s*t,y:chip.y+chip.s,dir:'S'});
+      pins.push({x:chip.x,y:chip.y+chip.s*t,dir:'W'});
+      pins.push({x:chip.x+chip.s,y:chip.y+chip.s*t,dir:'E'});
     }
     pins.forEach((pin,idx)=>{
       let sx,sy;
@@ -703,12 +807,11 @@ function startCircuit(){
       const pts=[{x:sx,y:sy},mid,elbow,{x:pin.x,y:pin.y}];
       const segs=[];let len=0;
       for(let i=0;i<pts.length-1;i++){const d=Math.hypot(pts[i+1].x-pts[i].x,pts[i+1].y-pts[i].y);segs.push({a:pts[i],b:pts[i+1],d});len+=d;}
-      wires.push({pts,segs,len,color:palette[idx%palette.length],
-        p:Math.random(), speed:0.0016+Math.random()*0.0026, gap:0.5+Math.random()*1.2});         
+      wires.push({pts,segs,len,color:palette[idx%palette.length],p:Math.random(),speed:0.0016+Math.random()*0.0026,gap:0.5+Math.random()*1.2});
     });
   }
 
-  function pointAt(w,t){ 
+  function pointAt(w,t){
     let dist=t*w.len;
     for(const s of w.segs){if(dist<=s.d){const r=s.d?dist/s.d:0;return{x:s.a.x+(s.b.x-s.a.x)*r,y:s.a.y+(s.b.y-s.a.y)*r};}dist-=s.d;}
     return w.pts[w.pts.length-1];
@@ -725,20 +828,15 @@ function startCircuit(){
       ctx.beginPath();ctx.moveTo(w.pts[0].x,w.pts[0].y);
       for(let i=1;i<w.pts.length;i++)ctx.lineTo(w.pts[i].x,w.pts[i].y);
       ctx.strokeStyle='rgba(60,120,140,0.22)';ctx.lineWidth=2;ctx.stroke();
-      const pin=w.pts[w.pts.length-1];
-      ctx.fillStyle='rgba(90,160,180,0.35)';ctx.beginPath();ctx.arc(pin.x,pin.y,2.4,0,7);ctx.fill();
     });
 
     wires.forEach(w=>{
-      if(!reduce){
-        w.p+=w.speed*4;
-        if(w.p>=1+w.gap){w.p=-(Math.random()*0.3);}
-      }
+      w.p+=w.speed*4;
+      if(w.p>=1+w.gap){w.p=-(Math.random()*0.3);}
       const tp=w.p; if(tp<0||tp>1) return;
       const head=pointAt(w,tp);
-      const tailLen=0.12;
       for(let k=0;k<8;k++){
-        const tt=tp-tailLen*(k/8);if(tt<0)break;
+        const tt=tp-0.12*(k/8);if(tt<0)break;
         const pt=pointAt(w,tt);const a=(1-k/8);
         ctx.globalAlpha=a*0.9;ctx.fillStyle=w.color;
         ctx.beginPath();ctx.arc(pt.x,pt.y,(a*2.4)+0.6,0,7);ctx.fill();
@@ -750,7 +848,8 @@ function startCircuit(){
       if(tp>0.985){charge=Math.min(1,charge+0.05);}
     });
     ctx.globalAlpha=1;
-    charge*=0.94; 
+    charge*=0.94;
+
     drawChip();
     requestAnimationFrame(draw);
   }
@@ -758,53 +857,24 @@ function startCircuit(){
   function drawChip(){
     const {x,y,s}=chip;
     const glow=ctx.createRadialGradient(cx,cy,s*0.2,cx,cy,s*0.95);
-    const gi=0.25+charge*0.6;
-    glow.addColorStop(0,`rgba(0,255,102,${gi})`);
+    glow.addColorStop(0,`rgba(0,255,102,${0.25+charge*0.6})`);
     glow.addColorStop(1,'rgba(0,255,102,0)');
     ctx.fillStyle=glow;ctx.fillRect(x-s*0.6,y-s*0.6,s*2.2,s*2.2);
 
-    ctx.fillStyle='#0a2a30';
-    const legs=Math.max(6,Math.floor(s/16));
-    for(let i=0;i<legs;i++){const t=(i+0.5)/legs;
-      ctx.fillRect(x+s*t-2,y-8,4,8);ctx.fillRect(x+s*t-2,y+s,4,8);
-      ctx.fillRect(x-8,y+s*t-2,8,4);ctx.fillRect(x+s,y+s*t-2,8,4);}
-
     ctx.fillStyle='#061a1f';ctx.strokeStyle=`rgba(0,255,102,${0.5+charge*0.5})`;ctx.lineWidth=2;
     ctx.fillRect(x,y,s,s);ctx.strokeRect(x,y,s,s);
-    const pad=s*0.18;
-    ctx.strokeStyle=`rgba(0,200,255,${0.35+charge*0.4})`;ctx.lineWidth=1.5;
-    ctx.strokeRect(x+pad,y+pad,s-pad*2,s-pad*2);
-    ctx.strokeStyle=`rgba(0,255,102,${0.18+charge*0.3})`;ctx.lineWidth=1;
-    for(let i=1;i<4;i++){const yy=y+pad+(s-pad*2)*i/4;
-      ctx.beginPath();ctx.moveTo(x+pad,yy);ctx.lineTo(x+s-pad,yy);ctx.stroke();}
-    
-    ctx.fillStyle=`rgba(120,255,180,${0.7+charge*0.3})`;
-    ctx.font=`bold ${Math.max(9,s*0.13)}px 'Press Start 2P',monospace`;
+
+    let fs=s*0.20;
+    ctx.font=`bold ${fs}px 'Press Start 2P',monospace`;
     ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillStyle=`rgba(120,255,180,${0.75+charge*0.25})`;
     ctx.shadowColor='#00ff66';ctx.shadowBlur=8+charge*14;
-    ctx.fillText('HL',cx,cy-s*0.02);
+    ctx.fillText('HoodLust',cx,cy);
     ctx.shadowBlur=0;
-    ctx.font=`${Math.max(7,s*0.075)}px 'Press Start 2P',monospace`;
-    ctx.fillStyle=`rgba(120,255,180,${0.5+charge*0.4})`;
-    ctx.fillText('CPU',cx,cy+s*0.22);
   }
 
   build();draw();
   let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(build,180);});
-}
-
-function restorePlan(){
-  try{const plan=JSON.parse(localStorage.getItem('hl_plan')||'null');if(!plan)return;
-    document.getElementById('m-nft').value=plan.nft||'';
-    if(plan.time)document.getElementById('m-time').value=plan.time;
-    document.getElementById('m-qty').value=plan.qty||1;
-    if(plan.pks) document.getElementById('m-pk-list').value=plan.pks.join('\n');
-    if(plan.time && new Date(plan.time).getTime()>Date.now()){
-      log('m-log','Saved mint restored and armed.','warn');
-      startCountdown(new Date(plan.time).getTime(),plan);
-      openWin('mint');
-    }
-  }catch(e){}
 }
 </script>
 </body>
