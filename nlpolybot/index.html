@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NL POLY BOT · Daily Plan</title>
+<meta name="description" content="Daily Plan ledger: write down each day's result, see the chart, make a PnL note, and calculate a plan.">
+<meta name="theme-color" content="#050B08">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@700;900&family=Unbounded:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#050B08; --panel:#0A1611; --panel2:#0E1D16; --line:#1B3B2C; --line2:#28523E;
+  --green:#2BFF88; --red:#FF2E57; --yellow:#FFE81A; --purple:#B45CFF;
+  --text:#EAF6EE; --mute:#8DA797; --paper:#E3ECD9; --noteink:#1C4A2E;
+  --display:"Unbounded","Manrope",system-ui,sans-serif;
+  --body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --serif:"Playfair Display",Georgia,"Times New Roman",serif;
+  --wave:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='20'%3E%3Cg fill='none' stroke='%232BFF88' stroke-width='1'%3E%3Cpath d='M0 10Q12-6 24 10T48 10'/%3E%3Cpath d='M0 10Q12 26 24 10T48 10'/%3E%3Cpath d='M0 10Q6 2 12 10T24 10T36 10T48 10' stroke-opacity='.55'/%3E%3C/g%3E%3C/svg%3E");
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ink);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.5;min-height:100vh;overflow-x:hidden}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--yellow);outline-offset:3px;border-radius:4px}
+.num{font-variant-numeric:tabular-nums}
+
+/* page backdrop: engraved rosettes turning slowly behind everything */
+.backdrop{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;
+  background:radial-gradient(1200px 700px at 85% -10%,rgba(180,92,255,.13),transparent 60%),radial-gradient(900px 600px at -10% 30%,rgba(43,255,136,.10),transparent 60%),var(--ink)}
+.backdrop svg{position:absolute;width:900px;height:900px;fill:none;stroke-width:.6;animation:turn 240s linear infinite}
+.backdrop .b1{right:-320px;top:-260px;stroke:var(--purple);opacity:.22}
+.backdrop .b2{left:-380px;bottom:-380px;stroke:var(--green);opacity:.16;animation-direction:reverse;animation-duration:300s}
+@keyframes turn{to{transform:rotate(360deg)}}
+
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 80px}
+
+/* top bar */
+.top{display:flex;align-items:center;gap:14px;padding:18px 0 14px}
+.mark{width:44px;height:44px;flex:none;border:2px solid var(--green);display:grid;place-items:center;position:relative;font-family:var(--serif);font-weight:900;font-size:24px;color:var(--green);text-shadow:0 0 12px rgba(43,255,136,.8);box-shadow:0 0 18px rgba(43,255,136,.25),inset 0 0 0 4px var(--ink),inset 0 0 0 5px var(--line2)}
+.brand{font-family:var(--display);font-weight:800;font-size:17px;letter-spacing:.02em;line-height:1.1}
+.brand small{display:block;font-family:var(--body);font-weight:600;font-size:13px;color:var(--mute);letter-spacing:0;margin-top:3px}
+.who{margin-left:auto;display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line2);padding:6px 14px 6px 6px;border-radius:999px;transition:border-color .2s,box-shadow .2s}
+.who:hover{border-color:var(--purple);box-shadow:0 0 0 3px rgba(180,92,255,.18)}
+.who span{font-weight:700;font-size:14px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ava{width:34px;height:34px;border-radius:50%;object-fit:cover;background:var(--panel2);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:13px;color:var(--ink);flex:none}
+.ava.txt{background:linear-gradient(135deg,var(--green),var(--yellow))}
+
+/* tabs */
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:22px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{background:none;border:0;padding:12px 16px;font-family:var(--display);font-weight:600;font-size:13px;color:var(--mute);position:relative;white-space:nowrap;transition:color .2s}
+.tab::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:3px;background:var(--green);box-shadow:0 0 14px var(--green);transform:scaleX(0);transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+.tab[aria-selected=true]{color:var(--text)}
+.tab[aria-selected=true]::after{transform:scaleX(1)}
+.panel{display:none}
+.panel.on{display:block;animation:panelIn .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes panelIn{from{opacity:0;transform:translateY(10px)}}
+
+/* the neon note — the page's one loud element */
+.note{position:relative;border:3px solid var(--green);padding:60px 30px 58px;margin-bottom:22px;background:linear-gradient(180deg,rgba(43,255,136,.07),rgba(43,255,136,.02)),var(--panel);
+  box-shadow:0 0 0 6px var(--ink),0 0 0 7px var(--line2),0 0 60px rgba(43,255,136,.14);overflow:hidden;transition:border-color .5s,box-shadow .5s}
+.note.loss{border-color:var(--red);box-shadow:0 0 0 6px var(--ink),0 0 0 7px #4a1622,0 0 60px rgba(255,46,87,.16)}
+.note.loss .band,.note.loss .micro,.note.loss .corner,.note.loss .medal svg{filter:hue-rotate(-150deg) saturate(1.4)}
+.band{position:absolute;left:62px;right:62px;height:20px;background:var(--wave) repeat-x;opacity:.75;animation:flow 14s linear infinite}
+.band.t{top:10px}.band.b{bottom:10px;animation-direction:reverse}
+@keyframes flow{to{background-position-x:480px}}
+.micro{position:absolute;left:62px;right:62px;overflow:hidden;white-space:nowrap;font-size:8px;font-weight:700;letter-spacing:.32em;color:var(--green);opacity:.55}
+.micro.t{top:31px}.micro.b{bottom:31px}
+.micro span{display:inline-block;animation:slide 60s linear infinite}
+.micro.b span{animation-direction:reverse}
+@keyframes slide{to{transform:translateX(-50%)}}
+.corner{position:absolute;width:44px;height:44px;background:var(--green);color:var(--ink);display:grid;place-items:center;font-family:var(--serif);font-weight:900;font-size:24px;font-style:normal;box-shadow:inset 0 0 0 3px var(--green),inset 0 0 0 4px var(--ink)}
+.corner.tl{left:8px;top:8px}.corner.tr{right:8px;top:8px}.corner.bl{left:8px;bottom:8px}.corner.br{right:8px;bottom:8px}
+.note-rose{position:absolute;width:520px;height:520px;right:-120px;top:-110px;fill:none;stroke:var(--purple);stroke-width:.5;opacity:.2;animation:turn 160s linear infinite;pointer-events:none}
+.note-body>div:last-child{min-width:0}
+.note-body{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);gap:34px;align-items:center}
+.medal{position:relative;width:190px;height:190px;display:grid;place-items:center}
+.medal svg{position:absolute;inset:0;width:100%;height:100%;animation:turn 50s linear infinite}
+.medal img,.medal .init{width:124px;height:124px;border-radius:50%;object-fit:cover;position:relative;border:3px solid var(--ink);box-shadow:0 0 0 2px var(--green),0 0 30px rgba(43,255,136,.35)}
+.medal .init{display:grid;place-items:center;background:var(--green);color:var(--ink);font-family:var(--serif);font-weight:900;font-size:64px}
+.note-title{font-family:var(--serif);font-weight:700;letter-spacing:.3em;text-transform:uppercase;font-size:15px;color:var(--green);margin:0 0 2px}
+.note.loss .note-title{color:var(--red)}
+.note-meta{display:flex;justify-content:space-between;gap:12px;font-family:var(--serif);font-weight:700;letter-spacing:.2em;font-size:11px;color:var(--mute);text-transform:uppercase}
+.total{font-family:var(--display);font-weight:800;font-size:clamp(40px,8.4vw,104px);line-height:1;letter-spacing:-.03em;margin:14px 0 6px;white-space:nowrap;color:var(--green);text-shadow:0 0 34px rgba(43,255,136,.45)}
+.note.loss .total{color:var(--red);text-shadow:0 0 34px rgba(255,46,87,.5)}
+.total-sub{font-weight:700;color:var(--yellow);font-size:17px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin-top:20px;border-top:1px solid var(--line2)}
+.stats div{padding:12px 14px 0 0}
+.stats div+div{padding-left:14px;border-left:1px solid var(--line)}
+.stats b{display:block;font-family:var(--display);font-weight:600;font-size:clamp(14px,1.9vw,19px);white-space:nowrap}
+.stats span{font-size:13px;color:var(--mute)}
+
+/* quiet surfaces */
+.grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:22px;align-items:start}
+.card{background:var(--panel);border:1px solid var(--line);padding:20px}
+.card h2{font-family:var(--display);font-weight:600;font-size:15px;margin:0 0 14px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+label.f{display:block;font-size:13px;font-weight:600;color:var(--mute);margin-bottom:12px}
+label.f input,label.f select{display:block;width:100%;margin-top:6px}
+input[type=text],input[type=number],input[type=date],select{background:var(--ink);border:1px solid var(--line2);padding:11px 12px;border-radius:0;color:var(--text);font-weight:600;min-height:44px;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus{outline:0;border-color:var(--green);box-shadow:0 0 0 3px rgba(43,255,136,.16)}
+input[type=date]::-webkit-calendar-picker-indicator{filter:invert(1)}
+.seg{display:inline-flex;border:1px solid var(--line2);background:var(--ink)}
+.seg button{background:none;border:0;padding:10px 16px;font-weight:700;font-size:14px;color:var(--mute);min-height:42px;transition:background .2s,color .2s}
+.seg button[aria-pressed=true]{background:var(--green);color:var(--ink)}
+.seg button.neg[aria-pressed=true]{background:var(--red);color:#fff}
+.seg button.pur[aria-pressed=true]{background:var(--purple);color:var(--ink)}
+.btn{background:var(--green);color:var(--ink);border:0;padding:12px 18px;font-weight:800;min-height:44px;transition:transform .12s,box-shadow .2s}
+.btn:hover{box-shadow:0 0 22px rgba(43,255,136,.5)}
+.btn:active{transform:scale(.97)}
+.btn.y{background:var(--yellow)}.btn.y:hover{box-shadow:0 0 22px rgba(255,232,26,.5)}
+.btn.ghost{background:none;color:var(--text);border:1px solid var(--line2)}
+.btn.ghost:hover{border-color:var(--purple);box-shadow:0 0 0 3px rgba(180,92,255,.18)}
+.btn.danger{background:none;color:var(--red);border:1px solid #5a1c2a}
+.btn.danger:hover{box-shadow:0 0 0 3px rgba(255,46,87,.2)}
+.btn.sm{padding:7px 11px;min-height:34px;font-size:13px}
+.hint{font-size:13px;color:var(--mute);margin:10px 0 0}
+.pos{color:var(--green)}.neg{color:var(--red)}.yel{color:var(--yellow)}.pur{color:var(--purple)}
+
+.chartbox{position:relative;height:300px}
+.chartbox canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y}
+.readout{font-size:14px;font-weight:600;color:var(--mute);min-height:22px;margin-bottom:8px}
+.readout b{color:var(--text)}
+.empty{border:1px dashed var(--line2);padding:28px 18px;text-align:center;color:var(--mute)}
+
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-weight:600;color:var(--mute);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);font-size:13px;white-space:nowrap}
+td{padding:10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td.r,th.r{text-align:right}
+tbody tr{animation:rowIn .4s both}
+@keyframes rowIn{from{opacity:0;transform:translateX(-8px)}}
+.scroll{overflow-x:auto}
+.day{display:inline-grid;place-items:center;min-width:34px;height:26px;padding:0 6px;border:1px solid var(--line2);font-family:var(--display);font-size:11px;font-weight:600}
+
+/* card + calculator previews */
+.preview{background:repeating-linear-gradient(45deg,#0c1a14 0 12px,#0a1611 12px 24px);border:1px solid var(--line);padding:18px;display:grid;place-items:center}
+.preview canvas{max-width:100%;height:auto;display:block;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.big{font-family:var(--display);font-weight:800;font-size:clamp(28px,5vw,52px);line-height:1.05;letter-spacing:-.02em;color:var(--green);text-shadow:0 0 28px rgba(43,255,136,.35);word-break:break-all}
+.warn{border-left:3px solid var(--yellow);padding:4px 0 4px 14px;margin:14px 0 0;font-size:14px;color:var(--text)}
+.warn p{margin:6px 0}
+
+/* team */
+.team{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}
+.member{position:relative;border:2px solid var(--line2);background:var(--panel);padding:20px;transition:border-color .25s,box-shadow .25s,transform .25s}
+.member:hover{transform:translateY(-3px)}
+.member.cur{border-color:var(--green);box-shadow:0 0 34px rgba(43,255,136,.16)}
+.member .ava{width:64px;height:64px;font-size:22px}
+.member h3{font-family:var(--display);font-weight:600;font-size:15px;margin:0;overflow:hidden;text-overflow:ellipsis}
+.member .tot{font-family:var(--display);font-weight:800;font-size:24px;margin:14px 0 2px}
+.member.add{display:grid;place-items:center;border-style:dashed;min-height:210px;color:var(--mute);font-weight:700;background:none;width:100%}
+.member.add:hover{color:var(--green);border-color:var(--green)}
+.tag{position:absolute;top:10px;right:10px;font-size:12px;font-weight:800;color:var(--ink);background:var(--green);padding:2px 8px}
+
+dialog{background:var(--panel);color:var(--text);border:2px solid var(--purple);padding:24px;width:min(440px,calc(100vw - 32px));box-shadow:0 0 60px rgba(180,92,255,.3)}
+dialog::backdrop{background:rgba(2,6,4,.78);backdrop-filter:blur(3px)}
+dialog[open]{animation:pop .28s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes pop{from{opacity:0;transform:scale(.94)}}
+dialog h2{font-family:var(--display);font-weight:600;font-size:17px;margin:0 0 16px}
+.photo-pick{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.photo-pick .ava{width:84px;height:84px;font-size:28px}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,30px);background:var(--panel2);border:1px solid var(--green);padding:12px 18px;font-weight:700;font-size:14px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:50;max-width:calc(100vw - 32px);box-shadow:0 0 30px rgba(43,255,136,.25)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast.bad{border-color:var(--red);box-shadow:0 0 30px rgba(255,46,87,.25)}
+
+/* opening sequence: the note is "printed" once on load */
+.note.print .band,.note.print .micro{animation-play-state:paused;opacity:0}
+.note .band,.note .micro{transition:opacity .9s .5s}
+.note.print .corner{transform:scale(0)}
+.note .corner{transition:transform .5s cubic-bezier(.2,.9,.3,1.4)}
+.note .corner.tr{transition-delay:.08s}.note .corner.br{transition-delay:.16s}.note .corner.bl{transition-delay:.24s}
+.note.print .note-body{opacity:0;transform:translateY(14px)}
+.note .note-body{transition:opacity .7s .25s,transform .7s .25s cubic-bezier(.2,.8,.2,1)}
+
+@media (max-width:860px){
+  .grid{grid-template-columns:1fr}
+  .note-body{grid-template-columns:1fr;gap:18px;justify-items:center;text-align:center}
+  .note-meta{justify-content:center;flex-wrap:wrap}
+  .medal{width:150px;height:150px}.medal img,.medal .init{width:98px;height:98px}.medal .init{font-size:50px}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr));text-align:left}
+  .stats div:nth-child(3){padding-left:0;border-left:0}
+  .note{padding:58px 16px 56px}
+  .who span{display:none}.who{padding:5px}
+  .wrap{padding:0 16px 80px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<div class="backdrop" aria-hidden="true"><svg class="b1" viewBox="-100 -100 200 200"></svg><svg class="b2" viewBox="-100 -100 200 200"></svg></div>
+
+<div class="wrap">
+  <header class="top">
+    <div class="mark" aria-hidden="true">$</div>
+    <div class="brand">NL POLY BOT<small>Daily Plan ledger</small></div>
+    <button class="who" id="who" type="button" aria-label="Open team"></button>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab" role="tab" data-tab="ledger" aria-selected="true">Ledger</button>
+    <button class="tab" role="tab" data-tab="pnl" aria-selected="false">PnL card</button>
+    <button class="tab" role="tab" data-tab="calc" aria-selected="false">Calculator</button>
+    <button class="tab" role="tab" data-tab="team" aria-selected="false">Team</button>
+  </nav>
+
+  <!-- LEDGER -->
+  <main>
+  <section class="panel on" id="p-ledger" role="tabpanel">
+    <div class="note print" id="note">
+      <div class="band t" aria-hidden="true"></div><div class="micro t" aria-hidden="true"><span></span></div>
+      <i class="corner tl" aria-hidden="true">$</i><i class="corner tr" aria-hidden="true">$</i><i class="corner bl" aria-hidden="true">$</i><i class="corner br" aria-hidden="true">$</i>
+      <svg class="note-rose" viewBox="-100 -100 200 200" aria-hidden="true"></svg>
+      <div class="note-body">
+        <div class="medal"><svg viewBox="-100 -100 200 200" aria-hidden="true"></svg><span id="medalIn"></span></div>
+        <div>
+          <p class="note-title" id="noteTitle">Certified profit note</p>
+          <div class="note-meta"><span id="noteSerial"></span><span id="noteDay"></span></div>
+          <div class="total num" id="total">$0.00</div>
+          <div class="total-sub num" id="totalSub"></div>
+          <div class="stats">
+            <div><b class="num" id="sStart">$0.00</b><span>Start money</span></div>
+            <div><b class="num" id="sNow">$0.00</b><span>Balance now</span></div>
+            <div><b class="num" id="sDays">0</b><span>Days written</span></div>
+            <div><b class="num" id="sWins">0</b><span>Winning days</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="micro b" aria-hidden="true"><span></span></div><div class="band b" aria-hidden="true"></div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="row between" style="margin-bottom:10px">
+          <h2 style="margin:0">Chart</h2>
+          <div class="seg" id="chartMode">
+            <button type="button" data-m="balance" aria-pressed="true">Balance</button>
+            <button type="button" data-m="daily" aria-pressed="false">Each day</button>
+          </div>
+        </div>
+        <div class="readout num" id="readout"></div>
+        <div class="chartbox"><canvas id="chart" aria-label="Chart of the Daily Plan results"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h2 id="formTitle">Write a day</h2>
+        <form id="dayForm" autocomplete="off">
+          <label class="f">Date<input type="date" id="fDate" required></label>
+          <div style="margin-bottom:12px">
+            <div class="seg" id="fSign">
+              <button type="button" data-s="1" aria-pressed="true">Profit</button>
+              <button type="button" class="neg" data-s="-1" aria-pressed="false">Loss</button>
+            </div>
+          </div>
+          <label class="f">Amount in dollars<input type="number" id="fAmt" inputmode="decimal" step="0.01" min="0" placeholder="4.20" required></label>
+          <label class="f">Note (not required)<input type="text" id="fNote" maxlength="60" placeholder="BTC 5 min"></label>
+          <div class="row">
+            <button class="btn" type="submit" id="fSave">Add day</button>
+            <button class="btn ghost" type="button" id="fCancel" hidden>Cancel</button>
+          </div>
+        </form>
+        <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+        <form id="startForm" class="row" autocomplete="off">
+          <label class="f" style="flex:1;min-width:140px;margin:0">Start money in dollars<input type="number" id="fStart" inputmode="decimal" step="0.01" min="0" placeholder="100"></label>
+          <button class="btn ghost" type="submit" style="align-self:flex-end">Save</button>
+        </form>
+        <p class="hint">The money the plan had before day 1. Percent and balance are worked out from it.</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:22px">
+      <h2>Days</h2>
+      <div id="days"></div>
+    </div>
+  </section>
+
+  <!-- PNL CARD -->
+  <section class="panel" id="p-pnl" role="tabpanel">
+    <div class="card" style="margin-bottom:22px">
+      <div class="row between">
+        <label class="f" style="margin:0;min-width:240px;flex:1;max-width:380px">Make the card for<select id="cardScope"></select></label>
+        <button class="btn y" type="button" id="cardDl">Download card</button>
+      </div>
+      <p class="hint">These numbers are the ones written in the ledger by hand.</p>
+    </div>
+    <div class="preview"><canvas id="cardCv" width="2560" height="1240"></canvas></div>
+  </section>
+
+  <!-- CALCULATOR -->
+  <section class="panel" id="p-calc" role="tabpanel">
+    <div class="grid">
+      <div class="card">
+        <h2>Plan calculator</h2>
+        <div class="row" style="align-items:flex-end">
+          <label class="f" style="flex:1;min-width:130px">Start amount in dollars<input type="number" id="cAmt" inputmode="decimal" step="0.01" min="1" max="1000000" value="100"></label>
+          <label class="f" style="flex:1;min-width:130px">Profit each day in percent<input type="number" id="cPct" inputmode="decimal" step="0.1" min="0.1" max="100" value="30"></label>
+        </div>
+        <div class="seg" id="cDays">
+          <button type="button" class="pur" data-d="10" aria-pressed="false">10 days</button>
+          <button type="button" class="pur" data-d="20" aria-pressed="false">20 days</button>
+          <button type="button" class="pur" data-d="30" aria-pressed="true">30 days</button>
+        </div>
+        <div class="chartbox" style="margin-top:18px"><canvas id="calcChart" aria-label="Chart of the calculated plan"></canvas></div>
+        <p class="hint"><span class="pur">Purple</span> is the start amount, <span class="pos">green</span> is the profit on top of it.</p>
+      </div>
+      <div class="card">
+        <h2 id="cHead">After 30 days</h2>
+        <div class="big num" id="cFinal">$0.00</div>
+        <p class="total-sub num" id="cSub" style="margin:8px 0 0"></p>
+        <div class="warn">
+          <p id="cWarn1"></p>
+          <p>This chart only calculates the numbers for you. It does not help you make a profit.</p>
+        </div>
+        <button class="btn y" type="button" id="calcDl" style="margin-top:18px">Download chart image</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:22px">
+      <h2>Day by day</h2>
+      <div class="scroll"><table><thead><tr><th>Day</th><th class="r">Starts with</th><th class="r">Profit</th><th class="r">Ends with</th></tr></thead><tbody id="cRows"></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <section class="panel" id="p-team" role="tabpanel">
+    <div class="team" id="team"></div>
+    <div class="card" style="margin-top:22px">
+      <h2>Backup</h2>
+      <p class="hint" style="margin:0 0 14px">Everything is kept on this device, in this browser. Clearing the browser's data removes it, and another device does not see it. A backup file lets you bring it back or move it.</p>
+      <div class="row">
+        <button class="btn ghost" type="button" id="bkSave">Save a backup file</button>
+        <button class="btn ghost" type="button" id="bkLoad">Load a backup file</button>
+        <input type="file" id="bkFile" accept="application/json,.json" hidden>
+      </div>
+    </div>
+  </section>
+  </main>
+</div>
+
+<dialog id="dlgProfile">
+  <form method="dialog" id="profForm" autocomplete="off">
+    <h2 id="profTitle">New member</h2>
+    <div class="photo-pick">
+      <span id="profAva"></span>
+      <div>
+        <button class="btn ghost sm" type="button" id="profPick">Choose a photo</button>
+        <button class="btn ghost sm" type="button" id="profClear" hidden>Remove</button>
+        <input type="file" id="profFile" accept="image/*" hidden>
+      </div>
+    </div>
+    <label class="f">Name<input type="text" id="profName" maxlength="24" required placeholder="NL_NAHAL"></label>
+    <label class="f">Start money in dollars<input type="number" id="profStart" inputmode="decimal" step="0.01" min="0" placeholder="100"></label>
+    <div class="row" style="margin-top:6px">
+      <button class="btn" type="submit" id="profSave">Save profile</button>
+      <button class="btn ghost" type="button" id="profCancel">Cancel</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlgAsk">
+  <h2 id="askText"></h2>
+  <div class="row"><button class="btn danger" type="button" id="askYes">Yes</button><button class="btn ghost" type="button" id="askNo">Cancel</button></div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+"use strict";
+const $ = (s, r) => (r || document).querySelector(s), $$ = (s, r) => [...(r || document).querySelectorAll(s)];
+const KEY = "nlpoly.dailyplan.v1";
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+const niceDate = (iso) => { const [y, m, d] = String(iso).split("-").map(Number); return `${String(d).padStart(2, "0")} ${MON[(m || 1) - 1]} ${y}`; };
+const money = (v) => { const a = Math.abs(v); if (a >= 1e7) return "$" + new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 }).format(a); return "$" + a.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+const signed = (v, minus) => (v > 0 ? "+" : v < 0 ? (minus || "−") : "") + money(v);
+const pctText = (v, minus) => (v > 0 ? "+" : v < 0 ? (minus || "−") : "") + Math.abs(v).toLocaleString("en-US", { maximumFractionDigits: Math.abs(v) >= 1000 ? 0 : 1 }) + "%";
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- storage: this device only ---------- */
+let DB = (() => { try { const r = JSON.parse(localStorage.getItem(KEY)); if (r && Array.isArray(r.profiles)) return r; } catch (e) {} return { active: null, profiles: [] }; })();
+function save() { try { localStorage.setItem(KEY, JSON.stringify(DB)); return true; } catch (e) { toast("This device could not save it. Free some storage, then try again.", true); return false; } }
+const me = () => DB.profiles.find((p) => p.id === DB.active) || DB.profiles[0] || null;
+
+function stats(p) {
+  const rows = []; let bal = Number(p && p.start) || 0; const start = bal;
+  const list = p ? [...p.entries].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0)) : [];
+  list.forEach((e, i) => { const before = bal; bal += e.pnl; rows.push({ ...e, n: i + 1, before, after: bal, pct: before > 0 ? (e.pnl / before) * 100 : null }); });
+  const total = bal - start;
+  return { rows, start, now: bal, total, pct: start > 0 ? (total / start) * 100 : null, wins: rows.filter((r) => r.pnl > 0).length, days: rows.length };
+}
+
+/* ---------- small helpers ---------- */
+let toastT; function toast(msg, bad) { const t = $("#toast"); t.textContent = msg; t.className = "toast on" + (bad ? " bad" : ""); clearTimeout(toastT); toastT = setTimeout(() => (t.className = "toast" + (bad ? " bad" : "")), 2600); }
+function ask(text, yes) { return new Promise((res) => { const d = $("#dlgAsk"); $("#askText").textContent = text; $("#askYes").textContent = yes || "Yes"; const done = (v) => { d.close(); $("#askYes").onclick = $("#askNo").onclick = d.oncancel = null; res(v); }; $("#askYes").onclick = () => done(true); $("#askNo").onclick = () => done(false); d.oncancel = () => done(false); d.showModal(); }); }
+function avatar(p, cls) { const n = (p && p.name) || "?"; return p && p.photo ? `<img class="ava ${cls || ""}" src="${p.photo}" alt="">` : `<span class="ava txt ${cls || ""}">${esc(n.replace(/[^A-Za-z0-9]/g, "").slice(0, 2).toUpperCase() || "?")}</span>`; }
+const anims = {};
+function animate(key, ms, fn) { const id = (anims[key] = (anims[key] || 0) + 1); if (reduce || ms <= 0) return fn(1); const t0 = performance.now(); const step = (t) => { if (anims[key] !== id) return; const k = Math.min(1, (t - t0) / ms); fn(1 - Math.pow(1 - k, 3)); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }
+const shown = {};
+function countTo(el, key, to, fmt) { const from = shown[key] == null ? 0 : shown[key]; shown[key] = to; animate("n:" + key, 900, (k) => (el.textContent = fmt(from + (to - from) * k))); }
+function rosette(R, waves, depth, rings) { let out = ""; for (let j = 0; j < rings; j++) { const ph = (j / rings) * Math.PI * 2; let d = ""; for (let i = 0; i <= 180; i++) { const t = (i / 180) * Math.PI * 2, r = R * (1 - depth + depth * Math.cos(waves * t + ph)); d += (i ? "L" : "M") + (r * Math.cos(t)).toFixed(1) + " " + (r * Math.sin(t)).toFixed(1); } out += `<path d="${d}Z"/>`; } return out; }
+function download(canvas, name) { canvas.toBlob((b) => { if (!b) return toast("The picture could not be made.", true); const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); toast("Saved " + name); }, "image/png"); }
+const fileSafe = (s) => String(s || "member").replace(/[^A-Za-z0-9_-]+/g, "_").slice(0, 24);
+
+/* ---------- decoration built once ---------- */
+$(".backdrop .b1").innerHTML = rosette(96, 12, 0.22, 26);
+$(".backdrop .b2").innerHTML = rosette(96, 9, 0.3, 22);
+$(".note-rose").innerHTML = rosette(96, 14, 0.2, 20);
+$(".medal svg").innerHTML = (() => { let pts = ""; const teeth = 36; for (let i = 0; i < teeth * 2; i++) { const a = (i / (teeth * 2)) * Math.PI * 2, r = i % 2 ? 96 : 88; pts += (i ? "L" : "M") + (r * Math.cos(a)).toFixed(1) + " " + (r * Math.sin(a)).toFixed(1); } return `<path d="${pts}Z" fill="none" stroke="#2BFF88" stroke-width="1.6"/><g fill="none" stroke="#2BFF88" stroke-width=".5" opacity=".7">${rosette(82, 18, 0.07, 8)}</g>`; })();
+$$(".micro span").forEach((s) => (s.textContent = "NL POLY BOT · DAILY PLAN · ".repeat(40)));
+
+/* ---------- tabs ---------- */
+let tab = "ledger";
+function go(name) { tab = name; $$(".tab").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === name))); $$(".panel").forEach((p) => p.classList.toggle("on", p.id === "p-" + name)); if (name === "ledger") drawChart(true); if (name === "pnl") drawCard(); if (name === "calc") calc(true); if (name === "team") renderTeam(); }
+$$(".tab").forEach((b) => (b.onclick = () => go(b.dataset.tab)));
+$("#who").onclick = () => go("team");
+
+/* ---------- ledger ---------- */
+let ST = stats(null), editing = null, sign = 1, mode = "balance", hover = -1;
+function render() {
+  const p = me(); ST = stats(p);
+  $("#who").innerHTML = p ? avatar(p) + `<span>${esc(p.name)}</span>` : `<span class="ava txt">+</span><span>Add a member</span>`;
+  const loss = ST.total < 0; $("#note").classList.toggle("loss", loss);
+  $("#noteTitle").textContent = loss ? "Recorded loss note" : "Certified profit note";
+  $("#medalIn").outerHTML = p && p.photo ? `<img id="medalIn" src="${p.photo}" alt="">` : `<span id="medalIn" class="init">$</span>`;
+  const d = new Date(); $("#noteSerial").textContent = p ? `NL ${String(d.getDate()).padStart(2, "0")}${String(d.getMonth() + 1).padStart(2, "0")}${d.getFullYear()} ${loss ? "L" : "P"} · ${p.name}` : "";
+  $("#noteDay").textContent = ST.days ? `Day ${ST.days} written · day ${ST.days + 1} is next` : "Day 1 is next";
+  countTo($("#total"), "total", ST.total, (v) => signed(Math.round(v * 100) / 100));
+  fitTotal();
+  $("#totalSub").textContent = ST.pct != null && ST.days ? `${pctText(ST.pct)} on the start money` : ST.days ? "Set the start money to see the percent" : "Nothing written yet";
+  countTo($("#sStart"), "start", ST.start, money); countTo($("#sNow"), "now", ST.now, money);
+  $("#sDays").textContent = ST.days; $("#sWins").textContent = ST.days ? `${ST.wins} of ${ST.days}` : "0";
+  if (document.activeElement !== $("#fStart")) $("#fStart").value = p && p.start ? p.start : "";
+  renderDays(); hover = -1; drawChart(true); fillScope();
+  if (tab === "pnl") drawCard(); if (tab === "team") renderTeam();
+}
+function fitTotal() { const el = $("#total"); el.style.fontSize = ""; const probe = el.textContent; el.textContent = signed(ST.total); let size = parseFloat(getComputedStyle(el).fontSize); for (let i = 0; i < 40 && el.scrollWidth > el.clientWidth + 1 && size > 22; i++) { size -= 3; el.style.fontSize = size + "px"; } el.textContent = probe; }
+function renderDays() {
+  const box = $("#days");
+  if (!me()) return (box.innerHTML = `<div class="empty">Add a member on the Team page first.</div>`);
+  if (!ST.rows.length) return (box.innerHTML = `<div class="empty">No days yet. Write today's result in the form and it shows up here.</div>`);
+  box.innerHTML = `<div class="scroll"><table><thead><tr><th>Day</th><th>Date</th><th class="r">Result</th><th class="r">Percent</th><th class="r">Balance</th><th>Note</th><th></th></tr></thead><tbody>` +
+    [...ST.rows].reverse().map((r, i) => `<tr style="animation-delay:${Math.min(i, 12) * 30}ms"><td><span class="day">${r.n}</span></td><td>${niceDate(r.date)}</td><td class="r num ${r.pnl >= 0 ? "pos" : "neg"}"><b>${signed(r.pnl)}</b></td><td class="r num">${r.pct == null ? "–" : pctText(r.pct)}</td><td class="r num">${money(r.after)}</td><td>${esc(r.note || "")}</td><td class="r"><button class="btn ghost sm" data-edit="${r.id}">Edit</button> <button class="btn danger sm" data-del="${r.id}">Delete</button></td></tr>`).join("") + `</tbody></table></div>`;
+}
+$("#days").onclick = async (ev) => {
+  const p = me(); if (!p) return; const e = ev.target.closest("button"); if (!e) return;
+  if (e.dataset.edit) { const x = p.entries.find((y) => y.id === e.dataset.edit); if (!x) return; editing = x.id; $("#fDate").value = x.date; $("#fAmt").value = Math.abs(x.pnl); $("#fNote").value = x.note || ""; setSign(x.pnl < 0 ? -1 : 1); $("#formTitle").textContent = "Change a day"; $("#fSave").textContent = "Save changes"; $("#fCancel").hidden = false; $("#dayForm").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" }); }
+  if (e.dataset.del) { const x = p.entries.find((y) => y.id === e.dataset.del); if (!x || !(await ask(`Delete the result of ${niceDate(x.date)}?`, "Delete"))) return; p.entries = p.entries.filter((y) => y.id !== x.id); if (editing === x.id) resetForm(); if (save()) toast("Deleted"); render(); }
+};
+function setSign(s) { sign = s; $$("#fSign button").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.s) === s))); }
+$$("#fSign button").forEach((b) => (b.onclick = () => setSign(Number(b.dataset.s))));
+function resetForm() { editing = null; $("#dayForm").reset(); $("#fDate").value = today(); setSign(1); $("#formTitle").textContent = "Write a day"; $("#fSave").textContent = "Add day"; $("#fCancel").hidden = true; }
+$("#fCancel").onclick = resetForm;
+$("#dayForm").onsubmit = async (ev) => {
+  ev.preventDefault(); const p = me(); if (!p) { toast("Add a member first.", true); return go("team"); }
+  const date = $("#fDate").value, amt = Math.round(Number($("#fAmt").value) * 100) / 100, note = $("#fNote").value.trim();
+  if (!/^\d{4}-\d\d-\d\d$/.test(date)) return toast("Choose the date.", true);
+  if (!isFinite(amt) || amt < 0) return toast("Write the amount as a number, like 4.20", true);
+  const same = p.entries.find((x) => x.date === date && x.id !== editing);
+  if (same && !(await ask(`${niceDate(date)} already has a result (${signed(same.pnl)}). Replace it?`, "Replace"))) return;
+  if (same) p.entries = p.entries.filter((x) => x.id !== same.id);
+  const was = editing; if (was) { const x = p.entries.find((y) => y.id === was); if (x) Object.assign(x, { date, pnl: sign * amt, note }); } else p.entries.push({ id: uid(), date, pnl: sign * amt, note });
+  if (save()) toast(was ? "Changes saved" : "Day added"); resetForm(); render();
+};
+$("#startForm").onsubmit = (ev) => { ev.preventDefault(); const p = me(); if (!p) { toast("Add a member first.", true); return go("team"); } const v = Math.round(Number($("#fStart").value) * 100) / 100; if (!isFinite(v) || v < 0) return toast("Write the start money as a number, like 100", true); p.start = v; $("#fStart").blur(); if (save()) toast("Start money saved"); render(); };
+
+/* ---------- on-screen charts ---------- */
+function prep(c) { const dpr = Math.min(3, window.devicePixelRatio || 1), w = c.clientWidth, h = c.clientHeight; if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); } const x = c.getContext("2d"); x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, w, h); return { x, w, h }; }
+const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function axis(x, w, h, pad, lo, hi, fmt) { x.font = '600 11px "Manrope",sans-serif'; x.textBaseline = "middle"; x.textAlign = "right"; for (let i = 0; i <= 4; i++) { const v = lo + ((hi - lo) * i) / 4, y = h - pad.b - ((h - pad.t - pad.b) * i) / 4; x.strokeStyle = "rgba(40,82,62,.6)"; x.lineWidth = 1; x.setLineDash([2, 5]); x.beginPath(); x.moveTo(pad.l, y + 0.5); x.lineTo(w - pad.r, y + 0.5); x.stroke(); x.setLineDash([]); x.fillStyle = "#8DA797"; x.fillText(fmt(v), pad.l - 8, y); } }
+const short = (v) => { const a = Math.abs(v); return (v < 0 ? "−" : "") + "$" + (a >= 1e4 ? new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(a) : a.toLocaleString("en-US", { maximumFractionDigits: a < 100 ? 2 : 0 })); };
+function drawChart(anim) { if (tab !== "ledger") return; animate("chart", anim ? 900 : 0, paintChart); }
+function paintChart(k) {
+  const c = $("#chart"), { x, w, h } = prep(c), rows = ST.rows, pad = { l: 62, r: 14, t: 14, b: 28 };
+  if (!w) return;
+  if (!rows.length) { x.fillStyle = "#8DA797"; x.font = '600 14px "Manrope",sans-serif'; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText("The chart appears after the first day is written.", w / 2, h / 2); $("#readout").textContent = ""; return; }
+  const G = css("--green"), R = css("--red"), Y = css("--yellow"), P = css("--purple"), iw = w - pad.l - pad.r, ih = h - pad.t - pad.b;
+  if (mode === "balance") {
+    const vals = [ST.start, ...rows.map((r) => r.after)]; let lo = Math.min(...vals), hi = Math.max(...vals); if (hi - lo < 1e-9) { hi += 1; lo -= 1; } const m = (hi - lo) * 0.12; lo -= m; hi += m; if (lo < 0 && Math.min(...vals) >= 0) lo = 0;
+    axis(x, w, h, pad, lo, hi, short);
+    const X = (i) => pad.l + (vals.length === 1 ? iw / 2 : (iw * i) / (vals.length - 1)), Yv = (v) => pad.t + ih - ((v - lo) / (hi - lo)) * ih;
+    const upto = (vals.length - 1) * k, pts = []; for (let i = 0; i < vals.length; i++) { if (i <= upto) pts.push([X(i), Yv(vals[i])]); else { const f = upto - (i - 1); if (f > 0) pts.push([X(i - 1) + (X(i) - X(i - 1)) * f, Yv(vals[i - 1] + (vals[i] - vals[i - 1]) * f)]); break; } }
+    const g = x.createLinearGradient(0, pad.t, 0, h - pad.b); g.addColorStop(0, "rgba(180,92,255,.38)"); g.addColorStop(1, "rgba(180,92,255,0)");
+    x.beginPath(); pts.forEach((p, i) => (i ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1]))); x.lineTo(pts[pts.length - 1][0], h - pad.b); x.lineTo(pts[0][0], h - pad.b); x.closePath(); x.fillStyle = g; x.fill();
+    x.beginPath(); pts.forEach((p, i) => (i ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1]))); x.strokeStyle = Y; x.lineWidth = 2.5; x.lineJoin = "round"; x.shadowColor = Y; x.shadowBlur = 14; x.stroke(); x.shadowBlur = 0;
+    if (vals.length <= 40) pts.forEach((p, i) => { if (i >= vals.length) return; x.beginPath(); x.arc(p[0], p[1], i === hover + 1 ? 6 : 3.5, 0, 7); x.fillStyle = i === 0 ? P : rows[i - 1] && rows[i - 1].pnl < 0 ? R : G; x.fill(); x.strokeStyle = "#050B08"; x.lineWidth = 1.5; x.stroke(); });
+    const sy = Yv(ST.start); x.strokeStyle = P; x.lineWidth = 1; x.setLineDash([6, 5]); x.beginPath(); x.moveTo(pad.l, sy); x.lineTo(w - pad.r, sy); x.stroke(); x.setLineDash([]);
+    x.fillStyle = "#8DA797"; x.font = '600 11px "Manrope",sans-serif'; x.textBaseline = "top"; x.textAlign = "center"; const step = Math.ceil(vals.length / 10); for (let i = 1; i < vals.length; i += step) x.fillText("Day " + i, X(i), h - pad.b + 9);
+    c._hit = (px) => Math.max(0, Math.min(rows.length - 1, Math.round(((px - pad.l) / iw) * (vals.length - 1)) - 1));
+  } else {
+    const vals = rows.map((r) => r.pnl); let hi = Math.max(0, ...vals), lo = Math.min(0, ...vals); if (hi - lo < 1e-9) hi = 1; const m = (hi - lo) * 0.12; hi += m; if (lo < 0) lo -= m;
+    axis(x, w, h, pad, lo, hi, short);
+    const slot = iw / vals.length, bw = Math.min(46, slot * 0.66), Yv = (v) => pad.t + ih - ((v - lo) / (hi - lo)) * ih, y0 = Yv(0);
+    vals.forEach((v, i) => { const kk = Math.max(0, Math.min(1, k * 1.6 - (i / vals.length) * 0.6)), bx = pad.l + slot * i + (slot - bw) / 2, by = Yv(v * kk), col = v >= 0 ? G : R; x.fillStyle = col; x.shadowColor = col; x.shadowBlur = i === hover ? 22 : 10; x.globalAlpha = hover < 0 || i === hover ? 1 : 0.55; x.fillRect(bx, Math.min(by, y0), bw, Math.max(1.5, Math.abs(by - y0))); });
+    x.globalAlpha = 1; x.shadowBlur = 0; x.strokeStyle = "#28523E"; x.lineWidth = 1; x.beginPath(); x.moveTo(pad.l, y0 + 0.5); x.lineTo(w - pad.r, y0 + 0.5); x.stroke();
+    x.fillStyle = "#8DA797"; x.font = '600 11px "Manrope",sans-serif'; x.textBaseline = "top"; x.textAlign = "center"; const step = Math.ceil(vals.length / 10); for (let i = 0; i < vals.length; i += step) x.fillText("Day " + (i + 1), pad.l + slot * (i + 0.5), h - pad.b + 9);
+    c._hit = (px) => Math.max(0, Math.min(vals.length - 1, Math.floor((px - pad.l) / slot)));
+  }
+  const r = rows[hover < 0 ? rows.length - 1 : hover];
+  $("#readout").innerHTML = `<b>Day ${r.n}</b> · ${niceDate(r.date)} · <b class="${r.pnl >= 0 ? "pos" : "neg"}">${signed(r.pnl)}</b>${r.pct == null ? "" : " (" + pctText(r.pct) + ")"} · balance <b>${money(r.after)}</b>`;
+}
+const chartEl = $("#chart");
+chartEl.addEventListener("pointermove", (e) => { if (!chartEl._hit || !ST.rows.length) return; const i = chartEl._hit(e.clientX - chartEl.getBoundingClientRect().left); if (i !== hover) { hover = i; paintChart(1); } });
+chartEl.addEventListener("pointerleave", () => { if (hover !== -1) { hover = -1; paintChart(1); } });
+$$("#chartMode button").forEach((b) => (b.onclick = () => { mode = b.dataset.m; hover = -1; $$("#chartMode button").forEach((y) => y.setAttribute("aria-pressed", String(y === b))); drawChart(true); }));
+
+/* ---------- banknote drawing (PnL card and calculator image) ---------- */
+const SERIF = '"Playfair Display", Georgia, "Times New Roman", serif';
+const fontsReady = () => (document.fonts && document.fonts.load ? Promise.all([document.fonts.load('700 20px "Playfair Display"'), document.fonts.load('900 20px "Playfair Display"')]).catch(() => {}) : Promise.resolve());
+function spaced(x, str, px, py, sp, align) { const ch = [...String(str)], ws = ch.map((c) => x.measureText(c).width); const total = ws.reduce((a, b) => a + b, 0) + sp * Math.max(0, ch.length - 1); let cx = align === "center" ? px - total / 2 : align === "right" ? px - total : px; x.textAlign = "left"; ch.forEach((c, i) => { x.fillText(c, cx, py); cx += ws[i] + sp; }); return total; }
+function fit(x, weight, size, str, maxW, sp) { for (;;) { x.font = `${weight} ${size}px ${SERIF}`; const w = x.measureText(str).width + (sp || 0) * Math.max(0, [...str].length - 1); if (w <= maxW || size <= 8) return size; size -= 1; } }
+function arcText(x, str, cx, cy, r, sp, top) { const ch = [...String(str)], ws = ch.map((c) => x.measureText(c).width + sp), total = ws.reduce((a, b) => a + b, 0) / r; let a = -total / 2; x.textAlign = "center"; x.textBaseline = "middle"; ch.forEach((c, i) => { const mid = a + ws[i] / r / 2, th = top ? -Math.PI / 2 + mid : Math.PI / 2 - mid; x.save(); x.translate(cx + r * Math.cos(th), cy + r * Math.sin(th)); x.rotate(top ? th + Math.PI / 2 : th - Math.PI / 2); x.fillText(c, 0, 0); x.restore(); a += ws[i] / r; }); x.textBaseline = "alphabetic"; }
+function rosePath(x, cx, cy, R, waves, depth, rings) { for (let j = 0; j < rings; j++) { const ph = (j / rings) * Math.PI * 2; x.beginPath(); for (let i = 0; i <= 180; i++) { const t = (i / 180) * Math.PI * 2, r = R * (1 - depth + depth * Math.cos(waves * t + ph)), px = cx + r * Math.cos(t), py = cy + r * Math.sin(t); i ? x.lineTo(px, py) : x.moveTo(px, py); } x.closePath(); x.stroke(); } }
+function bandH(x, x0, x1, y, hgt, ink) { x.save(); x.beginPath(); x.rect(x0, y, x1 - x0, hgt); x.clip(); x.strokeStyle = ink; x.lineWidth = 0.9; for (let k = 0; k < 3; k++) { x.beginPath(); for (let px = x0; px <= x1; px += 2) { const py = y + hgt / 2 + Math.sin((px - x0) / (9 + k * 3) + k * 2.1) * (hgt / 2 - 2); px === x0 ? x.moveTo(px, py) : x.lineTo(px, py); } x.stroke(); } x.restore(); x.strokeStyle = ink; x.lineWidth = 1.2; x.strokeRect(x0, y, x1 - x0, hgt); }
+function bandV(x, y0, y1, xx, wid, ink) { x.save(); x.beginPath(); x.rect(xx, y0, wid, y1 - y0); x.clip(); x.strokeStyle = ink; x.lineWidth = 0.9; for (let k = 0; k < 3; k++) { x.beginPath(); for (let py = y0; py <= y1; py += 2) { const px = xx + wid / 2 + Math.sin((py - y0) / (9 + k * 3) + k * 2.1) * (wid / 2 - 2); py === y0 ? x.moveTo(px, py) : x.lineTo(px, py); } x.stroke(); } x.restore(); x.strokeStyle = ink; x.lineWidth = 1.2; x.strokeRect(xx, y0, wid, y1 - y0); }
+function cornerBox(x, bx, by, s, ink, paper) { x.fillStyle = ink; x.fillRect(bx, by, s, s); x.strokeStyle = paper; x.lineWidth = 1.5; x.strokeRect(bx + 5, by + 5, s - 10, s - 10); x.beginPath(); x.arc(bx + s / 2, by + s / 2, s * 0.33, 0, 7); x.lineWidth = 1.2; x.stroke(); x.fillStyle = paper; x.font = `900 ${s * 0.5}px ${SERIF}`; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText("$", bx + s / 2, by + s / 2 + s * 0.02); x.textBaseline = "alphabetic"; }
+function sealStamp(x, cx, cy, r, ink, paper, word, ringTop, ringBottom) { x.save(); x.translate(cx, cy); x.rotate((-14 * Math.PI) / 180); const teeth = 28; x.beginPath(); for (let i = 0; i < teeth * 2; i++) { const a = (i / (teeth * 2)) * Math.PI * 2, rr = i % 2 ? r : r * 0.93; i ? x.lineTo(rr * Math.cos(a), rr * Math.sin(a)) : x.moveTo(rr * Math.cos(a), rr * Math.sin(a)); } x.closePath(); x.fillStyle = ink; x.fill(); x.strokeStyle = paper; x.lineWidth = 1.2; x.beginPath(); x.arc(0, 0, r * 0.86, 0, 7); x.stroke(); x.beginPath(); x.arc(0, 0, r * 0.52, 0, 7); x.stroke(); x.fillStyle = paper; x.font = `700 ${r * 0.15}px ${SERIF}`; arcText(x, ringTop, 0, 0, r * 0.69, 1.6, true); arcText(x, ringBottom, 0, 0, r * 0.69, 1.6, false); const sz = fit(x, 900, r * 0.25, word, r * 0.9, 1.5); x.font = `900 ${sz}px ${SERIF}`; x.textBaseline = "middle"; spaced(x, word, 0, 1, 1.5, "center"); x.textBaseline = "alphabetic"; x.restore(); }
+// the paper, borders, bands, small print and the four corner boxes
+function noteFrame(x, W, H, ink, paper) {
+  x.fillStyle = paper; x.fillRect(0, 0, W, H);
+  x.save(); x.globalAlpha = 0.1; x.strokeStyle = ink; x.lineWidth = 0.8; for (let y = 70; y < H - 60; y += 9) { x.beginPath(); for (let px = 30; px <= W - 30; px += 6) { const py = y + Math.sin(px / 38 + y / 30) * 3; px === 30 ? x.moveTo(px, py) : x.lineTo(px, py); } x.stroke(); } x.restore();
+  x.save(); x.globalAlpha = 0.13; x.strokeStyle = ink; x.lineWidth = 0.7; rosePath(x, W * 0.1, H * 0.34, 190, 12, 0.24, 14); rosePath(x, W * 0.43, H * 0.3, 150, 10, 0.26, 12); rosePath(x, W * 0.86, H * 0.74, 170, 14, 0.22, 14); x.restore();
+  x.strokeStyle = ink; x.lineWidth = 8; x.strokeRect(9, 9, W - 18, H - 18); x.lineWidth = 2; x.strokeRect(24, 24, W - 48, H - 48);
+  bandH(x, 110, W - 110, 38, 26, ink); bandH(x, 110, W - 110, H - 64, 26, ink); bandV(x, 112, H - 112, 30, 34, ink); bandV(x, 112, H - 112, W - 64, 34, ink);
+  x.fillStyle = ink; x.font = `700 7px ${SERIF}`; x.save(); x.beginPath(); x.rect(150, 68, W - 300, 14); x.rect(150, H - 84, W - 300, 14); x.clip(); const mt = "NL SNIP BOT · ".repeat(40); spaced(x, mt, 156, 79, 2.2); spaced(x, mt, 156, H - 73, 2.2); x.restore();
+  cornerBox(x, 28, 28, 80, ink, paper); cornerBox(x, W - 108, 28, 80, ink, paper); cornerBox(x, 28, H - 108, 80, ink, paper); cornerBox(x, W - 108, H - 108, 80, ink, paper);
+}
+const serial = (letter) => { const d = new Date(); return `NL ${String(d.getDate()).padStart(2, "0")}${String(d.getMonth() + 1).padStart(2, "0")}${d.getFullYear()} ${letter}`; };
+const capDate = (iso) => niceDate(iso).toUpperCase();
+const loadImg = (src) => new Promise((res) => { if (!src) return res(null); const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = src; });
+
+/* ---------- PnL card ---------- */
+function fillScope() { const s = $("#cardScope"), keep = s.value; s.innerHTML = `<option value="all">All days together (${ST.days} day${ST.days === 1 ? "" : "s"})</option>` + [...ST.rows].reverse().map((r) => `<option value="${r.id}">Day ${r.n} · ${niceDate(r.date)} · ${signed(r.pnl)}</option>`).join(""); if ([...s.options].some((o) => o.value === keep)) s.value = keep; }
+$("#cardScope").onchange = () => drawCard();
+function cardData() {
+  const p = me(), v = $("#cardScope").value, row = ST.rows.find((r) => r.id === v);
+  if (row) return { name: p.name, photo: p.photo, pnl: row.pnl, pct: row.pct, a: ["START", money(row.before)], b: ["END", money(row.after)], sub: `DAILY PLAN · DAY ${row.n}`, date: capDate(row.date), has: row.before > 0, file: `day-${row.n}` };
+  const last = ST.rows[ST.rows.length - 1];
+  return { name: p ? p.name : "DAILY PLAN", photo: p && p.photo, pnl: ST.total, pct: ST.pct, a: ST.start > 0 ? ["START", money(ST.start)] : ["DAYS", String(ST.days)], b: ST.start > 0 ? ["NOW", money(ST.now)] : ["WON", String(ST.wins)], sub: `DAILY PLAN · ${ST.days} DAY${ST.days === 1 ? "" : "S"}`, date: capDate(last ? last.date : today()), has: ST.start > 0, file: "all-days" };
+}
+let cardJob = 0;
+async function drawCard() {
+  const job = ++cardJob, d = cardData(); await fontsReady(); const img = await loadImg(d.photo); if (job !== cardJob) return;
+  const c = $("#cardCv"), x = c.getContext("2d"), W = 1280, H = 620; x.setTransform(2, 0, 0, 2, 0, 0);
+  const loss = d.pnl < 0, ink = loss ? "#7A1E24" : "#1C4A2E", paper = loss ? "#EFE2DA" : "#E3ECD9";
+  noteFrame(x, W, H, ink, paper);
+  // medallion
+  const mx = 296, my = 300; x.strokeStyle = ink; x.fillStyle = paper; x.lineWidth = 5; x.beginPath(); x.ellipse(mx, my, 172, 196, 0, 0, 7); x.fill(); x.stroke(); x.lineWidth = 1.2; x.beginPath(); x.ellipse(mx, my, 162, 186, 0, 0, 7); x.stroke();
+  x.save(); x.beginPath(); x.ellipse(mx, my, 160, 184, 0, 0, 7); x.clip(); x.globalAlpha = 0.35; x.lineWidth = 0.8; for (let i = 0; i < 90; i++) { const a = (i / 90) * Math.PI * 2; x.beginPath(); x.moveTo(mx + 116 * Math.cos(a), my + 116 * Math.sin(a)); x.lineTo(mx + 200 * Math.cos(a), my + 200 * Math.sin(a)); x.stroke(); } x.restore();
+  x.fillStyle = paper; x.beginPath(); x.ellipse(mx, my - 146, 104, 22, 0, 0, 7); x.fill(); x.beginPath(); x.ellipse(mx, my + 140, 112, 22, 0, 0, 7); x.fill();
+  x.fillStyle = ink; const nm = String(d.name).toUpperCase().slice(0, 18); x.font = `700 ${nm.length > 12 ? 17 : 21}px ${SERIF}`; arcText(x, nm, mx, my + 20, 170, 6, true); x.font = `700 15px ${SERIF}`; arcText(x, d.sub, mx, my - 30, 172, 4, false);
+  const teeth = 30; x.beginPath(); for (let i = 0; i < teeth * 2; i++) { const a = (i / (teeth * 2)) * Math.PI * 2, rr = i % 2 ? 112 : 102; i ? x.lineTo(mx + rr * Math.cos(a), my + rr * Math.sin(a)) : x.moveTo(mx + rr * Math.cos(a), my + rr * Math.sin(a)); } x.closePath(); x.fillStyle = ink; x.fill();
+  x.fillStyle = paper; x.beginPath(); x.arc(mx, my, 94, 0, 7); x.fill(); x.save(); x.strokeStyle = ink; x.lineWidth = 0.7; x.globalAlpha = 0.8; rosePath(x, mx, my, 91, 20, 0.06, 6); x.restore();
+  if (img) { const s = Math.min(img.width, img.height); x.save(); x.beginPath(); x.arc(mx, my, 76, 0, 7); x.clip(); x.drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, mx - 76, my - 76, 152, 152); x.restore(); x.strokeStyle = ink; x.lineWidth = 4; x.beginPath(); x.arc(mx, my, 76, 0, 7); x.stroke(); }
+  else { x.fillStyle = ink; x.beginPath(); x.arc(mx, my, 70, 0, 7); x.fill(); x.fillStyle = paper; x.font = `900 96px ${SERIF}`; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText("$", mx, my + 4); x.textBaseline = "alphabetic"; }
+  // text side
+  x.fillStyle = ink; x.font = `700 34px ${SERIF}`; spaced(x, loss ? "RECORDED LOSS NOTE" : "CERTIFIED PROFIT NOTE", 545, 112, 6);
+  x.font = `700 15px ${SERIF}`; spaced(x, serial(loss ? "L" : "P"), 538, 148, 3); spaced(x, d.date, 1198, 148, 3, "right");
+  const lead = spaced(x, `THIS NOTE RECORDS A ${loss ? "LOSS" : "PROFIT"} OF`, 538, 180, 4); const amt = signed(d.pnl, "-"); x.font = `900 ${fit(x, 900, 28, amt, 1196 - 538 - lead - 22)}px ${SERIF}`; x.textAlign = "left"; x.fillText(amt, 538 + lead + 22, 184);
+  const bigT = d.has && d.pct != null ? pctText(d.pct, "-") : amt, size = fit(x, 900, 150, bigT, 640); x.font = `900 ${size}px ${SERIF}`; x.textAlign = "left"; const by = 324 - (150 - size) * 0.25; x.save(); x.globalAlpha = 0.22; x.fillText(bigT, 546, by + 6); x.restore(); x.fillText(bigT, 540, by);
+  x.fillRect(538, 360, 658, 2.5);
+  const box = (bx, lab, val) => { x.strokeStyle = ink; x.lineWidth = 2.5; x.strokeRect(bx, 392, 206, 96); x.lineWidth = 1; x.strokeRect(bx + 6, 398, 194, 84); x.fillStyle = ink; x.font = `700 14px ${SERIF}`; spaced(x, lab, bx + 103, 424, 3, "center"); x.font = `900 ${fit(x, 900, 34, val, 180)}px ${SERIF}`; x.textAlign = "center"; x.fillText(val, bx + 103, 466); };
+  box(538, d.a[0], d.a[1]); box(816, d.b[0], d.b[1]);
+  x.strokeStyle = ink; x.lineWidth = 2.5; x.beginPath(); x.moveTo(762, 440); x.lineTo(798, 440); x.moveTo(788, 431); x.lineTo(798, 440); x.lineTo(788, 449); x.stroke();
+  sealStamp(x, 1118, 440, 66, ink, paper, loss ? "LOSS" : "PROFIT", "DAILY PLAN RECORD", "NL SNIP BOT");
+  x.fillStyle = ink; x.font = `700 15px ${SERIF}`; spaced(x, "CREATED BY NAHAL", 130, 531, 4); spaced(x, "NL SNIP BOT", 1152, 531, 4, "right");
+  c._file = `nl-daily-plan-${fileSafe(d.name)}-${d.file}.png`;
+}
+$("#cardDl").onclick = async () => { if (!me()) { toast("Add a member first.", true); return go("team"); } await drawCard(); download($("#cardCv"), $("#cardCv")._file || "nl-daily-plan-card.png"); };
+
+/* ---------- calculator ---------- */
+let cN = 30, CALC = null;
+$$("#cDays button").forEach((b) => (b.onclick = () => { cN = Number(b.dataset.d); $$("#cDays button").forEach((y) => y.setAttribute("aria-pressed", String(y === b))); calc(true); }));
+["cAmt", "cPct"].forEach((id) => ($("#" + id).oninput = () => calc(false)));
+function calc(anim) {
+  const a = Math.min(1e6, Math.max(0, Number($("#cAmt").value) || 0)), p = Math.min(100, Math.max(0, Number($("#cPct").value) || 0)), rows = []; let bal = a;
+  for (let i = 1; i <= cN; i++) { const g = bal * (p / 100); rows.push({ n: i, before: bal, gain: g, after: bal + g }); bal += g; }
+  CALC = { a, p, n: cN, rows, final: bal };
+  $("#cHead").textContent = `After ${cN} days`; countTo($("#cFinal"), "cfinal", bal, money);
+  $("#cSub").textContent = a > 0 ? `${signed(bal - a)} profit · ${(bal / a).toLocaleString("en-US", { maximumFractionDigits: bal / a >= 100 ? 0 : 2 })} times the start` : "Write a start amount";
+  $("#cWarn1").textContent = `Completing all ${cN} days is not guaranteed. A loss is possible on any day.`;
+  $("#cRows").innerHTML = rows.map((r) => `<tr style="animation-delay:${Math.min(r.n, 14) * 22}ms"><td><span class="day">${r.n}</span></td><td class="r num">${money(r.before)}</td><td class="r num pos">+${money(r.gain)}</td><td class="r num"><b>${money(r.after)}</b></td></tr>`).join("");
+  if (tab === "calc") animate("calc", anim ? 900 : 0, paintCalc);
+}
+function paintCalc(k) {
+  const c = $("#calcChart"), { x, w, h } = prep(c), pad = { l: 62, r: 14, t: 14, b: 28 }, d = CALC; if (!w || !d) return;
+  const hi = Math.max(1, d.final) * 1.08, iw = w - pad.l - pad.r, ih = h - pad.t - pad.b; axis(x, w, h, pad, 0, hi, short);
+  const slot = iw / d.n, bw = Math.min(40, slot * 0.68), G = css("--green"), P = css("--purple"), Y = css("--yellow"), yb = h - pad.b;
+  d.rows.forEach((r, i) => { const kk = Math.max(0, Math.min(1, k * 1.6 - (i / d.n) * 0.6)), bx = pad.l + slot * i + (slot - bw) / 2, hb = (d.a / hi) * ih * kk, ht = (r.after / hi) * ih * kk; x.shadowBlur = 10; x.shadowColor = G; x.fillStyle = G; x.fillRect(bx, yb - ht, bw, Math.max(0, ht - hb)); x.shadowColor = P; x.fillStyle = P; x.fillRect(bx, yb - hb, bw, hb); });
+  x.shadowBlur = 12; x.shadowColor = Y; x.strokeStyle = Y; x.lineWidth = 2; x.beginPath(); d.rows.forEach((r, i) => { const kk = Math.max(0, Math.min(1, k * 1.6 - (i / d.n) * 0.6)), px = pad.l + slot * (i + 0.5), py = yb - (r.after / hi) * ih * kk; i ? x.lineTo(px, py) : x.moveTo(px, py); }); x.stroke(); x.shadowBlur = 0;
+  x.fillStyle = "#8DA797"; x.font = '600 11px "Manrope",sans-serif'; x.textBaseline = "top"; x.textAlign = "center"; const step = d.n > 20 ? 5 : d.n > 10 ? 2 : 1; for (let i = step - 1; i < d.n; i += step) x.fillText("Day " + (i + 1), pad.l + slot * (i + 0.5), yb + 9);
+}
+async function calcImage() {
+  const d = CALC; await fontsReady(); const rowsN = Math.ceil(d.n / 10), W = 1280, H = 612 + rowsN * 50 + 232, c = document.createElement("canvas"); c.width = W * 2; c.height = H * 2; const x = c.getContext("2d"); x.scale(2, 2);
+  const ink = "#1C4A2E", paper = "#E3ECD9"; noteFrame(x, W, H, ink, paper);
+  x.fillStyle = ink; x.font = `700 34px ${SERIF}`; spaced(x, "DAILY PLAN CALCULATION", 130, 124, 6);
+  x.font = `700 15px ${SERIF}`; spaced(x, serial("C"), 130, 156, 3); spaced(x, capDate(today()), 1150, 156, 3, "right");
+  spaced(x, `START ${money(d.a)}   ·   ${d.p}% PROFIT A DAY   ·   ${d.n} DAYS`, 130, 190, 3);
+  const fin = money(d.final); x.font = `900 ${fit(x, 900, 92, fin, 600)}px ${SERIF}`; x.textAlign = "left"; x.save(); x.globalAlpha = 0.22; x.fillText(fin, 134, 290); x.restore(); x.fillText(fin, 130, 286);
+  x.font = `700 15px ${SERIF}`; spaced(x, `CALCULATED BALANCE AFTER ${d.n} DAYS`, 1150, 246, 3, "right"); const pr = `PROFIT +${money(d.final - d.a)}`; x.font = `900 ${fit(x, 900, 28, pr, 400)}px ${SERIF}`; x.textAlign = "right"; x.fillText(pr, 1150, 286);
+  x.fillRect(130, 306, 1020, 2.5);
+  // chart
+  const cx0 = 130, cx1 = 1150, cyb = 560, ch = 215, slot = (cx1 - cx0) / d.n, bw = Math.min(46, slot * 0.62), hi = Math.max(1, d.final);
+  x.save(); x.globalAlpha = 0.3; x.lineWidth = 1; x.strokeStyle = ink; for (let i = 1; i <= 4; i++) { const y = cyb - (ch * i) / 4; x.setLineDash([2, 5]); x.beginPath(); x.moveTo(cx0, y); x.lineTo(cx1, y); x.stroke(); } x.restore();
+  d.rows.forEach((r, i) => { const bx = cx0 + slot * i + (slot - bw) / 2, ht = Math.max(1.5, (r.after / hi) * ch), hb = Math.min(ht, (d.a / hi) * ch); x.fillStyle = ink; x.fillRect(bx, cyb - ht, bw, ht); x.save(); x.globalAlpha = 0.45; x.fillStyle = paper; x.fillRect(bx + 2, cyb - hb, bw - 4, Math.max(0, hb - 2)); x.restore(); x.fillStyle = ink; x.font = `700 10px ${SERIF}`; x.textAlign = "center"; x.fillText(String(r.n), bx + bw / 2, cyb + 15); });
+  x.fillRect(cx0, cyb, cx1 - cx0, 2);
+  x.font = `700 11px ${SERIF}`; x.textAlign = "left"; x.fillText("DAY", cx0 - 34, cyb + 15);
+  // table: ten days in a row
+  const ty = 596, cw = 102, rh = 50; x.font = `700 12px ${SERIF}`; spaced(x, "BALANCE AT THE END OF EACH DAY", 130, ty - 2, 3);
+  d.rows.forEach((r, i) => { const col = i % 10, row = Math.floor(i / 10), bx = 130 + col * cw, by = ty + 12 + row * rh; x.strokeStyle = ink; x.lineWidth = 1; x.strokeRect(bx + 0.5, by + 0.5, cw - 6, rh - 8); x.fillStyle = ink; x.font = `700 9px ${SERIF}`; spaced(x, "DAY " + r.n, bx + 8, by + 15, 1.5); const v = money(r.after); x.font = `900 ${fit(x, 900, 15, v, cw - 20)}px ${SERIF}`; x.textAlign = "left"; x.fillText(v, bx + 8, by + 34); });
+  // the two notices and the seal
+  const ny = ty + 12 + rowsN * rh + 14; x.strokeStyle = ink; x.lineWidth = 2; x.strokeRect(130, ny, 800, 84); x.lineWidth = 1; x.strokeRect(135, ny + 5, 790, 74);
+  x.fillStyle = ink; x.fillRect(150, ny + 24, 8, 8); x.fillRect(150, ny + 52, 8, 8);
+  const n1 = `Completing all ${d.n} days is not guaranteed. A loss is possible on any day.`, n2 = "This chart only calculates the numbers for you. It does not help you make a profit.";
+  x.font = `700 ${Math.min(fit(x, 700, 18, n1, 740), fit(x, 700, 18, n2, 740))}px ${SERIF}`; x.textAlign = "left"; x.fillText(n1, 170, ny + 34); x.fillText(n2, 170, ny + 62);
+  sealStamp(x, 1050, ny + 50, 62, ink, paper, "PLAN", "CALCULATION ONLY", "NL SNIP BOT");
+  x.fillStyle = ink; x.font = `700 15px ${SERIF}`; spaced(x, "CREATED BY NAHAL", 130, H - 91, 4); spaced(x, "NL SNIP BOT", 1150, H - 91, 4, "right");
+  return c;
+}
+$("#calcDl").onclick = async () => { if (!CALC || !(CALC.a > 0) || !(CALC.p > 0)) return toast("Write the start amount and the percent first.", true); download(await calcImage(), `nl-daily-plan-${CALC.n}-days-${CALC.p}pct.png`); };
+
+/* ---------- team ---------- */
+function renderTeam() {
+  $("#team").innerHTML = DB.profiles.map((p) => { const s = stats(p), cur = p.id === DB.active; return `<div class="member${cur ? " cur" : ""}">${cur ? '<span class="tag">Open</span>' : ""}<div class="row">${avatar(p)}<h3>${esc(p.name)}</h3></div><div class="tot num ${s.total < 0 ? "neg" : "pos"}">${signed(s.total)}</div><div class="hint" style="margin:0 0 14px">${s.days} day${s.days === 1 ? "" : "s"} written${s.pct != null && s.days ? " · " + pctText(s.pct) : ""}</div><div class="row">${cur ? "" : `<button class="btn sm" data-open="${p.id}">Open</button>`}<button class="btn ghost sm" data-edit="${p.id}">Edit</button><button class="btn danger sm" data-del="${p.id}">Delete</button></div></div>`; }).join("") + `<button class="member add" type="button" data-new="1">Add a member</button>`;
+}
+$("#team").onclick = async (ev) => {
+  const b = ev.target.closest("button"); if (!b) return;
+  if (b.dataset.new) return openProfile(null);
+  if (b.dataset.open) { DB.active = b.dataset.open; save(); shown.total = shown.start = shown.now = null; resetForm(); render(); return go("ledger"); }
+  if (b.dataset.edit) return openProfile(DB.profiles.find((p) => p.id === b.dataset.edit));
+  if (b.dataset.del) { const p = DB.profiles.find((y) => y.id === b.dataset.del); if (!p || !(await ask(`Delete ${p.name} and all ${p.entries.length} of its days? This cannot be undone.`, "Delete"))) return; DB.profiles = DB.profiles.filter((y) => y.id !== p.id); if (DB.active === p.id) DB.active = DB.profiles[0] ? DB.profiles[0].id : null; if (save()) toast("Deleted"); resetForm(); render(); renderTeam(); }
+};
+let profEdit = null, profPhoto = "";
+function profAva() { $("#profAva").outerHTML = profPhoto ? `<img id="profAva" class="ava" src="${profPhoto}" alt="">` : `<span id="profAva" class="ava txt">$</span>`; $("#profClear").hidden = !profPhoto; }
+function openProfile(p) { profEdit = p ? p.id : null; profPhoto = (p && p.photo) || ""; $("#profTitle").textContent = p ? "Edit member" : "New member"; $("#profName").value = p ? p.name : ""; $("#profStart").value = p && p.start ? p.start : ""; profAva(); $("#dlgProfile").showModal(); $("#profName").focus(); }
+$("#profPick").onclick = () => $("#profFile").click();
+$("#profClear").onclick = () => { profPhoto = ""; profAva(); };
+$("#profCancel").onclick = () => $("#dlgProfile").close();
+$("#profFile").onchange = (ev) => { const f = ev.target.files[0]; ev.target.value = ""; if (!f) return; if (!/^image\//.test(f.type)) return toast("Choose a picture file.", true); const r = new FileReader(); r.onload = async () => { const img = await loadImg(r.result); if (!img) return toast("That picture could not be opened.", true); const s = Math.min(img.width, img.height), c = document.createElement("canvas"); c.width = c.height = 320; c.getContext("2d").drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, 320, 320); profPhoto = c.toDataURL("image/jpeg", 0.86); profAva(); }; r.readAsDataURL(f); };
+$("#profForm").onsubmit = (ev) => {
+  ev.preventDefault(); const name = $("#profName").value.trim(), start = Math.round((Number($("#profStart").value) || 0) * 100) / 100; if (!name) return toast("Write a name.", true); if (start < 0) return toast("Start money cannot be below zero.", true);
+  let p = DB.profiles.find((y) => y.id === profEdit); if (p) Object.assign(p, { name, photo: profPhoto, start }); else { p = { id: uid(), name, photo: profPhoto, start, entries: [] }; DB.profiles.push(p); DB.active = p.id; shown.total = shown.start = shown.now = null; }
+  if (!save()) { if (profPhoto) toast("The photo is too large for this device's storage. Try a smaller picture.", true); return; }
+  $("#dlgProfile").close(); toast("Profile saved"); render(); renderTeam();
+};
+$("#bkSave").onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify({ app: "nl-daily-plan", saved: new Date().toISOString(), ...DB })], { type: "application/json" })); a.download = `nl-daily-plan-backup-${today()}.json`; document.body.appendChild(a); a.click(); a.remove(); toast("Backup file saved"); };
+$("#bkLoad").onclick = () => $("#bkFile").click();
+$("#bkFile").onchange = (ev) => { const f = ev.target.files[0]; ev.target.value = ""; if (!f) return; const r = new FileReader(); r.onload = async () => { let d; try { d = JSON.parse(r.result); } catch (e) { d = null; } if (!d || !Array.isArray(d.profiles) || !d.profiles.every((p) => p && typeof p.name === "string" && Array.isArray(p.entries))) return toast("This is not a Daily Plan backup file.", true); if (DB.profiles.length && !(await ask(`Replace what is on this device with the backup (${d.profiles.length} member${d.profiles.length === 1 ? "" : "s"})?`, "Replace"))) return; DB = { active: d.active, profiles: d.profiles.map((p) => ({ id: String(p.id || uid()), name: String(p.name).slice(0, 24), photo: /^data:image\//.test(p.photo || "") ? p.photo : "", start: Math.max(0, Number(p.start) || 0), entries: p.entries.filter((e) => e && /^\d{4}-\d\d-\d\d$/.test(e.date) && isFinite(Number(e.pnl))).map((e) => ({ id: String(e.id || uid()), date: e.date, pnl: Number(e.pnl), note: String(e.note || "").slice(0, 60) })) })) }; if (!DB.profiles.some((p) => p.id === DB.active)) DB.active = DB.profiles[0] ? DB.profiles[0].id : null; if (save()) toast("Backup loaded"); shown.total = shown.start = shown.now = null; render(); renderTeam(); }; r.readAsText(f); };
+
+/* ---------- start ---------- */
+resetForm(); render(); calc(false);
+requestAnimationFrame(() => setTimeout(() => $("#note").classList.remove("print"), 80));
+let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { fitTotal(); if (tab === "ledger") paintChart(1); if (tab === "calc") paintCalc(1); }, 120); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { fitTotal(); if (tab === "ledger") paintChart(1); if (tab === "pnl") drawCard(); });
+if (!DB.profiles.length) setTimeout(() => openProfile(null), 900);
+})();
+</script>
+</body>
+</html>
